@@ -22,6 +22,7 @@ namespace PlanBuild.Client
         private readonly Dictionary<string, Dictionary<string, long>> chests = new Dictionary<string, Dictionary<string, long>>();
         private readonly HashSet<string> marked = new HashSet<string>();
         public int ChestCount => chests.Count;
+        public string[] CheckedNames => marked.OrderBy(name => name, StringComparer.Ordinal).ToArray();
         public void Observe(string chest, IEnumerable<KeyValuePair<string, int>> items) => chests[chest] = BuildMaterials.Total(items);
         public void ForgetChests() => chests.Clear();
         public void ClearChecks() => marked.Clear();

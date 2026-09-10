@@ -24,6 +24,12 @@ namespace PlanBuild.Client
         public bool Contains(float originHeight) => !Selected.HasValue || Index(originHeight) == Selected.Value;
         public void All() => Selected = null;
         public void Bottom() { if (available.Length > 0) Selected = available[0]; }
+        public bool Select(int? layer)
+        {
+            if (layer.HasValue && Array.IndexOf(available, layer.Value) < 0) return false;
+            Selected = layer;
+            return true;
+        }
 
         public void Move(int direction)
         {

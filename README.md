@@ -16,7 +16,7 @@ Compatibility checks target Valheim **1.0.7** (Steam build 25185596), using BepI
 
 You must carry the materials yourself. Nearby containers do not satisfy assistance's inventory check. Normal hammer reach, recipe knowledge, crafting stations, wards and placement restrictions still apply. Free-build world settings must be disabled for assistance. Scaled imports remain visual guides because normal hammer placement cannot reproduce arbitrary scales.
 
-Select **Preview only** for ordinary hammer behavior. The selected mode stays visibly highlighted and explained in the Build tab and HUD. Hold Shift while adjusting position for 1 m steps. The hologram remains fixed until cleared or you leave the world; placement positions are not saved across sessions.
+Select **Preview only** for ordinary hammer behavior. The selected mode stays visibly highlighted and explained in the Build tab and HUD. Hold Shift while adjusting position for 1 m steps. The hologram stays fixed as you move around. Its blueprint, position, rotation, selected layer and gathering checkmarks are saved automatically for each character and world.
 
 The planner key and blueprint directory are configurable under `[Client]` in `marcopogo.PlanBuild.cfg`. Blueprint files stay on your computer. Files can be shared manually.
 
@@ -53,6 +53,12 @@ Only the selected layer's missing pieces are shown or eligible for assisted plac
 This is a replacement for the original shared planning workflow. Plan Hammer, rune inventory items, totems, shared plans, server blueprint sharing, terrain tools and direct bulk building are no longer registered. Old server settings do not apply.
 
 Back up characters and worlds that contain original PlanBuild items or planned pieces before switching. This version does not migrate those networked objects. Finish or remove old plans with the original mod first. Existing local blueprint files can still be imported.
+
+## Saved placements
+
+Reconnect with the same character to the same world to restore your last active hologram. Local saves live in `BepInEx/config/PlanBuild/placements`. They include a blueprint copy, so moving the original import file does not lose the plan. Completed real pieces are rediscovered from the world rather than trusted from the save.
+
+Autobuild is always off after reconnecting. Chest observations are session-only. **Clear hologram** also clears its saved placement. Invalid saves are preserved and reported in the planner so you can load a blueprint manually without losing the old file.
 
 ## Development
 

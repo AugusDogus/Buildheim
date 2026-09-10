@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using BepInEx;
 using Jotunn.Managers;
 using UnityEngine;
 
@@ -12,6 +14,7 @@ namespace PlanBuild.Client
         private readonly ProjectionControls controls;
         private readonly ChestObservation chests;
         private readonly PlannerWindow view;
+        private readonly PlacementSession session = new PlacementSession();
         private ZNetScene scene;
         private float nextProgressCheck;
         public ClientConfig Config { get; }
@@ -37,19 +40,23 @@ namespace PlanBuild.Client
         {
             if (scene != ZNetScene.instance)
             {
-                Clear();
+                SaveSession();
+                ResetProjection();
+                session.Reset();
                 chests.Dispose();
                 SetVisible(false);
                 scene = ZNetScene.instance;
             }
             if (!Player.m_localPlayer || Player.m_localPlayer.IsDead())
             {
+                SaveSession();
                 Mode = BuildMode.Assisted;
                 SetVisible(false);
                 assistance.SetProjection(null);
                 view.Hide();
                 return;
             }
+            if (!session.Active && ZNet.instance && ZNet.instance.GetWorld() != null && Player.m_localPlayer.GetPlayerID() != 0) RestoreSession();
             if (Projection != null)
             {
                 chests.Update();
@@ -57,6 +64,7 @@ namespace PlanBuild.Client
                 {
                     ProjectionProgress.Refresh(Projection);
                     nextProgressCheck = Time.time + 0.5f;
+                    SaveSession();
                 }
             }
             bool otherInput = (Settings.instance && Settings.instance.isActiveAndEnabled) ||
@@ -115,11 +123,13 @@ namespace PlanBuild.Client
         {
             if (!BlueprintLibrary.TryLoad(file, out var document, out var error) ||
                 !BlueprintProjection.TryCreate(document, out var next, out error)) { Status = error; return false; }
-            Clear();
+            ResetProjection();
+            session.SetDocument(document);
             Projection = next;
             Projection.Position = Player.m_localPlayer.transform.position;
             ProjectionProgress.Refresh(Projection);
             Status = "Blueprint loaded. Close the planner to position it with modifier keys and the wheel.";
+            SaveSession();
             return true;
         }
 
@@ -145,7 +155,40 @@ namespace PlanBuild.Client
             Projection.Position = Player.m_localPlayer.transform.position;
             ProjectionProgress.Refresh(Projection);
         }
+        private void RestoreSession()
+        {
+            string directory = Path.Combine(Paths.ConfigPath, "PlanBuild", "placements");
+            if (!session.Open(directory, ZNet.instance.GetWorldUID(), Player.m_localPlayer.GetPlayerID(), out var save, out var error))
+            { if (error.Length > 0) Status = error; return; }
+            if (!BlueprintDocument.TryParse(save.Name, save.Blueprint, false, out var document, out error) ||
+                !BlueprintProjection.TryCreate(document, out var restored, out error))
+            { Status = "Saved hologram could not be restored. " + error; return; }
+            Projection = restored;
+            session.SetDocument(document);
+            Projection.Position = new Vector3(save.X, save.Y, save.Z);
+            Projection.Yaw = save.Yaw;
+            Projection.Layers.SetHeight(save.LayerHeight);
+            bool restoredLayer = Projection.Layers.Select(save.Layer);
+            Mode = save.PreviewOnly ? BuildMode.Guide : BuildMode.Assisted;
+            foreach (string material in save.CheckedMaterials) Materials.Check(material, true);
+            ProjectionProgress.Refresh(Projection);
+            Status = restoredLayer ? "Saved hologram restored. Autobuild is off." : "Saved hologram restored with all layers; its saved layer was invalid. Autobuild is off.";
+        }
+
+        private void SaveSession()
+        {
+            if (session.Save(Projection, Mode, Materials, out var error)) return;
+            if (Status != error) Jotunn.Logger.LogError(error);
+            Status = error;
+        }
+
         public void Clear()
+        {
+            ResetProjection();
+            Status = session.Clear(out var error) ? "Hologram cleared, including its saved placement." : error;
+        }
+
+        private void ResetProjection()
         {
             Mode = BuildMode.Assisted;
             assistance.SetProjection(null);
@@ -153,6 +196,6 @@ namespace PlanBuild.Client
             Projection = null;
             Materials.ClearChecks();
         }
-        public void Dispose() { Clear(); SetVisible(false); chests.Dispose(); view.Dispose(); assistance.Dispose(); controls.Dispose(); }
+        public void Dispose() { SaveSession(); ResetProjection(); SetVisible(false); chests.Dispose(); view.Dispose(); assistance.Dispose(); controls.Dispose(); }
     }
 }
