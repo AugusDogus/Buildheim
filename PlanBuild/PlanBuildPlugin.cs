@@ -29,7 +29,6 @@ namespace PlanBuild
 
         private void Update() => planner?.Update();
         private void LateUpdate() => planner?.DrawProjection();
-        private void OnGUI() => planner?.DrawWindow();
         private void OnDestroy() => planner?.Dispose();
     }
 }

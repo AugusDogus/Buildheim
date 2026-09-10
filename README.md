@@ -10,19 +10,27 @@ Compatibility checks target Valheim **1.0.7** (Steam build 25185596), using BepI
 
 1. Join a world and press **End** to open the planner.
 2. Put blueprint files in `BepInEx/config/PlanBuild/blueprints`, or use **Capture and save** to capture player-built pieces within a radius of your character. Your feet define the capture origin.
-3. Select a blueprint, move its origin, and adjust its position and rotation. Hold Shift for 1 m position steps instead of 0.1 m.
+3. Choose a file in **Blueprints**. The planner opens **Build**, with mode, layer and positioning controls together. Close it to position the hologram with the shortcuts below.
 4. Select **Click to build**, close the planner, and equip the normal hammer. Aim at a missing hologram piece, then click. Assistance selects the learned recipe, aligns its position and rotation, and finds a nearby real placement surface without requiring your crosshair to hit that surface.
 5. Valheim validates and places the piece, then consumes its materials, stamina and tool durability normally. Completed pieces disappear from the hologram.
 
 You must carry the materials yourself. Nearby containers do not satisfy assistance's inventory check. Normal hammer reach, recipe knowledge, crafting stations, wards and placement restrictions still apply. Free-build world settings must be disabled for assistance. Scaled imports remain visual guides because normal hammer placement cannot reproduce arbitrary scales.
 
-Select **Guide** for ordinary hammer behavior. Hold Shift while adjusting position for 1 m steps. The hologram remains fixed until cleared or you leave the world; placement positions are not saved across sessions.
+Select **Preview only** for ordinary hammer behavior. The selected mode stays visibly highlighted and explained in the Build tab and HUD. Hold Shift while adjusting position for 1 m steps. The hologram remains fixed until cleared or you leave the world; placement positions are not saved across sessions.
 
 The planner key and blueprint directory are configurable under `[Client]` in `marcopogo.PlanBuild.cfg`. Blueprint files stay on your computer. Files can be shared manually.
 
 With the planner closed, hold **Ctrl + mouse wheel** to move the hologram toward/away from your view, **Ctrl + X + wheel** to move sideways, **Alt + wheel** to adjust height, or **Ctrl + Alt + wheel** to rotate. Hold **Shift** for 1 m / 22.5 degree steps instead of 0.1 m / 1 degree. Building pauses while these positioning modifiers are held. The wheel controls the hologram without also zooming the camera or rotating the hammer piece.
 
 Only meshes are drawn for holograms. They have no collision, network objects, or persistent world data. Missing prefabs and unsupported visuals are counted in the planner. Modded pieces still require their original piece mods wherever those mods require installation, including the server. Terrain instructions, container inventories and custom snap markers are not applied.
+
+## Materials and gathering
+
+The **Materials** tab lists costs for unfinished pieces, either across the whole blueprint or just the selected layer. **Need** is the remaining build cost, **Bag** counts your inventory, **Chests** sums observed chest contents, and **Gather** is the shortfall after bag and chest counts. Unavailable prefabs are excluded and reported.
+
+Open a chest normally while a blueprint is loaded to record it. Reopening updates that chest instead of adding it twice, and inventory changes in observed, loaded chests update their counts. Unloaded chests retain their last observed counts, which may be stale. **Forget chests** clears observations; leaving the world also clears them. Nothing is taken from a chest automatically.
+
+Check rows individually, use **Check stocked** for rows with no gathering shortfall, or **Check all** to bulk mark the current list. **Reset checks** clears the notes. Checkmarks never change quantities or satisfy placement costs: building still requires the materials in your own inventory.
 
 ## Autobuild
 
