@@ -1,219 +1,31 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Environment.props" Condition="Exists('../Environment.props')" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{504A8E71-7B0C-42C9-BF37-DFE74B0312F4}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PlanBuild</RootNamespace>
-    <AssemblyName>PlanBuild</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFramework>net48</TargetFramework>
     <LangVersion>8.0</LangVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup>
+    <VALHEIM_MANAGED Condition="'$(VALHEIM_MANAGED)' == ''">$(VALHEIM_INSTALL)/valheim_Data/Managed</VALHEIM_MANAGED>
+    <BEPINEX_PATH Condition="'$(BEPINEX_PATH)' == ''">$(VALHEIM_INSTALL)/BepInEx</BEPINEX_PATH>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Build Camera">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\pub\Build Camera.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="CraftFromContainers">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\pub\CraftFromContainers.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="AzuCraftyBoxes">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\pub\AzuCraftyBoxes-publicized.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ComfyGizmo">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\pub\ComfyGizmo.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.Utils, Version=25.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\MonoMod.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="ValheimRAFT">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\pub\ValheimRAFT.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MMHOOK_assembly_googleanalytics">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_googleanalytics.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MMHOOK_assembly_guiutils">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_guiutils.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MMHOOK_assembly_lux">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_lux.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MMHOOK_assembly_postprocessing">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_postprocessing.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MMHOOK_assembly_simplemeshcombine">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_simplemeshcombine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MMHOOK_assembly_sunshafts">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_sunshafts.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MMHOOK_assembly_utils">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_utils.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MMHOOK_assembly_valheim">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_valheim.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Blueprints\Blueprint.cs" />
-    <Compile Include="Blueprints\TerrainModGUI.cs" />
-    <Compile Include="Blueprints\SelectionSaveGUI.cs" />
-    <Compile Include="Blueprints\SelectionCommands.cs" />
-    <Compile Include="Blueprints\BlueprintCommands.cs" />
-    <Compile Include="Blueprints\BlueprintDictionary.cs" />
-    <Compile Include="Blueprints\BlueprintManager.cs" />
-    <Compile Include="Blueprints\BlueprintAssets.cs" />
-    <Compile Include="Blueprints\BlueprintSync.cs" />
-    <Compile Include="Blueprints\SelectionGUI.cs" />
-    <Compile Include="Blueprints\SelectionTools.cs" />
-    <Compile Include="Blueprints\TerrainModMarker.cs" />
-    <Compile Include="Blueprints\TerrainModEntry.cs" />
-    <Compile Include="Blueprints\TerrainTools.cs" />
-    <Compile Include="Blueprints\Components\CaptureComponent.cs" />
-    <Compile Include="Blueprints\Components\DeletePlansComponent.cs" />
-    <Compile Include="Blueprints\Components\MarkerComponent.cs" />
-    <Compile Include="Blueprints\Components\SelectEditComponent.cs" />
-    <Compile Include="Blueprints\Components\PlacementComponent.cs" />
-    <Compile Include="Blueprints\Components\SelectRemoveComponent.cs" />
-    <Compile Include="Blueprints\Components\SelectAddComponent.cs" />
-    <Compile Include="Blueprints\Components\DeleteObjectsComponent.cs" />
-    <Compile Include="Blueprints\Components\PaintComponent.cs" />
-    <Compile Include="Blueprints\Components\SelectionToolComponentBase.cs" />
-    <Compile Include="Blueprints\Components\TerrainComponent.cs" />
-    <Compile Include="Blueprints\Components\ToolComponentBase.cs" />
-    <Compile Include="Blueprints\UndoCreate.cs" />
-    <Compile Include="Blueprints\UndoRemove.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="Plans\PlanCommands.cs" />
-    <Compile Include="Plans\PlanBlacklist.cs" />
-    <Compile Include="Plans\PlanDB.cs" />
-    <Compile Include="Blueprints\Selection.cs" />
-    <Compile Include="Plans\PlanHammerPrefab.cs" />
-    <Compile Include="Utils\ShapedProjector.cs" />
-    <Compile Include="Utils\SquareProjector.cs" />
-    <Compile Include="Blueprints\BlueprintLocation.cs" />
-    <Compile Include="Blueprints\PieceEntry.cs" />
-    <Compile Include="Blueprints\SnapPointEntry.cs" />
-    <Compile Include="Blueprints\UIDragDrop.cs" />
-    <Compile Include="Blueprints\BlueprintGUI.cs" />
-    <Compile Include="Blueprints\WorldBlueprintRune.cs" />
-    <Compile Include="Blueprints\ZDOIDSet.cs" />
-    <Compile Include="Utils\DebugUtils.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="ModCompat\PatcherBuildCamera.cs" />
-    <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
-    <Compile Include="ModCompat\PatcherAzuCraftyBoxes.cs" />
-    <Compile Include="ModCompat\PatcherValheimRaft.cs" />
-    <Compile Include="ModCompat\PatcherGizmo.cs" />
-    <Compile Include="Patches.cs" />
-    <Compile Include="Plans\OdinLevel.cs" />
-    <Compile Include="Plans\OdinLevelPrefab.cs" />
-    <Compile Include="Plans\PlanCrystalPrefab.cs" />
-    <Compile Include="Plans\PlanManager.cs" />
-    <Compile Include="Plans\PlanPiece.cs" />
-    <Compile Include="Plans\PlanPiecePrefab.cs" />
-    <Compile Include="Plans\PlanTotem.cs" />
-    <Compile Include="Plans\PlanTotemPrefab.cs" />
-    <Compile Include="Properties\IgnoreAccessModifiers.cs" />
+    <PackageReference Include="JotunnLib" Version="2.28.0" ExcludeAssets="build" />
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="$(VALHEIM_MANAGED)/assembly_valheim.dll" Publicize="true" Private="false" />
+    <Reference Include="$(VALHEIM_MANAGED)/assembly_utils.dll" Private="false" />
+    <Reference Include="$(VALHEIM_MANAGED)/UnityEngine*.dll" Private="false" />
+    <Reference Include="$(BEPINEX_PATH)/core/BepInEx.dll" Private="false" />
+    <Reference Include="$(BEPINEX_PATH)/core/0Harmony.dll" Private="false" />
     <Compile Include="PlanBuildPlugin.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\ShaderHelper.cs" />
+    <Compile Include="Client/*.cs" />
+    <Compile Include="Blueprints/PieceEntry.cs" />
+    <Compile Include="Properties/AssemblyInfo.cs" />
+    <Compile Include="Properties/IgnoreAccessModifiers.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="assets\Translations\German\PlanBuild.Deutsch.json" />
-    <None Include="assets\Translations\English\PlanBuild.English.json" />
-    <None Include="assets\Translations\Korean\PlanBuild.korean.json" />
-    <None Include="assets\Translations\Portuguese_Brazilian\PlanBuild.Portuguese_Brazilian.json" />
-    <EmbeddedResource Include="EmbeddedAssets\blueprints" />
-    <EmbeddedResource Include="EmbeddedAssets\planbuild" />
-    <None Include="assets\Translations\Russian\PlanBuild.russian.json" />
-    <None Include="assets\Translations\Chinese\PlanBuild.Chinese.json" />
-    <None Include="assets\Translations\Spanish\PlanBuild.Spanish.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="resources\BlueprintMarket.png" />
-    <Content Include="resources\BlueprintMode.png" />
-    <Content Include="resources\PlanTotem.png" />
-    <Content Include="resources\PlanMode.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="JotunnLib">
-      <Version>2.28.0</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="JotunnPostBuildTaskWin" Condition="'$(OS)' == 'Windows_NT'">
-    <Exec Command="powershell.exe -ExecutionPolicy RemoteSigned -File &quot;$(SolutionDir)publish.ps1&quot; -Target &quot;$(ConfigurationName)&quot; -TargetPath &quot;$(TargetDir.TrimEnd('\'))&quot; -TargetAssembly &quot;$(TargetFileName)&quot; -ValheimPath &quot;$(VALHEIM_INSTALL.TrimEnd('\'))&quot; -ProjectPath &quot;$(ProjectDir.TrimEnd('\'))&quot; -SolutionPath &quot;$(SolutionDir.TrimEnd('\'))&quot;" />
+  <Target Name="CheckGameReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(VALHEIM_MANAGED)/assembly_valheim.dll')" Text="Valheim assemblies not found. Set VALHEIM_INSTALL to your Valheim directory." />
+    <Error Condition="!Exists('$(BEPINEX_PATH)/core/BepInEx.dll')" Text="BepInEx assemblies not found. Set BEPINEX_PATH to your profile's BepInEx directory." />
   </Target>
-  <PropertyGroup>
-    <BuildDependsOn>
-      $(BuildDependsOn);
-      JotunnPostBuildTaskWin
-    </BuildDependsOn>
-  </PropertyGroup>
 </Project>

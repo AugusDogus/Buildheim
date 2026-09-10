@@ -1,3 +1,10 @@
+## 0.19.0 (client refactor)
+
+- Replace server-backed plan objects and tools with local blueprint capture and mesh-only holograms.
+- Allow clients to connect without PlanBuild on the server.
+- Remove runtime HookGenPatcher and custom asset requirements.
+- Keep installed game files unchanged during builds.
+
 # Version 0.18.4
 * Fixed PlanTotem rebuilding plans for destroyed pieces (thx nickweedon)
 * Fixed the paint tool to calculate correct areas again
