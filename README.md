@@ -80,6 +80,8 @@ dotnet test PlanBuildTest/PlanBuildTest.csproj -p:VALHEIM_INSTALL="/path/to/Valh
 
 These tests do not run Unity. Before release, test with a vanilla server and an unmodded observer: capture/load a blueprint, align it, place pieces with exact materials, retry without materials, and check unknown recipes, missing stations, wards, blocked placement, reach, duplicate clicks, disconnect/reconnect and normal building with assistance off. Also verify autobuild with empty inventory, depleted stamina, a broken hammer, blocked surfaces and open menus; toggle Home and switch layers to ensure no queued or hidden-layer placement occurs. Confirm the observer sees only completed vanilla pieces and the server save contains no PlanBuild prefabs.
 
+For 0.20.0, check native UI layout at different resolutions, all wheel shortcuts with and without a hammer, and modifier release after a queued click. Open two chests, transfer materials, reopen them, and compare the checklist counts. Reconnect to verify alignment, layer and gathering notes, then switch character/world and clear the hologram to confirm isolation and removal. Automated save tests cover round trips, updates, corrupt files, invalid transforms and world/character paths; these runtime checks remain manual.
+
 ## Credits
 
 The original PlanBuild mod was created by __[MarcoPogo](https://github.com/MathiasDecrock)__

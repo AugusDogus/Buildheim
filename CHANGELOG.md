@@ -1,3 +1,13 @@
+## 0.20.0
+
+- Use Valheim wood panels, fonts and controls with Build, Blueprints and Materials tabs.
+- Show the selected build mode and explain Preview only, Click to build and Autobuild.
+- Position holograms using modifier keys and the mouse wheel, with on-screen shortcut hints.
+- Find real placement surfaces around the selected blueprint piece independently of camera aim.
+- Explain placement restrictions in the HUD.
+- Show remaining material costs, inventory counts, observed chest contents and bulk gathering checkmarks.
+- Save blueprint copies, alignment, selected layers and gathering notes per character and world. Restore with autobuild off.
+
 ## 0.19.0 (client refactor)
 
 - Add adjustable height layers shared by hologram rendering and both hammer modes.

@@ -24,7 +24,7 @@ namespace PlanBuild.Client
         private MaterialsPanel materials;
         private string listedFiles;
         private float nextRefresh;
-        private Tab selected = Tab.Blueprints;
+        private Tab selected = Tab.Build;
 
         public PlannerWindow(ClientPlanner planner) { this.planner = planner; }
 

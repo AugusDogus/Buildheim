@@ -45,7 +45,8 @@ namespace PlanBuild.Client
             int unavailable = planner.Projection?.MissingPrefabs ?? 0;
             summary.text = $"{planner.Materials.ChestCount} chests observed this session" +
                 (unavailable > 0 ? $"\n{unavailable} unavailable pieces excluded" : "\nBag is live. Chests show last known contents.");
-            string next = string.Join("\n", rows.Select(row => $"{row.Name}:{row.Required}:{row.Carried}:{row.Stored}:{row.Checked}"));
+            string next = (planner.Projection == null ? "empty:" : "loaded:") +
+                string.Join("\n", rows.Select(row => $"{row.Name}:{row.Required}:{row.Carried}:{row.Stored}:{row.Checked}"));
             if (next == signature) return;
             signature = next;
             PlannerWidgets.Clear(list.content);
