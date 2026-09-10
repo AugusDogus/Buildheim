@@ -28,7 +28,15 @@ Select **Autobuild** in the planner, close it, and walk with the normal hammer e
 
 Autobuild attempts at most one piece every half-second, and respects the normal hammer cooldown. It requires inventory materials, stamina, hammer durability, a learned recipe and any crafting station. It uses real surfaces within reach and line of sight, then runs the normal placement checks. Blocked candidates are skipped and retried after other pieces.
 
-Opening a menu or putting the hammer away pauses autobuild. Loading a blueprint, dying or leaving the world resets it to click-to-build. The HUD shows when autobuild is on. Autobuild does not advance beyond your chosen work area automatically.
+Opening a menu or putting the hammer away pauses autobuild. Loading a blueprint, dying or leaving the world resets it to click-to-build. The HUD shows when autobuild is on. Autobuild stays within the selected layer and does not advance to the next layer automatically.
+
+## Building by layers
+
+Use **Bottom** in the planner to start with the lowest occupied layer, then **Next** to work upward. **Previous** moves down and **All layers** restores the full blueprint. Empty height bands are skipped.
+
+The **Layer height** slider sets band thickness from 0.5 to 4 m (default 2 m). Heights are relative to the hologram origin. Whole pieces belong to the band containing their origin, so a tall wall can extend past a band's boundary. Changing the band thickness restarts a selected layer at the bottom.
+
+Only the selected layer's missing pieces are shown or eligible for assisted placement and autobuild. A built/total counter shows progress within that layer. Finish it, open the planner and select **Next**, then close the planner to resume. Existing real construction remains visible throughout.
 
 ## Upgrading from the original mod
 
@@ -54,7 +62,7 @@ Run format tests and placement compatibility checks with the same paths:
 dotnet test PlanBuildTest/PlanBuildTest.csproj -p:VALHEIM_INSTALL="/path/to/Valheim" -p:BEPINEX_PATH="/path/to/profile/BepInEx"
 ```
 
-These tests do not run Unity. Before release, test with a vanilla server and an unmodded observer: capture/load a blueprint, align it, place pieces with exact materials, retry without materials, and check unknown recipes, missing stations, wards, blocked placement, reach, duplicate clicks, disconnect/reconnect and normal building with assistance off. Confirm the observer sees only completed vanilla pieces and the server save contains no PlanBuild prefabs.
+These tests do not run Unity. Before release, test with a vanilla server and an unmodded observer: capture/load a blueprint, align it, place pieces with exact materials, retry without materials, and check unknown recipes, missing stations, wards, blocked placement, reach, duplicate clicks, disconnect/reconnect and normal building with assistance off. Also verify autobuild with empty inventory, depleted stamina, a broken hammer, blocked surfaces and open menus; toggle Home and switch layers to ensure no queued or hidden-layer placement occurs. Confirm the observer sees only completed vanilla pieces and the server save contains no PlanBuild prefabs.
 
 ## Credits
 

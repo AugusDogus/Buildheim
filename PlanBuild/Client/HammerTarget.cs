@@ -18,7 +18,7 @@ namespace PlanBuild.Client
 
         public static HammerTarget FromPiece(BlueprintProjection projection, BlueprintProjection.ProjectedPiece planned, Player player)
         {
-            if (planned.Completed) return null;
+            if (planned.Completed || !projection.Layers.Contains(planned.Entry.posY)) return null;
             var piece = planned.Prefab.GetComponent<Piece>();
             if (!piece || piece.m_repairPiece || piece.m_removePiece) return null;
             // Vanilla placement has no scale input. Scaled imports remain visual guides.

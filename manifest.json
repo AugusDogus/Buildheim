@@ -1,6 +1,6 @@
 {
   "name": "PlanBuild",
-  "description": "Client-only blueprint capture and private building holograms for Valheim. No server installation required.",
+  "description": "Client-only blueprint capture, layered holograms and hammer autobuild using inventory materials. No server installation required.",
   "version_number": "0.19.0",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2333",

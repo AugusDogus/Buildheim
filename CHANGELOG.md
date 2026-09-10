@@ -1,5 +1,6 @@
 ## 0.19.0 (client refactor)
 
+- Add adjustable height layers shared by hologram rendering and both hammer modes.
 - Add opt-in autobuild with paced attempts and a Home-key toggle.
 
 - Require Jötunn 2.30.0 for its Valheim 1.0.7 compatibility fixes.

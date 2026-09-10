@@ -105,7 +105,8 @@ namespace PlanBuild.Client
             var selected = instance.target;
             ProjectionProgress.Refresh(instance.projection);
             string error = null;
-            if (selected == null || selected.Piece != piece || selected.Planned.Completed)
+            if (selected == null || selected.Piece != piece || selected.Planned.Completed ||
+                !instance.projection.Layers.Contains(selected.Planned.Entry.posY))
                 error = "Aim at a missing blueprint piece to build it.";
             else if (!__instance.m_knownRecipes.Contains(piece.m_name) || !__instance.IsPieceAvailable(piece))
                 error = "Learn this hammer recipe before building it.";
@@ -133,7 +134,8 @@ namespace PlanBuild.Client
             ghostTarget = null;
             if (instance == null || !instance.Active(__instance)) return;
             var selected = instance.target;
-            if (selected == null || selected.Planned.Completed || __instance.GetSelectedPiece() != selected.Piece ||
+            if (selected == null || selected.Planned.Completed || !instance.projection.Layers.Contains(selected.Planned.Entry.posY) ||
+                __instance.GetSelectedPiece() != selected.Piece ||
                 !__instance.m_placementGhost) return;
             ghostTarget = selected;
             __instance.m_placementGhost.transform.SetPositionAndRotation(selected.Position, selected.Rotation);

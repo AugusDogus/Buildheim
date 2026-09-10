@@ -87,9 +87,11 @@ namespace PlanBuild.Client
             {
                 if (projection != null && buildMode != BuildMode.Guide)
                 {
+                    string layer = projection.Layers.Selected.HasValue
+                        ? $"Layer {projection.Layers.Ordinal}/{projection.Layers.Count}" : "All layers";
                     string message = buildMode == BuildMode.Automatic
-                        ? $"Autobuild ON ({config.AutoBuildKey.Value} to pause)\n{assistance.Status}"
-                        : assistance.Status;
+                        ? $"Autobuild ON ({config.AutoBuildKey.Value} to pause) | {layer}\n{assistance.Status}"
+                        : $"{layer}\n{assistance.Status}";
                     GUI.Box(new Rect(Screen.width / 2f - 300, Screen.height - 100, 600, 50), message, statusStyle);
                 }
                 return;
@@ -125,6 +127,7 @@ namespace PlanBuild.Client
                 int selectedMode = GUILayout.SelectionGrid((int)buildMode, new[] { "Guide", "Click to build", "Autobuild" }, 3);
                 buildMode = selectedMode == 2 ? BuildMode.Automatic : selectedMode == 1 ? BuildMode.Assisted : BuildMode.Guide;
                 if (buildMode == BuildMode.Automatic) GUILayout.Label($"Walk with your hammer equipped to build. {config.AutoBuildKey.Value} pauses autobuild.");
+                DrawLayers();
                 GUILayout.Label("Position the hologram, then close this window to build.");
                 if (GUILayout.Button("Move origin to my feet")) projection.Position = Player.m_localPlayer.transform.position;
                 MoveButtons("East / west", Vector3.right);
@@ -149,6 +152,27 @@ namespace PlanBuild.Client
             float step = Input.GetKey(KeyCode.LeftShift) ? 1f : 0.1f;
             if (GUILayout.Button($"-{step:0.0} m")) projection.Position -= axis * step;
             if (GUILayout.Button($"+{step:0.0} m")) projection.Position += axis * step;
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawLayers()
+        {
+            var layers = projection.Layers;
+            GUILayout.Label($"Layer height: {layers.Height:0.0} m");
+            float height = Mathf.Round(GUILayout.HorizontalSlider(layers.Height, 0.5f, 4f) * 2f) / 2f;
+            layers.SetHeight(height);
+            if (layers.Selected is int index)
+            {
+                int total = projection.Pieces.Count(piece => layers.Contains(piece.Entry.posY));
+                int built = projection.Pieces.Count(piece => layers.Contains(piece.Entry.posY) && piece.Completed);
+                GUILayout.Label($"Layer {layers.Ordinal}/{layers.Count}: {index * layers.Height:0.0} to {(index + 1) * layers.Height:0.0} m | {built}/{total} built");
+            }
+            else GUILayout.Label("All layers visible and available to build");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Bottom")) layers.Bottom();
+            if (GUILayout.Button("Previous")) layers.Move(-1);
+            if (GUILayout.Button("Next")) layers.Move(1);
+            if (GUILayout.Button("All layers")) layers.All();
             GUILayout.EndHorizontal();
         }
 

@@ -47,6 +47,7 @@ namespace PlanBuild.Client
 
         public string Name { get; }
         public IReadOnlyList<ProjectedPiece> Pieces { get; }
+        public BlueprintLayers Layers { get; }
         public int MissingPrefabs { get; }
         public Vector3 Position { get; set; }
         public float Yaw { get; set; }
@@ -58,6 +59,7 @@ namespace PlanBuild.Client
         {
             Name = document.Name;
             Pieces = pieces;
+            Layers = new BlueprintLayers(pieces.Select(piece => piece.Entry.posY));
             MissingPrefabs = missing;
             this.material = material;
             highlight.SetColor("_Color", new Color(1f, 0.8f, 0.2f, 0.5f));
@@ -127,7 +129,7 @@ namespace PlanBuild.Client
             if (!camera) return;
             foreach (var piece in Pieces)
             {
-                if (piece.Completed) continue;
+                if (piece.Completed || !Layers.Contains(piece.Entry.posY)) continue;
                 var matrix = PieceMatrix(piece);
                 foreach (var part in piece.Parts)
                 {

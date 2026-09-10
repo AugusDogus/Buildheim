@@ -9,3 +9,5 @@ The old rune, Plan Hammer, totems, shared plans, terrain tools and server market
 See README.md for usage, migration and development details.
 
 Select Autobuild to place nearby pieces while walking with your hammer equipped. Home toggles autobuild. Materials, stamina, durability and normal placement checks still apply.
+
+Build by layers with Bottom, Previous, Next and All layers. Adjust the layer height from 0.5 to 4 m. Only the selected layer is displayed and eligible for assisted building or autobuild.
