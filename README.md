@@ -20,6 +20,8 @@ Select **Guide** for ordinary hammer behavior. Hold Shift while adjusting positi
 
 The planner key and blueprint directory are configurable under `[Client]` in `marcopogo.PlanBuild.cfg`. Blueprint files stay on your computer. Files can be shared manually.
 
+With the planner closed, hold **Ctrl + mouse wheel** to move the hologram toward/away from your view, **Ctrl + X + wheel** to move sideways, **Alt + wheel** to adjust height, or **Ctrl + Alt + wheel** to rotate. Hold **Shift** for 1 m / 22.5 degree steps instead of 0.1 m / 1 degree. Building pauses while these positioning modifiers are held. The wheel controls the hologram without also zooming the camera or rotating the hammer piece.
+
 Only meshes are drawn for holograms. They have no collision, network objects, or persistent world data. Missing prefabs and unsupported visuals are counted in the planner. Modded pieces still require their original piece mods wherever those mods require installation, including the server. Terrain instructions, container inventories and custom snap markers are not applied.
 
 ## Autobuild

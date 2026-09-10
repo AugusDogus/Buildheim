@@ -10,6 +10,7 @@ namespace PlanBuild.Client
     {
         private readonly ClientConfig config;
         private readonly HammerAssistance assistance = new HammerAssistance();
+        private readonly ProjectionControls controls;
         private BuildMode buildMode = BuildMode.Assisted;
         private float nextProgressCheck;
         private string[] files = Array.Empty<string>();
@@ -24,7 +25,13 @@ namespace PlanBuild.Client
         private float radius = 15f;
         private string status = "Load a blueprint or capture nearby buildings.";
 
-        public ClientPlanner(ClientConfig config) { this.config = config; }
+        public ClientPlanner(ClientConfig config)
+        {
+            this.config = config;
+            controls = new ProjectionControls(() => !visible && Player.m_localPlayer &&
+                !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible()
+                ? projection : null);
+        }
 
         public void Update()
         {
@@ -72,7 +79,7 @@ namespace PlanBuild.Client
             }
         }
 
-        private void UpdateAssistance() => assistance.SetProjection(!visible && buildMode != BuildMode.Guide ? projection : null, buildMode);
+        private void UpdateAssistance() => assistance.SetProjection(!visible && !controls.Held && buildMode != BuildMode.Guide ? projection : null, buildMode);
 
         public void DrawProjection()
         {
@@ -129,6 +136,7 @@ namespace PlanBuild.Client
                 if (buildMode == BuildMode.Automatic) GUILayout.Label($"Walk with your hammer equipped to build. {config.AutoBuildKey.Value} pauses autobuild.");
                 DrawLayers();
                 GUILayout.Label("Position the hologram, then close this window to build.");
+                GUILayout.Label(ProjectionControls.Hints);
                 if (GUILayout.Button("Move origin to my feet")) projection.Position = Player.m_localPlayer.transform.position;
                 MoveButtons("East / west", Vector3.right);
                 MoveButtons("Up / down", Vector3.up);
@@ -192,6 +200,6 @@ namespace PlanBuild.Client
         }
 
         private void Clear() { buildMode = BuildMode.Assisted; assistance.SetProjection(null); projection?.Dispose(); projection = null; }
-        public void Dispose() { Clear(); SetVisible(false); assistance.Dispose(); }
+        public void Dispose() { Clear(); SetVisible(false); assistance.Dispose(); controls.Dispose(); }
     }
 }
