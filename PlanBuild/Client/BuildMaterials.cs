@@ -7,6 +7,13 @@ namespace PlanBuild.Client
     {
         public static bool HasAll(IEnumerable<KeyValuePair<string, int>> costs, Func<string, int> inventoryCount)
         {
+            foreach (var total in Total(costs))
+                if (inventoryCount(total.Key) < total.Value) return false;
+            return true;
+        }
+
+        public static Dictionary<string, long> Total(IEnumerable<KeyValuePair<string, int>> costs)
+        {
             var totals = new Dictionary<string, long>();
             foreach (var cost in costs)
             {
@@ -14,9 +21,7 @@ namespace PlanBuild.Client
                 totals.TryGetValue(cost.Key, out long amount);
                 totals[cost.Key] = amount + cost.Value;
             }
-            foreach (var total in totals)
-                if (inventoryCount(total.Key) < total.Value) return false;
-            return true;
+            return totals;
         }
     }
 }
