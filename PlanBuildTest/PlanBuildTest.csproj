@@ -13,7 +13,7 @@
     <PackageReference Include="MSTest.TestAdapter" Version="3.6.4" />
     <PackageReference Include="MSTest.TestFramework" Version="3.6.4" />
     <!-- Only Jotunn's managed SimpleJson serializer runs in this .NET test host. -->
-    <PackageReference Include="JotunnLib" Version="2.28.0" ExcludeAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="JotunnLib" Version="2.30.0" ExcludeAssets="all" GeneratePathProperty="true" />
     <Reference Include="$(PkgJotunnLib)/lib/net462/Jotunn.dll" />
     <Reference Include="$(VALHEIM_MANAGED)/UnityEngine.dll" />
     <Reference Include="$(VALHEIM_MANAGED)/UnityEngine.CoreModule.dll" />

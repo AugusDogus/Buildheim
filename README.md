@@ -2,7 +2,9 @@
 
 A client-only blueprint planner for Valheim. Capture buildings, load `.blueprint` or `.vbuild` files, and position a private hologram as a building guide. The server and other players do not need PlanBuild.
 
-Install BepInEx, Jötunn 2.28.0 or newer, and this build on your client. No server installation is needed.
+Install BepInEx, Jötunn 2.30.0 or newer, and this build on your client. No server installation is needed.
+
+Compatibility checks target Valheim **1.0.7** (Steam build 25185596), using BepInExPack 5.4.2350 and Jötunn 2.30.0. The release build and automated format, material and placement-contract tests pass against those assemblies. In-game loading, rendering and multiplayer placement remain unverified. Jötunn 2.30.0 includes the upstream Valheim 1.0.7 fixes; older Jötunn versions are not supported by this build.
 
 ## Usage
 

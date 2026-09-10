@@ -10,7 +10,7 @@
     <BEPINEX_PATH Condition="'$(BEPINEX_PATH)' == ''">$(VALHEIM_INSTALL)/BepInEx</BEPINEX_PATH>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JotunnLib" Version="2.28.0" ExcludeAssets="build" />
+    <PackageReference Include="JotunnLib" Version="2.30.0" ExcludeAssets="build" />
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <Reference Include="$(VALHEIM_MANAGED)/assembly_valheim.dll" Publicize="true" Private="false" />

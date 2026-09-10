@@ -6,7 +6,7 @@ using UnityEngine;
 namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, "2.28.0")]
+    [BepInDependency(Jotunn.Main.ModGuid, "2.30.0")]
     [NetworkCompatibility(CompatibilityLevel.NotEnforced, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {
