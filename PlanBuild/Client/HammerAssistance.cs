@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using UnityEngine;
@@ -143,6 +144,10 @@ namespace PlanBuild.Client
             int positions = 0, rotations = 0;
             foreach (var instruction in code)
             {
+                if (instruction.operand is MethodInfo method && method.DeclaringType == typeof(Transform) &&
+                    (method.Name == "SetPositionAndRotation" || method.Name == "SetLocalPositionAndRotation" ||
+                     method.Name == "set_localPosition" || method.Name == "set_localRotation"))
+                    throw new InvalidOperationException("UpdatePlacementGhost uses unsupported transform writes; assistance was disabled.");
                 if (instruction.Calls(position))
                 {
                     instruction.opcode = OpCodes.Call;

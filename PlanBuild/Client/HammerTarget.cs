@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace PlanBuild.Client
@@ -53,19 +55,9 @@ namespace PlanBuild.Client
 
         public bool HasInventoryResources()
         {
-            var required = new System.Collections.Generic.Dictionary<string, int>();
-            foreach (var resource in Piece.m_resources)
-            {
-                if (!resource.m_resItem) continue;
-                int amount = resource.GetAmount(0);
-                if (amount <= 0) continue;
-                string name = resource.m_resItem.m_itemData.m_shared.m_name;
-                required.TryGetValue(name, out int count);
-                required[name] = count + amount;
-            }
-            foreach (var resource in required)
-                if (Player.GetInventory().CountItems(resource.Key) < resource.Value) return false;
-            return true;
+            var costs = Piece.m_resources.Where(resource => resource.m_resItem)
+                .Select(resource => new KeyValuePair<string, int>(resource.m_resItem.m_itemData.m_shared.m_name, resource.GetAmount(0)));
+            return BuildMaterials.HasAll(costs, name => Player.GetInventory().CountItems(name));
         }
     }
 }
