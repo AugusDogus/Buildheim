@@ -57,5 +57,24 @@ namespace PlanBuildTest
             Assert.IsTrue(methods.Any(x => x.Name == "CheckPlacementGhostVSPlayers"));
             Assert.IsTrue(methods.Any(x => x.Name == "TestGhostClipping"));
         }
+
+        [TestMethod]
+        public void PositioningCanConsumeWheelInputBeforeHammerRotationAndCameraZoom()
+        {
+            using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
+            using var input = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_utils.dll"));
+            var zinput = input.MainModule.Types.Single(type => type.Name == "ZInput");
+            var wheel = zinput.Methods.Single(method => method.Name == "GetMouseScrollWheel");
+            Assert.IsTrue(wheel.IsStatic);
+            Assert.AreEqual("System.Single", wheel.ReturnType.FullName);
+            var button = zinput.Methods.Single(method => method.Name == "GetButtonDown");
+            Assert.AreEqual("name", button.Parameters.Single().Name);
+            Assert.AreEqual("System.String", button.Parameters.Single().ParameterType.FullName);
+            foreach (string type in new[] { "Player", "GameCamera" })
+                Assert.IsTrue(game.MainModule.Types.Single(t => t.Name == type).Methods
+                    .Where(method => method.HasBody).SelectMany(method => method.Body.Instructions)
+                    .Any(instruction => instruction.Operand is MethodReference method &&
+                        method.DeclaringType.Name == "ZInput" && method.Name == "GetMouseScrollWheel"), type);
+        }
     }
 }

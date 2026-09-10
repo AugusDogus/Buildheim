@@ -50,14 +50,22 @@ namespace PlanBuild.Client
             !player.IsDead() && player.GetRightItem()?.m_dropPrefab?.name == "Hammer";
 
         [HarmonyPrefix, HarmonyPatch(typeof(Player), "UpdatePlacement")]
-        private static void SelectPiece(Player __instance, bool takeInput, out bool __state)
+        private static bool SelectPiece(Player __instance, bool takeInput, out bool __state)
         {
             __state = false;
-            if (instance == null || __instance != Player.m_localPlayer) return;
+            if (instance == null || __instance != Player.m_localPlayer) return true;
             instance.target = null;
-            if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible() || ProjectionControls.Adjusting) return;
+            if (ProjectionControls.Adjusting)
+            {
+                __instance.m_placePressedTime = -9999f;
+                __instance.m_removePressedTime = -9999f;
+                if (__instance.m_placementGhost) __instance.m_placementGhost.SetActive(false);
+                if (__instance.m_placementMarkerInstance) __instance.m_placementMarkerInstance.SetActive(false);
+                return false;
+            }
+            if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible()) return true;
             if (instance.mode == BuildMode.Automatic && (ZInput.GetButton("Remove") ||
-                ZInput.GetButton("JoyRemove") || ZInput.GetButton("JoyAltKeys"))) return;
+                ZInput.GetButton("JoyRemove") || ZInput.GetButton("JoyAltKeys"))) return true;
             var selected = instance.mode == BuildMode.Automatic
                 ? instance.autoBuilder.Find(instance.projection, __instance)
                 : HammerTarget.Find(instance.projection, __instance);
@@ -67,28 +75,29 @@ namespace PlanBuild.Client
                 instance.Status = instance.mode == BuildMode.Automatic
                     ? "Waiting for a nearby buildable piece, materials or stamina."
                     : "Aim at a missing piece within hammer reach.";
-                return;
+                return true;
             }
             if (!__instance.m_knownRecipes.Contains(selected.Piece.m_name) || !__instance.SetSelectedPiece(selected.Piece))
             {
                 instance.Status = "Learn this hammer recipe before building it.";
-                return;
+                return true;
             }
             instance.Status = selected.HasInventoryResources()
                 ? "Click to build " + Localization.instance.Localize(selected.Piece.m_name)
                 : "Missing materials in your inventory for " + Localization.instance.Localize(selected.Piece.m_name);
-            if (instance.mode != BuildMode.Automatic) return;
+            if (instance.mode != BuildMode.Automatic) return true;
             // Validate first, then queue one ordinary hammer click. UpdatePlacement remains
             // responsible for placement, materials, stamina, durability and the tool cooldown.
             __instance.UpdatePlacementGhost(false);
             if (__instance.m_placementStatus != Player.PlacementStatus.Valid)
             {
                 instance.Status = PlacementFeedback.Describe(__instance.m_placementStatus);
-                return;
+                return true;
             }
             __instance.m_placePressedTime = Time.time;
             __state = true;
             instance.Status = "Autobuilding " + Localization.instance.Localize(selected.Piece.m_name);
+            return true;
         }
 
         [HarmonyFinalizer, HarmonyPatch(typeof(Player), "UpdatePlacement")]
@@ -156,7 +165,7 @@ namespace PlanBuild.Client
             else if (!ghostTarget.HasInventoryResources())
                 instance.Status = "Missing inventory materials for " + Localization.instance.Localize(ghostTarget.Piece.m_name);
             else if (!__instance.HaveRequirements(ghostTarget.Piece, Player.RequirementMode.CanBuild))
-                instance.Status = "A required crafting station is missing or out of range.";
+                instance.Status = "Recipe requirements are not met. Check the required station and content availability.";
         }
 
         [HarmonyFinalizer, HarmonyPatch(typeof(Player), "UpdatePlacementGhost")]

@@ -50,7 +50,7 @@ namespace PlanBuild.Client
             if (!Player.m_localPlayer || Player.m_localPlayer.IsDead())
             {
                 SaveSession();
-                Mode = BuildMode.Assisted;
+                if (Mode == BuildMode.Automatic) Mode = BuildMode.Assisted;
                 SetVisible(false);
                 assistance.SetProjection(null);
                 view.Hide();
@@ -80,6 +80,7 @@ namespace PlanBuild.Client
                 }
                 if (Visible && Input.GetKeyDown(KeyCode.Escape)) SetVisible(false);
             }
+            controls.Update();
             UpdateAssistance();
             view.Update();
         }

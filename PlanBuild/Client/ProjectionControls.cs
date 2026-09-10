@@ -24,6 +24,10 @@ namespace PlanBuild.Client
             harmony.PatchAll(typeof(ProjectionControls));
         }
 
+        // Read even when vanilla skips camera zoom and hammer rotation. The postfix below
+        // handles this sample once; all later consumers in the frame receive zero.
+        public void Update() { if (Held) ZInput.GetMouseScrollWheel(); }
+
         [HarmonyPostfix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetMouseScrollWheel))]
         private static void Scroll(ref float __result)
         {
@@ -50,9 +54,10 @@ namespace PlanBuild.Client
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetButtonDown))]
-        private static bool PreventCrouch(string name, ref bool __result)
+        private static bool PreventModifierActions(string name, ref bool __result)
         {
-            if (name != "Crouch" || instance == null || !instance.Held || !Control) return true;
+            if (instance == null || !instance.Held || !Control) return true;
+            if (name != "Crouch" && !(name == "Sit" && Input.GetKey(KeyCode.X))) return true;
             __result = false;
             return false;
         }
