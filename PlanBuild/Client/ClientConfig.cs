@@ -9,6 +9,7 @@ namespace PlanBuild.Client
     {
         public ConfigEntry<string> Directory { get; }
         public ConfigEntry<KeyCode> ToggleKey { get; }
+        public ConfigEntry<KeyCode> AutoBuildKey { get; }
 
         public ClientConfig(ConfigFile config)
         {
@@ -16,6 +17,7 @@ namespace PlanBuild.Client
                 Path.Combine(Paths.ConfigPath, "PlanBuild", "blueprints"),
                 "Local directory for .blueprint and .vbuild files. Nothing is uploaded to the server.");
             ToggleKey = config.Bind("Client", "Planner key", KeyCode.End, "Open or close the blueprint planner.");
+            AutoBuildKey = config.Bind("Client", "Autobuild key", KeyCode.Home, "Toggle autobuild for the current blueprint while the planner is closed.");
         }
     }
 }

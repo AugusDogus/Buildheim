@@ -13,6 +13,8 @@ namespace PlanBuild.Client
         private static HammerAssistance instance;
         private static HammerTarget ghostTarget;
         private readonly Harmony harmony = new Harmony(PlanBuildPlugin.PluginGUID + ".hammer");
+        private readonly AutoBuilder autoBuilder = new AutoBuilder();
+        private BuildMode mode;
         private BlueprintProjection projection;
         private HammerTarget target;
         public BlueprintProjection.ProjectedPiece SelectedPiece => target?.Planned;
@@ -35,25 +37,38 @@ namespace PlanBuild.Client
             }
         }
 
-        public void SetProjection(BlueprintProjection value)
+        public void SetProjection(BlueprintProjection value, BuildMode buildMode = BuildMode.Assisted)
         {
-            if (projection == value) return;
+            if (projection == value && mode == buildMode) return;
             projection = value;
+            mode = buildMode;
             target = null;
+            autoBuilder.Reset();
         }
 
         private bool Active(Player player) => Ready && projection != null && player == Player.m_localPlayer &&
             !player.IsDead() && player.GetRightItem()?.m_dropPrefab?.name == "Hammer";
 
         [HarmonyPrefix, HarmonyPatch(typeof(Player), "UpdatePlacement")]
-        private static void SelectPiece(Player __instance, bool takeInput)
+        private static void SelectPiece(Player __instance, bool takeInput, out bool __state)
         {
+            __state = false;
             if (instance == null || __instance != Player.m_localPlayer) return;
             instance.target = null;
             if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible()) return;
-            var selected = HammerTarget.Find(instance.projection, __instance);
+            if (instance.mode == BuildMode.Automatic && (ZInput.GetButton("Remove") ||
+                ZInput.GetButton("JoyRemove") || ZInput.GetButton("JoyAltKeys"))) return;
+            var selected = instance.mode == BuildMode.Automatic
+                ? instance.autoBuilder.Find(instance.projection, __instance)
+                : HammerTarget.Find(instance.projection, __instance);
             instance.target = selected;
-            if (selected == null) { instance.Status = "Aim at a missing piece within hammer reach."; return; }
+            if (selected == null)
+            {
+                instance.Status = instance.mode == BuildMode.Automatic
+                    ? "Waiting for a nearby buildable piece, materials or stamina."
+                    : "Aim at a missing piece within hammer reach.";
+                return;
+            }
             if (!__instance.m_knownRecipes.Contains(selected.Piece.m_name) || !__instance.SetSelectedPiece(selected.Piece))
             {
                 instance.Status = "Learn this hammer recipe before building it.";
@@ -62,6 +77,25 @@ namespace PlanBuild.Client
             instance.Status = selected.HasInventoryResources()
                 ? "Click to build " + Localization.instance.Localize(selected.Piece.m_name)
                 : "Missing materials in your inventory for " + Localization.instance.Localize(selected.Piece.m_name);
+            if (instance.mode != BuildMode.Automatic) return;
+            // Validate first, then queue one ordinary hammer click. UpdatePlacement remains
+            // responsible for placement, materials, stamina, durability and the tool cooldown.
+            __instance.UpdatePlacementGhost(false);
+            if (__instance.m_placementStatus != Player.PlacementStatus.Valid)
+            {
+                instance.Status = "Placement blocked. Trying other nearby blueprint pieces.";
+                return;
+            }
+            __instance.m_placePressedTime = Time.time;
+            __state = true;
+            instance.Status = "Autobuilding " + Localization.instance.Localize(selected.Piece.m_name);
+        }
+
+        [HarmonyFinalizer, HarmonyPatch(typeof(Player), "UpdatePlacement")]
+        private static void ClearAutoClick(Player __instance, bool __state)
+        {
+            // An early return (for example, opening the hammer menu) must not leave a queued click.
+            if (__state) __instance.m_placePressedTime = -9999f;
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(Player), nameof(Player.TryPlacePiece))]
@@ -118,6 +152,28 @@ namespace PlanBuild.Client
 
         [HarmonyFinalizer, HarmonyPatch(typeof(Player), "UpdatePlacementGhost")]
         private static void ClearGhost(HammerTarget __state) => ghostTarget = __state;
+
+        [HarmonyPrefix, HarmonyPatch(typeof(Player), "PieceRayTest")]
+        private static bool AutoSurface(Player __instance, bool water, ref Vector3 point, ref Vector3 normal,
+            ref Piece piece, ref Heightmap heightmap, ref Collider waterSurface, ref bool __result)
+        {
+            if (ghostTarget == null || ghostTarget.Player != __instance || instance.mode != BuildMode.Automatic) return true;
+            point = Vector3.zero;
+            normal = Vector3.zero;
+            piece = null;
+            heightmap = null;
+            waterSurface = null;
+            __result = ghostTarget.TryAutoSurface(water, out var hit);
+            if (__result)
+            {
+                point = hit.point;
+                normal = hit.normal;
+                piece = hit.collider.GetComponentInParent<Piece>();
+                heightmap = hit.collider.GetComponent<Heightmap>();
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Water")) waterSurface = hit.collider;
+            }
+            return false;
+        }
 
         [HarmonyPostfix, HarmonyPatch(typeof(Player), "PieceRayTest")]
         private static void CheckSurface(Player __instance, ref Vector3 point, ref bool __result)

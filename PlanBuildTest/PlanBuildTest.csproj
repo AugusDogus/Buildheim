@@ -24,6 +24,7 @@
     <Compile Include="../PlanBuild/Blueprints/PieceEntry.cs" Link="PieceEntry.cs" />
     <Compile Include="../PlanBuild/Client/BlueprintDocument.cs" Link="BlueprintDocument.cs" />
     <Compile Include="../PlanBuild/Client/BuildMaterials.cs" Link="BuildMaterials.cs" />
+    <Compile Include="../PlanBuild/Client/AutoBuildQueue.cs" Link="AutoBuildQueue.cs" />
     <None Update="resources/*.blueprint" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

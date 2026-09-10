@@ -10,7 +10,7 @@ namespace PlanBuild.Client
     {
         private readonly ClientConfig config;
         private readonly HammerAssistance assistance = new HammerAssistance();
-        private bool assistBuilding = true;
+        private BuildMode buildMode = BuildMode.Assisted;
         private float nextProgressCheck;
         private string[] files = Array.Empty<string>();
         private BlueprintProjection projection;
@@ -35,8 +35,8 @@ namespace PlanBuild.Client
                 scene = ZNetScene.instance;
             }
             if (!Player.m_localPlayer || Player.m_localPlayer.IsDead())
-            { SetVisible(false); assistance.SetProjection(null); return; }
-            assistance.SetProjection(!visible && assistBuilding ? projection : null);
+            { buildMode = BuildMode.Assisted; SetVisible(false); assistance.SetProjection(null); return; }
+            UpdateAssistance();
             if (projection != null && Time.time >= nextProgressCheck)
             {
                 ProjectionProgress.Refresh(projection);
@@ -44,6 +44,11 @@ namespace PlanBuild.Client
             }
             if (Settings.instance && Settings.instance.isActiveAndEnabled) return;
             if (Console.IsVisible() || (Chat.instance && Chat.instance.HasFocus())) return;
+            if (!visible && projection != null && Player.m_localPlayer.TakeInput() && Input.GetKeyDown(config.AutoBuildKey.Value))
+            {
+                buildMode = buildMode == BuildMode.Automatic ? BuildMode.Assisted : BuildMode.Automatic;
+                UpdateAssistance();
+            }
             if (Input.GetKeyDown(config.ToggleKey.Value))
             {
                 if (!visible) Refresh();
@@ -56,7 +61,7 @@ namespace PlanBuild.Client
         {
             if (visible == value) return;
             visible = value;
-            assistance.SetProjection(!visible && assistBuilding ? projection : null);
+            UpdateAssistance();
             GUIManager.BlockInput(value);
             if (Player.m_localPlayer)
             {
@@ -66,6 +71,8 @@ namespace PlanBuild.Client
                 ZInput.ResetButtonStatus("JoyPlace");
             }
         }
+
+        private void UpdateAssistance() => assistance.SetProjection(!visible && buildMode != BuildMode.Guide ? projection : null, buildMode);
 
         public void DrawProjection()
         {
@@ -78,8 +85,13 @@ namespace PlanBuild.Client
             statusStyle ??= new GUIStyle(GUI.skin.box) { wordWrap = true };
             if (!visible)
             {
-                if (projection != null && assistBuilding)
-                    GUI.Box(new Rect(Screen.width / 2f - 300, Screen.height - 100, 600, 50), assistance.Status, statusStyle);
+                if (projection != null && buildMode != BuildMode.Guide)
+                {
+                    string message = buildMode == BuildMode.Automatic
+                        ? $"Autobuild ON ({config.AutoBuildKey.Value} to pause)\n{assistance.Status}"
+                        : assistance.Status;
+                    GUI.Box(new Rect(Screen.width / 2f - 300, Screen.height - 100, 600, 50), message, statusStyle);
+                }
                 return;
             }
             window.x = Mathf.Clamp(window.x, 0, Mathf.Max(0, Screen.width - window.width));
@@ -110,7 +122,9 @@ namespace PlanBuild.Client
             if (projection != null)
             {
                 GUILayout.Label($"{projection.Name}: {projection.Pieces.Count(x => x.Completed)}/{projection.Pieces.Count} built ({projection.MissingPrefabs} unavailable)");
-                assistBuilding = GUILayout.Toggle(assistBuilding, "Assist hammer: select and align the piece I aim at");
+                int selectedMode = GUILayout.SelectionGrid((int)buildMode, new[] { "Guide", "Click to build", "Autobuild" }, 3);
+                buildMode = selectedMode == 2 ? BuildMode.Automatic : selectedMode == 1 ? BuildMode.Assisted : BuildMode.Guide;
+                if (buildMode == BuildMode.Automatic) GUILayout.Label($"Walk with your hammer equipped to build. {config.AutoBuildKey.Value} pauses autobuild.");
                 GUILayout.Label("Position the hologram, then close this window to build.");
                 if (GUILayout.Button("Move origin to my feet")) projection.Position = Player.m_localPlayer.transform.position;
                 MoveButtons("East / west", Vector3.right);
@@ -153,7 +167,7 @@ namespace PlanBuild.Client
             status = "Loaded locally. Terrain instructions and container contents are not applied.";
         }
 
-        private void Clear() { assistance.SetProjection(null); projection?.Dispose(); projection = null; }
+        private void Clear() { buildMode = BuildMode.Assisted; assistance.SetProjection(null); projection?.Dispose(); projection = null; }
         public void Dispose() { Clear(); SetVisible(false); assistance.Dispose(); }
     }
 }

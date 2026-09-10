@@ -16,6 +16,18 @@ namespace PlanBuild.Client
         private HammerTarget(BlueprintProjection projection, BlueprintProjection.ProjectedPiece planned, Player player, Piece piece)
         { Projection = projection; Planned = planned; Player = player; Piece = piece; }
 
+        public static HammerTarget FromPiece(BlueprintProjection projection, BlueprintProjection.ProjectedPiece planned, Player player)
+        {
+            if (planned.Completed) return null;
+            var piece = planned.Prefab.GetComponent<Piece>();
+            if (!piece || piece.m_repairPiece || piece.m_removePiece) return null;
+            // Vanilla placement has no scale input. Scaled imports remain visual guides.
+            if (Vector3.Distance(planned.Entry.GetScale(), planned.Prefab.transform.localScale) > 0.01f ||
+                Vector3.Distance(player.m_eye.position, projection.PiecePosition(planned)) >=
+                player.m_maxPlaceDistance + piece.m_extraPlacementDistance) return null;
+            return new HammerTarget(projection, planned, player, piece);
+        }
+
         public static HammerTarget Find(BlueprintProjection projection, Player player)
         {
             if (!GameCamera.instance) return null;
@@ -26,11 +38,8 @@ namespace PlanBuild.Client
             HammerTarget target = null;
             foreach (var planned in projection.Pieces)
             {
-                if (planned.Completed) continue;
-                var piece = planned.Prefab.GetComponent<Piece>();
-                if (!piece || piece.m_repairPiece || piece.m_removePiece) continue;
-                // Vanilla placement has no scale input. Scaled imports remain visual guides.
-                if (Vector3.Distance(planned.Entry.GetScale(), planned.Prefab.transform.localScale) > 0.01f) continue;
+                var candidate = FromPiece(projection, planned, player);
+                if (candidate == null) continue;
                 var matrix = projection.PieceMatrix(planned);
                 var inverse = matrix.inverse;
                 var localRay = new Ray(inverse.MultiplyPoint3x4(ray.origin), inverse.MultiplyVector(ray.direction));
@@ -38,12 +47,21 @@ namespace PlanBuild.Client
                 var hit = matrix.MultiplyPoint3x4(localRay.GetPoint(distance));
                 float worldDistance = Vector3.Dot(hit - ray.origin, ray.direction);
                 if (worldDistance < 0 || worldDistance >= closest) continue;
-                if (Vector3.Distance(player.m_eye.position, projection.PiecePosition(planned)) >=
-                    player.m_maxPlaceDistance + piece.m_extraPlacementDistance) continue;
                 closest = worldDistance;
-                target = new HammerTarget(projection, planned, player, piece);
+                target = candidate;
             }
             return target;
+        }
+
+        public bool TryAutoSurface(bool water, out RaycastHit hit)
+        {
+            var center = Projection.PieceMatrix(Planned).MultiplyPoint3x4(Planned.LocalBounds.center);
+            var ray = new Ray(Player.m_eye.position, center - Player.m_eye.position);
+            int mask = water ? Player.m_placeWaterRayMask : Player.m_placeRayMask;
+            // Use the first real surface along the line of sight, preserving its normal and type.
+            // A wall in the way cannot be skipped to place something behind it.
+            return Physics.Raycast(ray, out hit, 50f, mask) && hit.collider && !hit.collider.attachedRigidbody &&
+                hit.distance < Player.m_maxPlaceDistance + Piece.m_extraPlacementDistance && NearSurface(hit.point);
         }
 
         public bool NearSurface(Vector3 hit)

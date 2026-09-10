@@ -1,5 +1,7 @@
 ## 0.19.0 (client refactor)
 
+- Add opt-in autobuild with paced attempts and a Home-key toggle.
+
 - Require Jötunn 2.30.0 for its Valheim 1.0.7 compatibility fixes.
 - Replace server-backed plan objects and tools with local blueprint capture and mesh-only holograms.
 - Add hammer assistance with automatic recipe selection, exact alignment and an inventory material check.
