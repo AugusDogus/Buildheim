@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <Reference Include="$(VALHEIM_MANAGED)/assembly_valheim.dll" Publicize="true" Private="false" />
     <Reference Include="$(VALHEIM_MANAGED)/assembly_utils.dll" Private="false" />
+    <Reference Include="$(VALHEIM_MANAGED)/assembly_guiutils.dll" Private="false" />
     <Reference Include="$(VALHEIM_MANAGED)/UnityEngine*.dll" Private="false" />
     <Reference Include="$(BEPINEX_PATH)/core/BepInEx.dll" Private="false" />
     <Reference Include="$(BEPINEX_PATH)/core/0Harmony.dll" Private="false" />

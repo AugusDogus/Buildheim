@@ -1,6 +1,8 @@
 ## 0.19.0 (client refactor)
 
 - Replace server-backed plan objects and tools with local blueprint capture and mesh-only holograms.
+- Add hammer assistance with automatic recipe selection, exact alignment and an inventory material check.
+- Hide completed pieces in the local guide.
 - Allow clients to connect without PlanBuild on the server.
 - Remove runtime HookGenPatcher and custom asset requirements.
 - Keep installed game files unchanged during builds.

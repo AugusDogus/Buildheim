@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Jotunn.Managers;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ namespace PlanBuild.Client
     internal sealed class ClientPlanner : IDisposable
     {
         private readonly ClientConfig config;
+        private readonly HammerAssistance assistance = new HammerAssistance();
+        private bool assistBuilding = true;
+        private float nextProgressCheck;
         private string[] files = Array.Empty<string>();
         private BlueprintProjection projection;
         private ZNetScene scene;
@@ -28,7 +32,14 @@ namespace PlanBuild.Client
                 SetVisible(false);
                 scene = ZNetScene.instance;
             }
-            if (!Player.m_localPlayer || Player.m_localPlayer.IsDead()) { SetVisible(false); return; }
+            if (!Player.m_localPlayer || Player.m_localPlayer.IsDead())
+            { SetVisible(false); assistance.SetProjection(null); return; }
+            assistance.SetProjection(!visible && assistBuilding ? projection : null);
+            if (projection != null && Time.time >= nextProgressCheck)
+            {
+                ProjectionProgress.Refresh(projection);
+                nextProgressCheck = Time.time + 0.5f;
+            }
             if (Settings.instance && Settings.instance.isActiveAndEnabled) return;
             if (Console.IsVisible() || (Chat.instance && Chat.instance.HasFocus())) return;
             if (Input.GetKeyDown(config.ToggleKey.Value))
@@ -43,17 +54,24 @@ namespace PlanBuild.Client
         {
             if (visible == value) return;
             visible = value;
+            assistance.SetProjection(!visible && assistBuilding ? projection : null);
             GUIManager.BlockInput(value);
         }
 
         public void DrawProjection()
         {
-            if (Player.m_localPlayer && scene == ZNetScene.instance) projection?.Draw();
+            if (Player.m_localPlayer && scene == ZNetScene.instance) projection?.Draw(assistance.SelectedPiece);
         }
 
         public void DrawWindow()
         {
-            if (!visible || !Player.m_localPlayer) return;
+            if (!Player.m_localPlayer) return;
+            if (!visible)
+            {
+                if (projection != null && assistBuilding)
+                    GUI.Box(new Rect(Screen.width / 2f - 300, Screen.height - 100, 600, 50), assistance.Status);
+                return;
+            }
             window.x = Mathf.Clamp(window.x, 0, Mathf.Max(0, Screen.width - window.width));
             window.y = Mathf.Clamp(window.y, 0, Mathf.Max(0, Screen.height - window.height));
             window = GUILayout.Window(PlanBuildPlugin.PluginGUID.GetHashCode(), window, WindowContents, "PlanBuild | Private blueprints");
@@ -79,7 +97,8 @@ namespace PlanBuild.Client
             GUILayout.EndScrollView();
             if (projection != null)
             {
-                GUILayout.Label($"{projection.Name}: {projection.Pieces.Count} pieces ({projection.MissingPrefabs} unavailable)");
+                GUILayout.Label($"{projection.Name}: {projection.Pieces.Count(x => x.Completed)}/{projection.Pieces.Count} built ({projection.MissingPrefabs} unavailable)");
+                assistBuilding = GUILayout.Toggle(assistBuilding, "Assist hammer: select and align the piece I aim at");
                 GUILayout.Label("Position the hologram, then close this window to build.");
                 if (GUILayout.Button("Move origin to my feet")) projection.Position = Player.m_localPlayer.transform.position;
                 MoveButtons("East / west", Vector3.right);
@@ -121,7 +140,7 @@ namespace PlanBuild.Client
             status = "Loaded locally. Terrain instructions and container contents are not applied.";
         }
 
-        private void Clear() { projection?.Dispose(); projection = null; }
-        public void Dispose() { Clear(); SetVisible(false); }
+        private void Clear() { assistance.SetProjection(null); projection?.Dispose(); projection = null; }
+        public void Dispose() { Clear(); SetVisible(false); assistance.Dispose(); }
     }
 }

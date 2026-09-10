@@ -22,9 +22,27 @@ namespace PlanBuild.Client
             public Blueprints.PieceEntry Entry { get; }
             public GameObject Prefab { get; }
             public IReadOnlyList<Part> Parts { get; }
+            public Bounds LocalBounds { get; }
             public bool Completed { get; set; }
             public ProjectedPiece(Blueprints.PieceEntry entry, GameObject prefab, IReadOnlyList<Part> parts)
-            { Entry = entry; Prefab = prefab; Parts = parts; }
+            {
+                Entry = entry; Prefab = prefab; Parts = parts;
+                var bounds = new Bounds();
+                bool first = true;
+                foreach (var part in parts)
+                {
+                    var meshBounds = part.Mesh.bounds;
+                    for (int corner = 0; corner < 8; corner++)
+                    {
+                        var offset = Vector3.Scale(meshBounds.extents, new Vector3(
+                            (corner & 1) == 0 ? -1 : 1, (corner & 2) == 0 ? -1 : 1, (corner & 4) == 0 ? -1 : 1));
+                        var point = part.LocalMatrix.MultiplyPoint3x4(meshBounds.center + offset);
+                        if (first) { bounds = new Bounds(point, Vector3.zero); first = false; }
+                        else bounds.Encapsulate(point);
+                    }
+                }
+                LocalBounds = bounds;
+            }
         }
 
         public string Name { get; }
@@ -34,6 +52,7 @@ namespace PlanBuild.Client
         public float Yaw { get; set; }
         public Quaternion Rotation => Quaternion.Euler(0, Yaw, 0);
         private readonly Material material;
+        private readonly MaterialPropertyBlock highlight = new MaterialPropertyBlock();
 
         private BlueprintProjection(BlueprintDocument document, List<ProjectedPiece> pieces, int missing, Material material)
         {
@@ -41,6 +60,7 @@ namespace PlanBuild.Client
             Pieces = pieces;
             MissingPrefabs = missing;
             this.material = material;
+            highlight.SetColor("_Color", new Color(1f, 0.8f, 0.2f, 0.5f));
         }
 
         public static bool TryCreate(BlueprintDocument document, out BlueprintProjection projection, out string error)
@@ -101,7 +121,7 @@ namespace PlanBuild.Client
         public Quaternion PieceRotation(ProjectedPiece piece) => Rotation * piece.Entry.GetRotation();
         public Matrix4x4 PieceMatrix(ProjectedPiece piece) => Matrix4x4.TRS(PiecePosition(piece), PieceRotation(piece), piece.Entry.GetScale());
 
-        public void Draw()
+        public void Draw(ProjectedPiece selected = null)
         {
             var camera = GameCamera.instance ? GameCamera.instance.GetComponent<Camera>() : null;
             if (!camera) return;
@@ -113,7 +133,7 @@ namespace PlanBuild.Client
                 {
                     for (int submesh = 0; submesh < part.Mesh.subMeshCount; submesh++)
                         Graphics.DrawMesh(part.Mesh, matrix * part.LocalMatrix, material, 0, camera,
-                            submesh, null, ShadowCastingMode.Off, false);
+                            submesh, piece == selected ? highlight : null, ShadowCastingMode.Off, false);
                 }
             }
         }
