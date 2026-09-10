@@ -18,6 +18,8 @@ namespace PlanBuild.Client
         private bool visible;
         private Rect window = new Rect(30, 80, 420, 620);
         private Vector2 scroll;
+        private Vector2 contentScroll;
+        private GUIStyle statusStyle;
         private string captureName = "My build";
         private float radius = 15f;
         private string status = "Load a blueprint or capture nearby buildings.";
@@ -56,6 +58,13 @@ namespace PlanBuild.Client
             visible = value;
             assistance.SetProjection(!visible && assistBuilding ? projection : null);
             GUIManager.BlockInput(value);
+            if (Player.m_localPlayer)
+            {
+                Player.m_localPlayer.m_placePressedTime = -9999f;
+                Player.m_localPlayer.m_removePressedTime = -9999f;
+                ZInput.ResetButtonStatus("Attack");
+                ZInput.ResetButtonStatus("JoyPlace");
+            }
         }
 
         public void DrawProjection()
@@ -66,19 +75,22 @@ namespace PlanBuild.Client
         public void DrawWindow()
         {
             if (!Player.m_localPlayer) return;
+            statusStyle ??= new GUIStyle(GUI.skin.box) { wordWrap = true };
             if (!visible)
             {
                 if (projection != null && assistBuilding)
-                    GUI.Box(new Rect(Screen.width / 2f - 300, Screen.height - 100, 600, 50), assistance.Status);
+                    GUI.Box(new Rect(Screen.width / 2f - 300, Screen.height - 100, 600, 50), assistance.Status, statusStyle);
                 return;
             }
             window.x = Mathf.Clamp(window.x, 0, Mathf.Max(0, Screen.width - window.width));
+            window.height = Mathf.Min(620, Screen.height - 40);
             window.y = Mathf.Clamp(window.y, 0, Mathf.Max(0, Screen.height - window.height));
             window = GUILayout.Window(PlanBuildPlugin.PluginGUID.GetHashCode(), window, WindowContents, "PlanBuild | Private blueprints");
         }
 
         private void WindowContents(int id)
         {
+            contentScroll = GUILayout.BeginScrollView(contentScroll, GUILayout.Height(window.height - 65));
             GUILayout.Label("Capture player-built pieces around your current position.");
             captureName = GUILayout.TextField(captureName, 80);
             GUILayout.Label($"Capture radius: {radius:0} m");
@@ -111,6 +123,7 @@ namespace PlanBuild.Client
                 if (GUILayout.Button("Clear hologram")) Clear();
             }
             GUILayout.Label(status);
+            GUILayout.EndScrollView();
             if (GUILayout.Button("Close")) SetVisible(false);
             GUI.DragWindow(new Rect(0, 0, window.width, 25));
         }
