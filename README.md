@@ -11,7 +11,7 @@ Compatibility checks target Valheim **1.0.7** (Steam build 25185596), using BepI
 1. Join a world and press **End** to open the planner.
 2. Put blueprint files in `BepInEx/config/PlanBuild/blueprints`, or use **Capture and save** to capture player-built pieces within a radius of your character. Your feet define the capture origin.
 3. Select a blueprint, move its origin, and adjust its position and rotation. Hold Shift for 1 m position steps instead of 0.1 m.
-4. Select **Click to build**, close the planner, and equip the normal hammer. Aim at a missing hologram piece near an existing surface, then click. Assistance selects the learned recipe and aligns its position and rotation.
+4. Select **Click to build**, close the planner, and equip the normal hammer. Aim at a missing hologram piece, then click. Assistance selects the learned recipe, aligns its position and rotation, and finds a nearby real placement surface without requiring your crosshair to hit that surface.
 5. Valheim validates and places the piece, then consumes its materials, stamina and tool durability normally. Completed pieces disappear from the hologram.
 
 You must carry the materials yourself. Nearby containers do not satisfy assistance's inventory check. Normal hammer reach, recipe knowledge, crafting stations, wards and placement restrictions still apply. Free-build world settings must be disabled for assistance. Scaled imports remain visual guides because normal hammer placement cannot reproduce arbitrary scales.
@@ -28,7 +28,7 @@ Only meshes are drawn for holograms. They have no collision, network objects, or
 
 Select **Autobuild** in the planner, close it, and walk with the normal hammer equipped. It automatically tries nearby missing pieces without aiming or clicking. Press **Home** to switch between autobuild and click-to-build; the hotkey is configurable under `[Client]`.
 
-Autobuild attempts at most one piece every half-second, and respects the normal hammer cooldown. It requires inventory materials, stamina, hammer durability, a learned recipe and any crafting station. It uses real surfaces within reach and line of sight, then runs the normal placement checks. Blocked candidates are skipped and retried after other pieces.
+Autobuild attempts at most one piece every half-second, and respects the normal hammer cooldown. It requires inventory materials, stamina, hammer durability, a learned recipe and any crafting station. Both assisted modes probe around the selected piece for real surfaces within reach and line of sight, then run the normal placement checks. Each probe stops at its first collider. Blocked autobuild candidates are skipped and retried after other pieces. The HUD explains specific placement failures when Valheim reports them; generic rejections ask you to check overlap, support and surface restrictions.
 
 Opening a menu or putting the hammer away pauses autobuild. Loading a blueprint, dying or leaving the world resets it to click-to-build. The HUD shows when autobuild is on. Autobuild stays within the selected layer and does not advance to the next layer automatically.
 

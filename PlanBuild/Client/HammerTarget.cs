@@ -43,7 +43,9 @@ namespace PlanBuild.Client
                 var matrix = projection.PieceMatrix(planned);
                 var inverse = matrix.inverse;
                 var localRay = new Ray(inverse.MultiplyPoint3x4(ray.origin), inverse.MultiplyVector(ray.direction));
-                if (!planned.LocalBounds.IntersectRay(localRay, out float distance)) continue;
+                var aimBounds = planned.LocalBounds;
+                aimBounds.Expand(0.12f);
+                if (!aimBounds.IntersectRay(localRay, out float distance)) continue;
                 var hit = matrix.MultiplyPoint3x4(localRay.GetPoint(distance));
                 float worldDistance = Vector3.Dot(hit - ray.origin, ray.direction);
                 if (worldDistance < 0 || worldDistance >= closest) continue;
@@ -53,15 +55,53 @@ namespace PlanBuild.Client
             return target;
         }
 
-        public bool TryAutoSurface(bool water, out RaycastHit hit)
+        public bool TrySurface(bool water, out RaycastHit hit)
         {
-            var center = Projection.PieceMatrix(Planned).MultiplyPoint3x4(Planned.LocalBounds.center);
-            var ray = new Ray(Player.m_eye.position, center - Player.m_eye.position);
+            var matrix = Projection.PieceMatrix(Planned);
+            var bounds = Planned.LocalBounds;
             int mask = water ? Player.m_placeWaterRayMask : Player.m_placeRayMask;
-            // Use the first real surface along the line of sight, preserving its normal and type.
-            // A wall in the way cannot be skipped to place something behind it.
-            return Physics.Raycast(ray, out hit, 50f, mask) && hit.collider && !hit.collider.attachedRigidbody &&
-                hit.distance < Player.m_maxPlaceDistance + Piece.m_extraPlacementDistance && NearSurface(hit.point);
+            // Probe the piece, not the camera crosshair. Every probe stops at its FIRST
+            // real collider, so nearby geometry cannot be used to reach through a wall.
+            if (Probe(matrix.MultiplyPoint3x4(bounds.center), mask, out hit)) return true;
+            for (int axis = 0; axis < 3; axis++)
+            {
+                for (int sign = -1; sign <= 1; sign += 2)
+                {
+                    var sample = bounds.center;
+                    sample[axis] += sign * (bounds.extents[axis] + 0.25f);
+                    if (Probe(matrix.MultiplyPoint3x4(sample), mask, out hit)) return true;
+                }
+            }
+            for (int corner = 0; corner < 8; corner++)
+            {
+                var offset = Vector3.Scale(bounds.extents + Vector3.one * 0.15f, new Vector3(
+                    (corner & 1) == 0 ? -1 : 1, (corner & 2) == 0 ? -1 : 1, (corner & 4) == 0 ? -1 : 1));
+                if (Probe(matrix.MultiplyPoint3x4(bounds.center + offset), mask, out hit)) return true;
+            }
+            hit = default;
+            return false;
+        }
+
+        private bool Probe(Vector3 sample, int mask, out RaycastHit hit)
+        {
+            var offset = sample - Player.m_eye.position;
+            float reach = Player.m_maxPlaceDistance + Piece.m_extraPlacementDistance;
+            if (!Physics.Raycast(Player.m_eye.position, offset.normalized, out hit,
+                    Mathf.Min(reach, offset.magnitude + 0.5f), mask) ||
+                !hit.collider || hit.collider.attachedRigidbody || !NearSurface(hit.point)) return false;
+            var terrain = hit.collider.GetComponent<Heightmap>();
+            var support = hit.collider.GetComponentInParent<Piece>();
+            var wear = support ? support.GetComponent<WearNTear>() : null;
+            bool water = hit.collider.gameObject.layer == LayerMask.NameToLayer("Water");
+            // Select a surface compatible with the piece; the original placement routine
+            // still performs all terrain, ward, station, biome and clipping checks.
+            return (!(Piece.m_groundOnly || Piece.m_groundPiece || Piece.m_cultivatedGroundOnly) || terrain) &&
+                (!Piece.m_waterPiece || water) && (!Piece.m_noInWater || !water) &&
+                (!Piece.m_notOnTiltingSurface || hit.normal.y >= 0.8f) &&
+                (!Piece.m_inCeilingOnly || hit.normal.y <= -0.5f) &&
+                (!Piece.m_notOnFloor || hit.normal.y <= 0.1f) &&
+                (!wear || (wear.m_supports && (!Piece.m_notOnWood ||
+                    (wear.m_materialType != WearNTear.MaterialType.Wood && wear.m_materialType != WearNTear.MaterialType.HardWood))));
         }
 
         public bool NearSurface(Vector3 hit)

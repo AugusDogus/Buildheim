@@ -12,6 +12,7 @@ namespace PlanBuild.Client
         private readonly Func<BlueprintProjection> activeProjection;
         private int lastFrame = -1;
         public const string Hints = "Ctrl + wheel: forward/back   |   Ctrl + X + wheel: sideways\nAlt + wheel: height   |   Ctrl + Alt + wheel: rotate   |   Shift: larger steps";
+        public static bool Adjusting => instance != null && instance.Held;
         public bool Held => activeProjection() != null && (Control || Alt);
         private static bool Control => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         private static bool Alt => Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);

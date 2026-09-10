@@ -55,7 +55,7 @@ namespace PlanBuild.Client
             __state = false;
             if (instance == null || __instance != Player.m_localPlayer) return;
             instance.target = null;
-            if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible()) return;
+            if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible() || ProjectionControls.Adjusting) return;
             if (instance.mode == BuildMode.Automatic && (ZInput.GetButton("Remove") ||
                 ZInput.GetButton("JoyRemove") || ZInput.GetButton("JoyAltKeys"))) return;
             var selected = instance.mode == BuildMode.Automatic
@@ -83,7 +83,7 @@ namespace PlanBuild.Client
             __instance.UpdatePlacementGhost(false);
             if (__instance.m_placementStatus != Player.PlacementStatus.Valid)
             {
-                instance.Status = "Placement blocked. Trying other nearby blueprint pieces.";
+                instance.Status = PlacementFeedback.Describe(__instance.m_placementStatus);
                 return;
             }
             __instance.m_placePressedTime = Time.time;
@@ -149,23 +149,30 @@ namespace PlanBuild.Client
             {
                 __instance.m_placementStatus = Player.PlacementStatus.Invalid;
                 if (__instance.m_placementGhost) __instance.m_placementGhost.SetActive(false);
+                return;
             }
+            if (__instance.m_placementStatus != Player.PlacementStatus.Valid)
+                instance.Status = PlacementFeedback.Describe(__instance.m_placementStatus);
+            else if (!ghostTarget.HasInventoryResources())
+                instance.Status = "Missing inventory materials for " + Localization.instance.Localize(ghostTarget.Piece.m_name);
+            else if (!__instance.HaveRequirements(ghostTarget.Piece, Player.RequirementMode.CanBuild))
+                instance.Status = "A required crafting station is missing or out of range.";
         }
 
         [HarmonyFinalizer, HarmonyPatch(typeof(Player), "UpdatePlacementGhost")]
         private static void ClearGhost(HammerTarget __state) => ghostTarget = __state;
 
         [HarmonyPrefix, HarmonyPatch(typeof(Player), "PieceRayTest")]
-        private static bool AutoSurface(Player __instance, bool water, ref Vector3 point, ref Vector3 normal,
+        private static bool BlueprintSurface(Player __instance, bool water, ref Vector3 point, ref Vector3 normal,
             ref Piece piece, ref Heightmap heightmap, ref Collider waterSurface, ref bool __result)
         {
-            if (ghostTarget == null || ghostTarget.Player != __instance || instance.mode != BuildMode.Automatic) return true;
+            if (ghostTarget == null || ghostTarget.Player != __instance) return true;
             point = Vector3.zero;
             normal = Vector3.zero;
             piece = null;
             heightmap = null;
             waterSurface = null;
-            __result = ghostTarget.TryAutoSurface(water, out var hit);
+            __result = ghostTarget.TrySurface(water, out var hit);
             if (__result)
             {
                 point = hit.point;
@@ -187,7 +194,7 @@ namespace PlanBuild.Client
                 __instance.m_maxPlaceDistance + ghostTarget.Piece.m_extraPlacementDistance)
             {
                 __result = false;
-                instance.Status = "Aim at the hologram near an existing surface, within hammer reach.";
+                instance.Status = "No reachable surface touches this piece. Move closer or build its foundation first.";
                 return;
             }
             point = ghostTarget.Position;
