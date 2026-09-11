@@ -18,6 +18,8 @@ namespace PlanBuild.Client
         private float nextProgressCheck;
         public ClientConfig Config { get; }
         public BlueprintProjection Projection { get; private set; }
+        public bool PlacementEnabled => Projection != null && Projection.Enabled;
+        private BlueprintProjection ActiveProjection => PlacementEnabled ? Projection : null;
         public BuildMode Mode { get; private set; } = BuildMode.Assisted;
         public MaterialChecklist Materials { get; } = new MaterialChecklist();
         public string[] Files { get; private set; } = Array.Empty<string>();
@@ -30,7 +32,7 @@ namespace PlanBuild.Client
             Config = config;
             controls = new ProjectionControls(() => !Visible && Player.m_localPlayer &&
                 !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible()
-                ? Projection : null);
+                ? ActiveProjection : null);
             chests = new ChestObservation(Materials);
             view = new PlannerWindow(this);
         }
@@ -61,7 +63,7 @@ namespace PlanBuild.Client
                 chests.Update();
                 if (Time.time >= nextProgressCheck)
                 {
-                    ProjectionProgress.Refresh(Projection);
+                    if (PlacementEnabled) ProjectionProgress.Refresh(Projection);
                     nextProgressCheck = Time.time + 0.5f;
                     SaveSession();
                 }
@@ -70,8 +72,12 @@ namespace PlanBuild.Client
                 Console.IsVisible() || (Chat.instance && Chat.instance.HasFocus());
             if (!otherInput)
             {
-                if (!Visible && Projection != null && Player.m_localPlayer.TakeInput() && Input.GetKeyDown(Config.AutoBuildKey.Value))
-                    SetMode(Mode == BuildMode.Automatic ? BuildMode.Assisted : BuildMode.Automatic);
+                if (!Visible && Player.m_localPlayer.TakeInput())
+                {
+                    if (Input.GetKeyDown(Config.PlacementKey.Value)) SetPlacementEnabled(!PlacementEnabled);
+                    if (PlacementEnabled && Input.GetKeyDown(Config.AutoBuildKey.Value))
+                        SetMode(Mode == BuildMode.Automatic ? BuildMode.Assisted : BuildMode.Automatic);
+                }
                 if (Input.GetKeyDown(Config.ToggleKey.Value))
                 {
                     if (Visible) SetVisible(false);
@@ -99,11 +105,28 @@ namespace PlanBuild.Client
             }
         }
 
-        public void SetMode(BuildMode mode) { Mode = mode; UpdateAssistance(); }
-        private void UpdateAssistance() => assistance.SetProjection(!Visible && !controls.Held && Mode != BuildMode.Guide ? Projection : null, Mode);
+        public void SetPlacementEnabled(bool enabled)
+        {
+            if (Projection == null || Projection.Enabled == enabled) return;
+            Projection.Enabled = enabled;
+            if (!enabled && Mode == BuildMode.Automatic) Mode = BuildMode.Assisted;
+            if (enabled) ProjectionProgress.Refresh(Projection);
+            UpdateAssistance();
+            Status = enabled ? "Placement enabled. Autobuild is off." :
+                "Placement disabled. Its position, layers and checklist are preserved.";
+            SaveSession();
+        }
+
+        public void SetMode(BuildMode mode)
+        {
+            if (!PlacementEnabled) return;
+            Mode = mode;
+            UpdateAssistance();
+        }
+        private void UpdateAssistance() => assistance.SetProjection(!Visible && !controls.Held && Mode != BuildMode.Guide ? ActiveProjection : null, Mode);
         public void DrawProjection()
         {
-            if (Player.m_localPlayer && scene == ZNetScene.instance) Projection?.Draw(assistance.SelectedPiece);
+            if (Player.m_localPlayer && scene == ZNetScene.instance) ActiveProjection?.Draw(assistance.SelectedPiece);
         }
 
         public void Refresh()
@@ -167,12 +190,14 @@ namespace PlanBuild.Client
             session.SetDocument(document);
             Projection.Position = new Vector3(save.X, save.Y, save.Z);
             Projection.Yaw = save.Yaw;
+            Projection.Enabled = !save.Disabled;
             Projection.Layers.SetHeight(save.LayerHeight);
             bool restoredLayer = Projection.Layers.Select(save.Layer);
             Mode = save.PreviewOnly ? BuildMode.Guide : BuildMode.Assisted;
             foreach (string material in save.CheckedMaterials) Materials.Check(material, true);
             ProjectionProgress.Refresh(Projection);
             Status = restoredLayer ? "Saved hologram restored. Autobuild is off." : "Saved hologram restored with all layers; its saved layer was invalid. Autobuild is off.";
+            if (!PlacementEnabled) Status += $" Placement is disabled. Press {Config.PlacementKey.Value} or enable it in Build.";
         }
 
         private void SaveSession()

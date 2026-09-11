@@ -18,6 +18,8 @@ namespace PlanBuild.Client
         public float LayerHeight { get; set; }
         public int? Layer { get; set; }
         public bool PreviewOnly { get; set; }
+        // Absent in older saves, which must stay enabled.
+        public bool Disabled { get; set; }
         public string[] CheckedMaterials { get; set; }
 
         public bool IsValid() => Version == 1 && !string.IsNullOrWhiteSpace(Name) && Name.Length <= 512 &&

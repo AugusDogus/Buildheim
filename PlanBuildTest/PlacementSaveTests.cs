@@ -41,6 +41,37 @@ namespace PlanBuildTest
         }
 
         [TestMethod]
+        public void DisabledPlacementStaysDisabledUntilEnabledAgain()
+        {
+            string path = PlacementStore.PathFor(directory, 111, 222);
+            var save = Sample();
+            save.Disabled = true;
+            Assert.IsTrue(PlacementStore.TryWrite(path, save, out var error), error);
+            Assert.IsTrue(PlacementStore.TryRead(path, out var read, out error), error);
+            Assert.IsTrue(read.Disabled);
+            Assert.AreEqual(save.X, read.X);
+            Assert.AreEqual(save.Layer, read.Layer);
+            CollectionAssert.AreEqual(save.CheckedMaterials, read.CheckedMaterials);
+
+            read.Disabled = false;
+            Assert.IsTrue(PlacementStore.TryWrite(path, read, out error), error);
+            Assert.IsTrue(PlacementStore.TryRead(path, out read, out error), error);
+            Assert.IsFalse(read.Disabled);
+        }
+
+        [TestMethod]
+        public void SavesFromBeforeThePlacementToggleRemainEnabled()
+        {
+            string path = PlacementStore.PathFor(directory, 111, 222);
+            File.WriteAllText(path, "{\"Version\":1,\"Name\":\"House\",\"Blueprint\":[\"#Name:House\",\"#Pieces\",\"wood_wall;Building;0;0;0;0;0;0;1;;1;1;1\"]," +
+                "\"X\":123.25,\"Y\":-4.5,\"Z\":678,\"Yaw\":22.5,\"LayerHeight\":2,\"Layer\":0,\"PreviewOnly\":true,\"CheckedMaterials\":[\"$item_wood\"]}");
+            Assert.IsTrue(PlacementStore.TryRead(path, out var read, out var error), error);
+            Assert.IsFalse(read.Disabled);
+            Assert.AreEqual(123.25f, read.X);
+            Assert.IsTrue(read.PreviewOnly);
+        }
+
+        [TestMethod]
         public void WorldsAndCharactersHaveSeparateSavesAndClearStaysCleared()
         {
             string path = PlacementStore.PathFor(directory, 111, 222);

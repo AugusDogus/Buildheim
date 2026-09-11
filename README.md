@@ -45,6 +45,7 @@ Use these with a hologram loaded and the planner closed. Movement follows your c
 | **Ctrl + Alt + wheel** | Rotate the hologram |
 | **Shift** with a positioning shortcut | Use larger steps |
 | **Home** | Toggle autobuild while the planner is closed |
+| **F7** | Enable or disable the current placement while the planner is closed |
 
 Normal steps are **0.1 m** and **1°**. Hold Shift for **1 m** and **22.5°**. Building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. These shortcuts take priority over crouching and sitting while positioning.
 
@@ -61,6 +62,12 @@ Normal steps are **0.1 m** and **1°**. Hold Shift for **1 m** and **22.5°**. B
 Both assisted modes find real placement surfaces around the chosen piece, so your crosshair does not have to hit its support surface precisely. Normal hammer reach, line of sight, recipe knowledge, crafting stations, placement restrictions, stamina, and durability still apply. The HUD explains placement failures when Valheim supplies a reason.
 
 Autobuild attempts at most one piece every half-second and respects the hammer cooldown. Menus and putting away the hammer pause it. Press **Home** to turn it off. Loading another blueprint, dying, or reconnecting turns autobuild off as well.
+
+### Take a break
+
+Press **F7**, or choose **Disable placement** in the Build tab, to hide the hologram and its HUD and stop all build assistance. Your position, layers and material checklist stay saved. Normal hammer building and camera controls work while the placement is disabled, and you can still use the Materials tab and record chest contents while gathering.
+
+Press **F7** again or choose **Enable placement** to resume. Disabling turns autobuild off; enable it again explicitly when ready. The placement stays disabled across reconnects until you enable it.
 
 ## Build from the bottom up
 
@@ -94,6 +101,7 @@ Your active hologram is saved automatically for each character and world, includ
 - A copy of the blueprint and its position and rotation.
 - Layer height and selected layer.
 - Gathering checkmarks and whether you chose Preview only.
+- Whether the placement is enabled or disabled.
 
 Reconnect with the same character to the same world to restore it. Moving the original blueprint file does not lose the saved plan. **Autobuild is always off after reconnecting.** Chest observations last only for the current world session.
 
@@ -107,7 +115,7 @@ These paths are relative to your r2modman profile:
 | --- | --- |
 | `BepInEx/config/Buildheim/blueprints` | Imported and captured blueprints |
 | `BepInEx/config/Buildheim/placements` | Saved holograms and gathering notes |
-| `BepInEx/config/augusdogus.Buildheim.cfg` | Planner key, autobuild key, and blueprint directory settings |
+| `BepInEx/config/augusdogus.Buildheim.cfg` | Planner, autobuild and placement keys, and blueprint directory settings |
 | `BepInEx/LogOutput.log` | Mod loading messages and errors |
 
 The configuration file is created on first launch. The positioning modifier combinations are currently fixed.

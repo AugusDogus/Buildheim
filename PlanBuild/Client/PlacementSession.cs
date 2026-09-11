@@ -33,14 +33,14 @@ namespace PlanBuild.Client
             var checks = checklist.CheckedNames;
             string signature = string.Join("/", new[] { position.x, position.y, position.z, projection.Yaw, projection.Layers.Height }
                 .Select(number => number.ToString("R", CultureInfo.InvariantCulture))) +
-                $"/{projection.Layers.Selected}/{mode == BuildMode.Guide}/" + SimpleJson.SimpleJson.SerializeObject(checks);
+                $"/{projection.Layers.Selected}/{mode == BuildMode.Guide}/{projection.Enabled}/" + SimpleJson.SimpleJson.SerializeObject(checks);
             if (signature == savedSignature) return true;
             var save = new PlacementSave
             {
                 Version = 1, Name = name, Blueprint = blueprint,
                 X = position.x, Y = position.y, Z = position.z, Yaw = projection.Yaw,
                 LayerHeight = projection.Layers.Height, Layer = projection.Layers.Selected,
-                PreviewOnly = mode == BuildMode.Guide, CheckedMaterials = checks
+                PreviewOnly = mode == BuildMode.Guide, Disabled = !projection.Enabled, CheckedMaterials = checks
             };
             if (!PlacementStore.TryWrite(path, save, out error)) return false;
             savedSignature = signature;

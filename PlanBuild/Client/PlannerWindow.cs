@@ -19,6 +19,7 @@ namespace PlanBuild.Client
         private Button[] modes;
         private GameObject buildControls;
         private Text buildTitle, modeDescription, layerLabel, positionLabel, status;
+        private Text placementToggle;
         private Slider layerHeight;
         private ScrollRect library;
         private MaterialsPanel materials;
@@ -33,7 +34,7 @@ namespace PlanBuild.Client
             if (!GUIManager.CustomGUIFront) return;
             if (!root) Create();
             root.SetActive(planner.Visible);
-            bool showHud = !planner.Visible && planner.Projection != null && Player.m_localPlayer.TakeInput();
+            bool showHud = !planner.Visible && planner.PlacementEnabled && Player.m_localPlayer.TakeInput();
             hud.SetActive(showHud);
             if (showHud)
             {
@@ -126,7 +127,8 @@ namespace PlanBuild.Client
                 value => planner.Projection?.Layers.SetHeight(Mathf.Round(value * 2) / 2));
             positionLabel = PlannerWidgets.Label(body, "", 0, 224, 644, 30, 18, true);
             PlannerWidgets.Label(body, ProjectionControls.Hints, 0, 257, 644, 58, 17);
-            PlannerWidgets.Button(body, "Position in world", 0, 336, 210, () => planner.SetVisible(false));
+            placementToggle = PlannerWidgets.Button(body, "Disable placement", 0, 336, 210,
+                () => planner.SetPlacementEnabled(!planner.PlacementEnabled)).GetComponentInChildren<Text>();
             PlannerWidgets.Button(body, "Move to my feet", 218, 336, 210, planner.MoveToFeet);
             PlannerWidgets.Button(body, "Clear hologram", 436, 336, 208, planner.Clear);
         }
@@ -141,8 +143,11 @@ namespace PlanBuild.Client
                 return;
             }
             buildTitle.text = $"{projection.Name}\n{projection.Pieces.Count(piece => piece.Completed)}/{projection.Pieces.Count} built | {projection.MissingPrefabs} unavailable";
-            for (int i = 0; i < modes.Length; i++) modes[i].interactable = i != (int)planner.Mode;
-            modeDescription.text = planner.Mode == BuildMode.Guide
+            placementToggle.text = planner.PlacementEnabled ? "Disable placement" : "Enable placement";
+            for (int i = 0; i < modes.Length; i++) modes[i].interactable = planner.PlacementEnabled && i != (int)planner.Mode;
+            modeDescription.text = !planner.PlacementEnabled
+                ? $"Placement disabled: hologram and assistance are off. Press {planner.Config.PlacementKey.Value} or Enable placement to resume."
+                : planner.Mode == BuildMode.Guide
                 ? "Preview only: the hologram is a guide. Select and place hammer pieces yourself."
                 : planner.Mode == BuildMode.Automatic
                     ? $"Autobuild ON: walk with your hammer to place nearby pieces. {planner.Config.AutoBuildKey.Value} pauses it."

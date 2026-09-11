@@ -51,6 +51,7 @@ namespace PlanBuild.Client
         public int MissingPrefabs { get; }
         public Vector3 Position { get; set; }
         public float Yaw { get; set; }
+        public bool Enabled { get; set; } = true;
         public Quaternion Rotation => Quaternion.Euler(0, Yaw, 0);
         private readonly Material material;
         private readonly MaterialPropertyBlock highlight = new MaterialPropertyBlock();

@@ -1,3 +1,8 @@
+## 0.20.2
+
+- Enable or disable the current placement with F7 or the Build tab. Disabled placements hide their hologram and HUD and release hammer and positioning controls.
+- Preserve disabled placements across reconnects, including their alignment, layers and material checklist. Disabling turns autobuild off.
+
 ## 0.20.1 (Buildheim)
 
 - Rename the mod, package, DLL and planner to Buildheim.
