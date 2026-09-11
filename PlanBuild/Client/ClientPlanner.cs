@@ -102,6 +102,7 @@ namespace PlanBuild.Client
         {
             if (Visible == value) return;
             Visible = value;
+            if (value) Hud.HidePieceSelection();
             if (playSound) PlannerPresentation.PlaySound(value);
             if (value && Selection.Editing) { Selection.End(); view.SelectCapture(); }
             UpdateAssistance();
