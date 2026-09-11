@@ -9,7 +9,7 @@ namespace PlanBuild.Client
 {
     internal sealed class PlannerWindow : IDisposable
     {
-        private enum Tab { Build, Blueprints, Materials }
+        private enum Tab { Build, Blueprints, Materials, Capture }
         private readonly ClientPlanner planner;
         private GameObject root;
         private GameObject hud;
@@ -23,9 +23,12 @@ namespace PlanBuild.Client
         private Slider layerHeight;
         private ScrollRect library;
         private MaterialsPanel materials;
+        private CapturePanel capture;
         private string listedFiles;
         private float nextRefresh;
         private Tab selected = Tab.Build;
+        public bool CaptureVisible => selected == Tab.Capture;
+        public void SelectCapture() { if (root) Select(Tab.Capture); else selected = Tab.Capture; }
 
         public PlannerWindow(ClientPlanner planner) { this.planner = planner; }
 
@@ -34,16 +37,25 @@ namespace PlanBuild.Client
             if (!GUIManager.CustomGUIFront) return;
             if (!root) Create();
             root.SetActive(planner.Visible);
-            bool showHud = planner.Config.ShowHud.Value && !planner.Visible && planner.PlacementEnabled && Player.m_localPlayer.TakeInput();
+            bool showHud = planner.Config.ShowHud.Value && !planner.Visible && (planner.PlacementEnabled || planner.Selection.Editing) && Player.m_localPlayer.TakeInput();
             hud.SetActive(showHud);
             if (showHud)
             {
-                string mode = ModeName(planner.Mode);
-                string layer = planner.Projection.Layers.Selected.HasValue
-                    ? $"Layer {planner.Projection.Layers.Ordinal}/{planner.Projection.Layers.Count}" : "All layers";
-                string detail = planner.Mode == BuildMode.Guide ? "Hologram only. Select and place pieces yourself." : planner.BuildStatus;
-                hudText.text = $"{mode} | {layer} | {planner.Config.ToggleKey.Value}: planner | {planner.Config.AutoBuildKey.Value}: autobuild | " +
-                    $"{planner.Config.PlacementKey.Value}: placement | {planner.Config.HudKey.Value}: HUD\n{detail}\n{ProjectionControls.Hints}";
+                if (planner.Selection.Editing)
+                {
+                    var selection = planner.Selection;
+                    string size = selection.TryBounds(out var box) ? $" | {box.Width:0.0} × {box.Height:0.0} × {box.Depth:0.0} m" : "";
+                    hudText.text = $"Capture | adjusting corner {selection.SelectedCorner}{size} | {planner.Config.ToggleKey.Value}: review and save\n{selection.Status}\n{CaptureSelection.Hints}";
+                }
+                else
+                {
+                    string mode = ModeName(planner.Mode);
+                    string layer = planner.Projection.Layers.Selected.HasValue
+                        ? $"Layer {planner.Projection.Layers.Ordinal}/{planner.Projection.Layers.Count}" : "All layers";
+                    string detail = planner.Mode == BuildMode.Guide ? "Hologram only. Select and place pieces yourself." : planner.BuildStatus;
+                    hudText.text = $"{mode} | {layer} | {planner.Config.ToggleKey.Value}: planner | {planner.Config.AutoBuildKey.Value}: autobuild | " +
+                        $"{planner.Config.PlacementKey.Value}: placement | {planner.Config.HudKey.Value}: HUD\n{detail}\n{ProjectionControls.Hints}";
+                }
             }
             if (!planner.Visible) return;
             hudToggle.text = $"{(planner.Config.ShowHud.Value ? "Hide HUD" : "Show HUD")} ({planner.Config.HudKey.Value})";
@@ -57,6 +69,7 @@ namespace PlanBuild.Client
             nextRefresh = Time.unscaledTime + 0.5f;
             RefreshLibrary();
             if (selected == Tab.Materials) materials.Refresh();
+            if (selected == Tab.Capture) capture.Refresh();
         }
 
         private void Create()
@@ -68,17 +81,18 @@ namespace PlanBuild.Client
             PlannerWidgets.Label(root.transform, "Buildheim", 28, 12, 360, 46, 32, true);
             hudToggle = PlannerWidgets.Button(root.transform, "Hide HUD", 396, 20, 164, planner.ToggleHud).GetComponentInChildren<Text>();
             PlannerWidgets.Button(root.transform, "Close", 572, 20, 100, () => planner.SetVisible(false));
-            tabs = new Button[3];
-            pages = new GameObject[3];
-            for (int i = 0; i < 3; i++)
+            tabs = new Button[4];
+            pages = new GameObject[4];
+            for (int i = 0; i < tabs.Length; i++)
             {
                 Tab tab = (Tab)i;
-                tabs[i] = PlannerWidgets.Button(root.transform, tab.ToString(), 28 + i * 216, 70, 210, () => Select(tab));
+                tabs[i] = PlannerWidgets.Button(root.transform, tab.ToString(), 28 + i * 164, 70, 152, () => Select(tab));
                 pages[i] = PlannerWidgets.Group(root.transform, 28, 124, 644, 442);
             }
             CreateBuild(pages[0].transform);
             CreateLibrary(pages[1].transform);
             materials = new MaterialsPanel(planner, pages[2].transform);
+            capture = new CapturePanel(planner, pages[3].transform);
             status = PlannerWidgets.Label(root.transform, "", 28, 578, 644, 46, 16);
             hud = PlannerWidgets.Group(GUIManager.CustomGUIFront.transform, 0, 0, 820, 118);
             var rect = hud.GetComponent<RectTransform>();
@@ -166,16 +180,10 @@ namespace PlanBuild.Client
 
         private void CreateLibrary(Transform parent)
         {
-            PlannerWidgets.Label(parent, "Choose a blueprint", 0, 0, 460, 30, 22, true);
+            PlannerWidgets.Label(parent, "Choose a blueprint", 0, 0, 330, 30, 22, true);
+            PlannerWidgets.Button(parent, "New blueprint", 350, 0, 162, SelectCapture);
             PlannerWidgets.Button(parent, "Refresh", 524, 0, 120, planner.Refresh);
-            library = PlannerWidgets.Scroll(parent, 0, 48, 644, 242);
-            PlannerWidgets.Label(parent, "Capture nearby buildings", 0, 304, 644, 30, 22, true);
-            var name = PlannerWidgets.Input(parent, "Blueprint name", 0, 346, 410);
-            float radius = 15;
-            var radiusText = PlannerWidgets.Label(parent, "Radius: 15 m", 0, 396, 140, 30);
-            PlannerWidgets.Slider(parent, 150, 396, 260, 2, 50, radius,
-                value => { radius = Mathf.Round(value); radiusText.text = $"Radius: {radius:0} m"; });
-            PlannerWidgets.Button(parent, "Capture and save", 430, 346, 214, () => planner.Capture(name.text, radius));
+            library = PlannerWidgets.Scroll(parent, 0, 48, 644, 390);
         }
 
         private void RefreshLibrary()
@@ -190,7 +198,7 @@ namespace PlanBuild.Client
                 PlannerWidgets.Button(library.content, Path.GetFileNameWithoutExtension(file), 4, row++ * 44 + 4, 612,
                     () => { if (planner.Load(file)) Select(Tab.Build); });
             }
-            if (row == 0) PlannerWidgets.Label(library.content, "No blueprints yet. Capture a building below, or add files to your blueprint folder and refresh.", 8, 8, 592, 90);
+            if (row == 0) PlannerWidgets.Label(library.content, "No blueprints yet. Choose New blueprint to capture a building, or add files to your blueprint folder and refresh.", 8, 8, 592, 90);
             library.content.sizeDelta = new Vector2(0, Math.Max(100, row * 44 + 8));
         }
 

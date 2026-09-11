@@ -1,3 +1,10 @@
+## 0.20.3
+
+- Replace radius capture with a dedicated Capture tab, two world-space corners and a visible selection box.
+- Pick corners with left/right click, switch with middle click, and adjust them using modifier keys and the mouse wheel.
+- Preview dimensions and piece count before saving. Capture uses corner A as its origin and preserves existing blueprint files.
+- Suspend hammer assistance and consume combat/build clicks while selecting an area.
+
 ## 0.20.2
 
 - Enable or disable the current placement with F7 or the Build tab. Disabled placements hide their hologram and HUD and release hammer and positioning controls.

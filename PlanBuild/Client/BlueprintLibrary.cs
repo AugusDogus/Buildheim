@@ -50,7 +50,25 @@ namespace PlanBuild.Client
             }
         }
 
-        public static bool TryCapture(string directory, string name, Player player, float radius, out string error)
+        public static List<PieceEntry> CapturePieces(CaptureBounds bounds, Vector3 origin)
+        {
+            var pieces = new List<PieceEntry>();
+            foreach (var piece in Piece.s_allPieces)
+            {
+                if (!piece || !piece.IsPlacedByPlayer()) continue;
+                var position = piece.transform.position;
+                if (!bounds.Contains(position.x, position.y, position.z)) continue;
+                var view = piece.GetComponent<ZNetView>();
+                if (!view || !view.IsValid()) continue;
+                var prefab = ZNetScene.instance.GetPrefab(view.GetZDO().GetPrefab());
+                if (!prefab || !prefab.GetComponent<Piece>()) continue;
+                pieces.Add(new PieceEntry(prefab.name, "Building", position - origin,
+                    piece.transform.rotation, string.Empty, piece.transform.lossyScale));
+            }
+            return pieces;
+        }
+
+        public static bool TryCapture(string directory, string name, CaptureBounds bounds, Vector3 origin, out string error)
         {
             error = string.Empty;
             name = name.Trim();
@@ -59,21 +77,15 @@ namespace PlanBuild.Client
                 error = "Use a name of 1 to 80 letters, numbers, spaces, underscores or hyphens.";
                 return false;
             }
-            var pieces = new List<PieceEntry>();
-            var origin = player.transform.position;
-            foreach (var piece in Piece.s_allPieces)
+            if (bounds == null || !bounds.HasVolume)
             {
-                if (!piece || !piece.IsPlacedByPlayer() || Vector3.Distance(piece.transform.position, origin) > radius) continue;
-                var view = piece.GetComponent<ZNetView>();
-                if (!view || !view.IsValid()) continue;
-                var prefab = ZNetScene.instance.GetPrefab(view.GetZDO().GetPrefab());
-                if (!prefab || !prefab.GetComponent<Piece>()) continue;
-                pieces.Add(new PieceEntry(prefab.name, "Building", piece.transform.position - origin,
-                    piece.transform.rotation, string.Empty, piece.transform.lossyScale));
+                error = "Select two corners with width, height and depth. Use Alt + wheel to raise the upper corner.";
+                return false;
             }
+            var pieces = CapturePieces(bounds, origin);
             if (pieces.Count == 0 || pieces.Count > BlueprintDocument.MaxPieces)
             {
-                error = $"Found {pieces.Count} pieces. Choose a radius containing 1 to {BlueprintDocument.MaxPieces} player-built pieces.";
+                error = $"Found {pieces.Count} pieces. Adjust the box to contain 1 to {BlueprintDocument.MaxPieces} loaded, player-built pieces.";
                 return false;
             }
             try

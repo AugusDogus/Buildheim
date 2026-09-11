@@ -30,7 +30,19 @@ You can build the DLL using the [development instructions](#development) below. 
 
 Completed pieces disappear from the hologram as they are detected in the loaded world.
 
-To make your own blueprint, use **Capture nearby buildings** in the Blueprints tab. Enter a name, choose a radius, and click **Capture and save**. It captures player-built pieces around you, using your feet as the blueprint origin. Existing files are never overwritten by capture.
+To make your own blueprint, use **New blueprint** in the Blueprints tab or open **Capture**.
+
+## Capture a building
+
+1. Enter a blueprint name and choose **Select / edit box**.
+2. Aim at a surface and **left-click** to set corner **A** (cyan). **Right-click** sets opposite corner **B** (orange). A visible box shows the capture area.
+3. Adjust the last corner you clicked with **Ctrl + wheel** (forward/back), **Ctrl + X + wheel** (sideways), or **Alt + wheel** (height). Steps are 0.1 m; hold **Shift** for 1 m. **Middle-click** switches which corner you adjust. Click either mouse button again to reposition that corner at your aim point.
+4. Enclose the whole building, including its foundation and roof. If both corners are at ground level, raise B with **Alt + wheel**. The box needs width, height and depth.
+5. Press **End** to review the corners, box dimensions and piece count, then choose **Save blueprint**. Use **Select / edit box** again to refine it.
+
+Capture includes loaded, player-built pieces whose placement points lie inside the box. Pieces may extend beyond those points, so leave room around the building. Corner A becomes the blueprint origin. Existing files are never overwritten.
+
+While selecting, mouse clicks pick corners without attacking, placing or removing pieces. Your loaded placement is temporarily hidden and autobuild is turned off. Opening the planner ends selection mode; **Clear selection** removes the box. Selection corners last for the current world session.
 
 ## Positioning controls
 

@@ -18,18 +18,21 @@ namespace PlanBuild.Client
         private float nextProgressCheck;
         public ClientConfig Config { get; }
         public BlueprintProjection Projection { get; private set; }
+        public CaptureSelection Selection { get; }
         public bool PlacementEnabled => Projection != null && Projection.Enabled;
-        private BlueprintProjection ActiveProjection => PlacementEnabled ? Projection : null;
+        private BlueprintProjection ActiveProjection => PlacementEnabled && !Selection.Editing ? Projection : null;
         public BuildMode Mode { get; private set; } = BuildMode.Assisted;
         public MaterialChecklist Materials { get; } = new MaterialChecklist();
         public string[] Files { get; private set; } = Array.Empty<string>();
-        public string Status { get; private set; } = "Choose a blueprint or capture nearby buildings.";
+        public string Status { get; private set; } = "Choose a blueprint or select a box to capture a building.";
         public bool Visible { get; private set; }
         public string BuildStatus => controls.Held ? "Positioning hologram. Release modifiers to build." : assistance.Status;
 
         public ClientPlanner(ClientConfig config)
         {
             Config = config;
+            Selection = new CaptureSelection(() => !Visible && Player.m_localPlayer &&
+                !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible());
             controls = new ProjectionControls(() => !Visible && Player.m_localPlayer &&
                 !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible()
                 ? ActiveProjection : null);
@@ -45,6 +48,7 @@ namespace PlanBuild.Client
                 ResetProjection();
                 session.Reset();
                 chests.Dispose();
+                Selection.Clear();
                 SetVisible(false);
                 scene = ZNetScene.instance;
             }
@@ -52,6 +56,7 @@ namespace PlanBuild.Client
             {
                 SaveSession();
                 if (Mode == BuildMode.Automatic) Mode = BuildMode.Assisted;
+                Selection.End();
                 SetVisible(false);
                 assistance.SetProjection(null);
                 view.Hide();
@@ -76,7 +81,7 @@ namespace PlanBuild.Client
                 {
                     if (Input.GetKeyDown(Config.PlacementKey.Value)) SetPlacementEnabled(!PlacementEnabled);
                     if (Input.GetKeyDown(Config.HudKey.Value)) ToggleHud();
-                    if (PlacementEnabled && Input.GetKeyDown(Config.AutoBuildKey.Value))
+                    if (!Selection.Editing && PlacementEnabled && Input.GetKeyDown(Config.AutoBuildKey.Value))
                         SetMode(Mode == BuildMode.Automatic ? BuildMode.Assisted : BuildMode.Automatic);
                 }
                 if (Input.GetKeyDown(Config.ToggleKey.Value))
@@ -87,6 +92,7 @@ namespace PlanBuild.Client
                 if (Visible && Input.GetKeyDown(KeyCode.Escape)) SetVisible(false);
             }
             controls.Update();
+            Selection.Update();
             UpdateAssistance();
             view.Update();
         }
@@ -95,6 +101,7 @@ namespace PlanBuild.Client
         {
             if (Visible == value) return;
             Visible = value;
+            if (value && Selection.Editing) { Selection.End(); view.SelectCapture(); }
             UpdateAssistance();
             GUIManager.BlockInput(value);
             if (Player.m_localPlayer)
@@ -128,7 +135,11 @@ namespace PlanBuild.Client
         private void UpdateAssistance() => assistance.SetProjection(!Visible && !controls.Held && Mode != BuildMode.Guide ? ActiveProjection : null, Mode);
         public void DrawProjection()
         {
-            if (Player.m_localPlayer && scene == ZNetScene.instance) ActiveProjection?.Draw(assistance.SelectedPiece);
+            if (Player.m_localPlayer && !Player.m_localPlayer.IsDead() && scene == ZNetScene.instance)
+            {
+                ActiveProjection?.Draw(assistance.SelectedPiece);
+                Selection.Draw(Visible && view.CaptureVisible);
+            }
         }
 
         public void Refresh()
@@ -137,10 +148,20 @@ namespace PlanBuild.Client
             else Status = error;
         }
 
-        public void Capture(string name, float radius)
+        public void BeginCapture()
         {
-            if (BlueprintLibrary.TryCapture(Config.Directory.Value, name, Player.m_localPlayer, radius, out var error))
-            { Refresh(); Status = $"Saved {name}.blueprint. Your feet define its origin."; }
+            if (Mode == BuildMode.Automatic) Mode = BuildMode.Assisted;
+            Selection.Begin();
+            SetVisible(false);
+            Status = $"Select corners A and B, then press {Config.ToggleKey.Value} to review and save.";
+        }
+
+        public void Capture(string name)
+        {
+            if (!Selection.TryBounds(out var bounds) || !Selection.First.HasValue)
+            { Status = "Select both corners before saving a blueprint."; return; }
+            if (BlueprintLibrary.TryCapture(Config.Directory.Value, name, bounds, Selection.First.Value, out var error))
+            { Refresh(); Selection.End(); Status = $"Saved {name}.blueprint. Corner A defines its origin."; }
             else Status = error;
         }
 
@@ -223,6 +244,6 @@ namespace PlanBuild.Client
             Projection = null;
             Materials.ClearChecks();
         }
-        public void Dispose() { SaveSession(); ResetProjection(); SetVisible(false); chests.Dispose(); view.Dispose(); assistance.Dispose(); controls.Dispose(); }
+        public void Dispose() { SaveSession(); ResetProjection(); SetVisible(false); chests.Dispose(); view.Dispose(); assistance.Dispose(); controls.Dispose(); Selection.Dispose(); }
     }
 }
