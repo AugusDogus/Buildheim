@@ -1,0 +1,4 @@
+Asset: ../icon.png
+Tool: built-in image_gen
+
+Use case: logo-brand. Asset type: square package icon for Buildheim, a client-side Valheim mod for planning buildings as private holograms and constructing them with a hammer. Create a finished, distinctive Norse crafting emblem: a timber longhouse transitioning from luminous cyan blueprint outlines into solid warm wood, with a simple crafting hammer integrated into the emblem. Dark wood background, restrained carved gold edging, strong readable silhouette, hand-crafted fantasy game aesthetic consistent with Valheim. Large clear title text exactly 'BUILDHEIM', spelled B U I L D H E I M, in an angular serif style. Designed to remain legible when reduced to a 256 by 256 mod-manager icon. Square composition, generous padding, no screenshot UI, no other text, no watermark. Brand new art, do not retain the old PlanBuild logo.
