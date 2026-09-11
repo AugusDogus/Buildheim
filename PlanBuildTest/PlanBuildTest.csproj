@@ -30,6 +30,7 @@
     <Compile Include="../PlanBuild/Client/AutoBuildQueue.cs" Link="AutoBuildQueue.cs" />
     <Compile Include="../PlanBuild/Client/BlueprintLayers.cs" Link="BlueprintLayers.cs" />
     <Compile Include="../PlanBuild/Client/CaptureBounds.cs" Link="CaptureBounds.cs" />
+    <Compile Include="../PlanBuild/Client/MenuSlide.cs" Link="MenuSlide.cs" />
     <None Update="resources/*.blueprint" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

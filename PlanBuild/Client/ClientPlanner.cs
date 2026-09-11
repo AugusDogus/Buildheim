@@ -49,7 +49,8 @@ namespace PlanBuild.Client
                 session.Reset();
                 chests.Dispose();
                 Selection.Clear();
-                SetVisible(false);
+                SetVisible(false, false);
+                view.Hide();
                 scene = ZNetScene.instance;
             }
             if (!Player.m_localPlayer || Player.m_localPlayer.IsDead())
@@ -57,7 +58,7 @@ namespace PlanBuild.Client
                 SaveSession();
                 if (Mode == BuildMode.Automatic) Mode = BuildMode.Assisted;
                 Selection.End();
-                SetVisible(false);
+                SetVisible(false, false);
                 assistance.SetProjection(null);
                 view.Hide();
                 return;
@@ -97,10 +98,11 @@ namespace PlanBuild.Client
             view.Update();
         }
 
-        public void SetVisible(bool value)
+        public void SetVisible(bool value, bool playSound = true)
         {
             if (Visible == value) return;
             Visible = value;
+            if (playSound) PlannerPresentation.PlaySound(value);
             if (value && Selection.Editing) { Selection.End(); view.SelectCapture(); }
             UpdateAssistance();
             GUIManager.BlockInput(value);
@@ -244,6 +246,6 @@ namespace PlanBuild.Client
             Projection = null;
             Materials.ClearChecks();
         }
-        public void Dispose() { SaveSession(); ResetProjection(); SetVisible(false); chests.Dispose(); view.Dispose(); assistance.Dispose(); controls.Dispose(); Selection.Dispose(); }
+        public void Dispose() { SaveSession(); ResetProjection(); SetVisible(false, false); chests.Dispose(); view.Dispose(); assistance.Dispose(); controls.Dispose(); Selection.Dispose(); }
     }
 }

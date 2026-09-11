@@ -12,6 +12,7 @@ namespace PlanBuild.Client
         private enum Tab { Build, Blueprints, Materials, Capture }
         private readonly ClientPlanner planner;
         private GameObject root;
+        private PlannerPresentation presentation;
         private GameObject hud;
         private Text hudText;
         private GameObject[] pages;
@@ -36,8 +37,8 @@ namespace PlanBuild.Client
         {
             if (!GUIManager.CustomGUIFront) return;
             if (!root) Create();
-            root.SetActive(planner.Visible);
-            bool showHud = planner.Config.ShowHud.Value && !planner.Visible && (planner.PlacementEnabled || planner.Selection.Editing) && Player.m_localPlayer.TakeInput();
+            presentation.Update(planner.Visible, GUIManager.CustomGUIFront.GetComponent<RectTransform>().rect);
+            bool showHud = planner.Config.ShowHud.Value && !presentation.Present && (planner.PlacementEnabled || planner.Selection.Editing) && Player.m_localPlayer.TakeInput();
             hud.SetActive(showHud);
             if (showHud)
             {
@@ -59,10 +60,6 @@ namespace PlanBuild.Client
             }
             if (!planner.Visible) return;
             hudToggle.text = $"{(planner.Config.ShowHud.Value ? "Hide HUD" : "Show HUD")} ({planner.Config.HudKey.Value})";
-            // Fit within Jotunn's scaled canvas, including small windows and ultrawide screens.
-            var canvas = GUIManager.CustomGUIFront.GetComponent<RectTransform>().rect;
-            float scale = Mathf.Min(1, Mathf.Min((canvas.width - 32) / 700f, (canvas.height - 32) / 640f));
-            root.transform.localScale = Vector3.one * Mathf.Max(0.3f, scale);
             RefreshBuild();
             status.text = planner.Status;
             if (Time.unscaledTime < nextRefresh) return;
@@ -78,6 +75,7 @@ namespace PlanBuild.Client
             root = gui.CreateWoodpanel(GUIManager.CustomGUIFront.transform, new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, 700, 640, false);
             root.name = "Buildheim planner";
+            presentation = new PlannerPresentation(root);
             PlannerWidgets.Label(root.transform, "Buildheim", 28, 12, 360, 46, 32, true);
             hudToggle = PlannerWidgets.Button(root.transform, "Hide HUD", 396, 20, 164, planner.ToggleHud).GetComponentInChildren<Text>();
             PlannerWidgets.Button(root.transform, "Close", 572, 20, 100, () => planner.SetVisible(false));
@@ -202,7 +200,7 @@ namespace PlanBuild.Client
             library.content.sizeDelta = new Vector2(0, Math.Max(100, row * 44 + 8));
         }
 
-        public void Hide() { if (root) root.SetActive(false); if (hud) hud.SetActive(false); }
+        public void Hide() { presentation?.Hide(); if (hud) hud.SetActive(false); }
         public void Dispose() { if (root) UnityEngine.Object.Destroy(root); if (hud) UnityEngine.Object.Destroy(hud); }
     }
 }

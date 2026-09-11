@@ -62,6 +62,8 @@ Use these with a hologram loaded and the planner closed. Movement follows your c
 
 Normal steps are **0.1 m** and **1°**. Hold Shift for **1 m** and **22.5°**. Building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. These shortcuts take priority over crouching and sitting while positioning.
 
+The planner slides open and closed with Valheim's inventory timing and uses its opening and closing sounds. Closing releases controls immediately; toggling again during the slide reverses its direction.
+
 **Move to my feet** in the Build tab relocates the blueprint origin to your character. Shortcut hints are shown while the planner is closed, unless you disable the placement or hide the HUD.
 
 ## Choose how to build

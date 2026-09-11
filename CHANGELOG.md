@@ -4,6 +4,7 @@
 - Pick corners with left/right click, switch with middle click, and adjust them using modifier keys and the mouse wheel.
 - Preview dimensions and piece count before saving. Capture uses corner A as its origin and preserves existing blueprint files.
 - Suspend hammer assistance and consume combat/build clicks while selecting an area.
+- Slide the planner in and out with Valheim inventory timing and reuse the inventory's opening and closing sounds.
 
 ## 0.20.2
 
