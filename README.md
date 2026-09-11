@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="banner.png" alt="Buildheim, a Viking longhouse taking shape from a blueprint" width="900">
+  <img src="banner.png" alt="Buildheim: blueprints for Valheim" width="900">
 </p>
 
 <p align="center">Plan it. Gather it. Build it.</p>
