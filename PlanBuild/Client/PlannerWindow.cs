@@ -19,7 +19,7 @@ namespace PlanBuild.Client
         private Button[] modes;
         private GameObject buildControls;
         private Text buildTitle, modeDescription, layerLabel, positionLabel, status;
-        private Text placementToggle;
+        private Text placementToggle, hudToggle;
         private Slider layerHeight;
         private ScrollRect library;
         private MaterialsPanel materials;
@@ -34,7 +34,7 @@ namespace PlanBuild.Client
             if (!GUIManager.CustomGUIFront) return;
             if (!root) Create();
             root.SetActive(planner.Visible);
-            bool showHud = !planner.Visible && planner.PlacementEnabled && Player.m_localPlayer.TakeInput();
+            bool showHud = planner.Config.ShowHud.Value && !planner.Visible && planner.PlacementEnabled && Player.m_localPlayer.TakeInput();
             hud.SetActive(showHud);
             if (showHud)
             {
@@ -42,9 +42,11 @@ namespace PlanBuild.Client
                 string layer = planner.Projection.Layers.Selected.HasValue
                     ? $"Layer {planner.Projection.Layers.Ordinal}/{planner.Projection.Layers.Count}" : "All layers";
                 string detail = planner.Mode == BuildMode.Guide ? "Hologram only. Select and place pieces yourself." : planner.BuildStatus;
-                hudText.text = $"{mode} | {layer} | {planner.Config.ToggleKey.Value}: planner | {planner.Config.AutoBuildKey.Value}: autobuild\n{detail}\n{ProjectionControls.Hints}";
+                hudText.text = $"{mode} | {layer} | {planner.Config.ToggleKey.Value}: planner | {planner.Config.AutoBuildKey.Value}: autobuild | " +
+                    $"{planner.Config.PlacementKey.Value}: placement | {planner.Config.HudKey.Value}: HUD\n{detail}\n{ProjectionControls.Hints}";
             }
             if (!planner.Visible) return;
+            hudToggle.text = $"{(planner.Config.ShowHud.Value ? "Hide HUD" : "Show HUD")} ({planner.Config.HudKey.Value})";
             // Fit within Jotunn's scaled canvas, including small windows and ultrawide screens.
             var canvas = GUIManager.CustomGUIFront.GetComponent<RectTransform>().rect;
             float scale = Mathf.Min(1, Mathf.Min((canvas.width - 32) / 700f, (canvas.height - 32) / 640f));
@@ -63,7 +65,8 @@ namespace PlanBuild.Client
             root = gui.CreateWoodpanel(GUIManager.CustomGUIFront.transform, new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, 700, 640, false);
             root.name = "Buildheim planner";
-            PlannerWidgets.Label(root.transform, "Buildheim", 28, 12, 480, 46, 32, true);
+            PlannerWidgets.Label(root.transform, "Buildheim", 28, 12, 360, 46, 32, true);
+            hudToggle = PlannerWidgets.Button(root.transform, "Hide HUD", 396, 20, 164, planner.ToggleHud).GetComponentInChildren<Text>();
             PlannerWidgets.Button(root.transform, "Close", 572, 20, 100, () => planner.SetVisible(false));
             tabs = new Button[3];
             pages = new GameObject[3];

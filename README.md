@@ -46,10 +46,11 @@ Use these with a hologram loaded and the planner closed. Movement follows your c
 | **Shift** with a positioning shortcut | Use larger steps |
 | **Home** | Toggle autobuild while the planner is closed |
 | **F7** | Enable or disable the current placement while the planner is closed |
+| **F8** | Show or hide Buildheim's HUD while the planner is closed |
 
 Normal steps are **0.1 m** and **1°**. Hold Shift for **1 m** and **22.5°**. Building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. These shortcuts take priority over crouching and sitting while positioning.
 
-**Move to my feet** in the Build tab relocates the blueprint origin to your character. Shortcut hints remain visible while the planner is closed.
+**Move to my feet** in the Build tab relocates the blueprint origin to your character. Shortcut hints are shown while the planner is closed, unless you disable the placement or hide the HUD.
 
 ## Choose how to build
 
@@ -68,6 +69,8 @@ Autobuild attempts at most one piece every half-second and respects the hammer c
 Press **F7**, or choose **Disable placement** in the Build tab, to hide the hologram and its HUD and stop all build assistance. Your position, layers and material checklist stay saved. Normal hammer building and camera controls work while the placement is disabled, and you can still use the Materials tab and record chest contents while gathering.
 
 Press **F7** again or choose **Enable placement** to resume. Disabling turns autobuild off; enable it again explicitly when ready. The placement stays disabled across reconnects until you enable it.
+
+To hide only the build status and shortcut hints, press **F8** or use **Hide HUD** at the top of the planner. Use the same key or **Show HUD** to bring it back. This preference persists across restarts and does not change the hologram or build mode, including autobuild.
 
 ## Build from the bottom up
 
@@ -115,7 +118,7 @@ These paths are relative to your r2modman profile:
 | --- | --- |
 | `BepInEx/config/Buildheim/blueprints` | Imported and captured blueprints |
 | `BepInEx/config/Buildheim/placements` | Saved holograms and gathering notes |
-| `BepInEx/config/augusdogus.Buildheim.cfg` | Planner, autobuild and placement keys, and blueprint directory settings |
+| `BepInEx/config/augusdogus.Buildheim.cfg` | Planner, autobuild, placement and HUD keys; HUD visibility; blueprint directory |
 | `BepInEx/LogOutput.log` | Mod loading messages and errors |
 
 The configuration file is created on first launch. The positioning modifier combinations are currently fixed.

@@ -75,6 +75,7 @@ namespace PlanBuild.Client
                 if (!Visible && Player.m_localPlayer.TakeInput())
                 {
                     if (Input.GetKeyDown(Config.PlacementKey.Value)) SetPlacementEnabled(!PlacementEnabled);
+                    if (Input.GetKeyDown(Config.HudKey.Value)) ToggleHud();
                     if (PlacementEnabled && Input.GetKeyDown(Config.AutoBuildKey.Value))
                         SetMode(Mode == BuildMode.Automatic ? BuildMode.Assisted : BuildMode.Automatic);
                 }
@@ -123,6 +124,7 @@ namespace PlanBuild.Client
             Mode = mode;
             UpdateAssistance();
         }
+        public void ToggleHud() => Config.ShowHud.Value = !Config.ShowHud.Value;
         private void UpdateAssistance() => assistance.SetProjection(!Visible && !controls.Held && Mode != BuildMode.Guide ? ActiveProjection : null, Mode);
         public void DrawProjection()
         {
