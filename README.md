@@ -1,103 +1,148 @@
 # PlanBuild
 
-A client-only blueprint planner for Valheim. Capture buildings, load `.blueprint` or `.vbuild` files, and position a private hologram as a building guide. The server and other players do not need PlanBuild.
+A client-only blueprint mod for Valheim, inspired by Litematica. Load or capture a building, position a private hologram, and build it with your normal hammer.
 
-Install BepInEx, Jötunn 2.30.0 or newer, and this build on your client. No server installation is needed.
+**Only you need the mod.** The server and other players do not need PlanBuild. Your blueprint stays local; the pieces you build become ordinary world objects. Building uses materials from your inventory.
 
-Compatibility checks target Valheim **1.0.7** (Steam build 25185596), using BepInExPack 5.4.2350 and Jötunn 2.30.0. The release build and automated format, material and placement-contract tests pass against those assemblies. In-game loading, rendering and multiplayer placement remain unverified. Jötunn 2.30.0 includes the upstream Valheim 1.0.7 fixes; older Jötunn versions are not supported by this build.
+## Install
 
-## Usage
+In your r2modman profile:
 
-1. Join a world and press **End** to open the planner.
-2. Put blueprint files in `BepInEx/config/PlanBuild/blueprints`, or use **Capture and save** to capture player-built pieces within a radius of your character. Your feet define the capture origin.
-3. Choose a file in **Blueprints**. The planner opens **Build**, with mode, layer and positioning controls together. Close it to position the hologram with the shortcuts below.
-4. Select **Click to build**, close the planner, and equip the normal hammer. Aim at a missing hologram piece, then click. Assistance selects the learned recipe, aligns its position and rotation, and finds a nearby real placement surface without requiring your crosshair to hit that surface.
-5. Valheim validates and places the piece, then consumes its materials, stamina and tool durability normally. Completed pieces disappear from the hologram.
+1. Install **BepInExPack Valheim 5.4.2333 or newer** and **Jötunn 2.30.0 or newer**.
+2. Copy this project's `PlanBuild.dll` into a folder under `BepInEx/plugins`. Keep only one PlanBuild DLL in the profile.
+3. Launch with **Start modded**, join a world, and press **End**.
 
-You must carry the materials yourself. Nearby containers do not satisfy assistance's inventory check. Normal hammer reach, recipe knowledge, crafting stations, wards and placement restrictions still apply. Free-build world settings must be disabled for assistance. Scaled imports remain visual guides because normal hammer placement cannot reproduce arbitrary scales.
+You can build the DLL using the [development instructions](#development) below. Use this project's build: the original PlanBuild package has a different workflow. Restart Valheim after replacing the DLL.
 
-Select **Preview only** for ordinary hammer behavior. The selected mode stays visibly highlighted and explained in the Build tab and HUD. Hold Shift while adjusting position for 1 m steps. The hologram stays fixed as you move around. Its blueprint, position, rotation, selected layer and gathering checkmarks are saved automatically for each character and world.
+**Compatibility:** compilation and automated checks pass against Valheim **1.0.7**, BepInExPack **5.4.2350**, and Jötunn **2.30.0**. This is a development build. The new UI, targeting, and reconnect workflow still need in-game validation; multiplayer compatibility is not yet fully verified.
 
-The planner key and blueprint directory are configurable under `[Client]` in `marcopogo.PlanBuild.cfg`. Blueprint files stay on your computer. Files can be shared manually.
+## Your first build
 
-With the planner closed, hold **Ctrl + mouse wheel** to move the hologram toward/away from your view, **Ctrl + X + wheel** to move sideways, **Alt + wheel** to adjust height, or **Ctrl + Alt + wheel** to rotate. Hold **Shift** for 1 m / 22.5 degree steps instead of 0.1 m / 1 degree. Building pauses while these positioning modifiers are held. The wheel controls the hologram without also zooming the camera or rotating the hammer piece.
+1. Put `.blueprint` or `.vbuild` files in `BepInEx/config/PlanBuild/blueprints` inside your profile. Extract downloaded ZIPs first. Subfolders work too.
+2. Press **End**, open **Blueprints**, and click **Refresh**. Choose a building to load its hologram and open the **Build** tab.
+3. Close the planner and position the hologram with the shortcuts below. Loading or moving a hologram does not spend materials.
+4. Open **Materials** to see what you need. Gather supplies and carry the materials for the pieces you want to place.
+5. Select **Click to build**, close the planner, and equip your normal hammer. Aim at a missing hologram piece and click. PlanBuild selects its recipe, position, and rotation, then Valheim checks and places it.
 
-Only meshes are drawn for holograms. They have no collision, network objects, or persistent world data. Missing prefabs and unsupported visuals are counted in the planner. Modded pieces still require their original piece mods wherever those mods require installation, including the server. Terrain instructions, container inventories and custom snap markers are not applied.
+Completed pieces disappear from the hologram as they are detected in the loaded world.
+
+To make your own blueprint, use **Capture nearby buildings** in the Blueprints tab. Enter a name, choose a radius, and click **Capture and save**. It captures player-built pieces around you, using your feet as the blueprint origin. Existing files are never overwritten by capture.
+
+## Positioning controls
+
+Use these with a hologram loaded and the planner closed. Movement follows your camera's horizontal facing direction.
+
+| Control | Action |
+| --- | --- |
+| **End** | Open or close the planner |
+| **Ctrl + wheel** | Move forward or backward |
+| **Ctrl + X + wheel** | Move sideways |
+| **Alt + wheel** | Raise or lower the hologram |
+| **Ctrl + Alt + wheel** | Rotate the hologram |
+| **Shift** with a positioning shortcut | Use larger steps |
+| **Home** | Toggle autobuild while the planner is closed |
+
+Normal steps are **0.1 m** and **1°**. Hold Shift for **1 m** and **22.5°**. Building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. These shortcuts take priority over crouching and sitting while positioning.
+
+**Move to my feet** in the Build tab relocates the blueprint origin to your character. Shortcut hints remain visible while the planner is closed.
+
+## Choose how to build
+
+| Mode | What happens |
+| --- | --- |
+| **Preview only** | See the hologram and select and place hammer pieces yourself. |
+| **Click to build** | Aim at a missing hologram piece and click. Its recipe and alignment are selected for you. |
+| **Autobuild** | Walk with your hammer equipped. Nearby eligible pieces are placed without aiming or clicking. |
+
+Both assisted modes find real placement surfaces around the chosen piece, so your crosshair does not have to hit its support surface precisely. Normal hammer reach, line of sight, recipe knowledge, crafting stations, placement restrictions, stamina, and durability still apply. The HUD explains placement failures when Valheim supplies a reason.
+
+Autobuild attempts at most one piece every half-second and respects the hammer cooldown. Menus and putting away the hammer pause it. Press **Home** to turn it off. Loading another blueprint, dying, or reconnecting turns autobuild off as well.
+
+## Build from the bottom up
+
+In the Build tab, choose **Bottom** to show the lowest occupied layer. Finish it, then use **Next** to move upward. **Previous** moves down, and **All layers** shows the whole blueprint again. Empty layers are skipped.
+
+Only pieces in the selected layer are shown and eligible for assisted building. Autobuild does not advance layers automatically.
+
+**Layer height** ranges from **0.5 to 4 m**, with a **2 m** default. A piece belongs to the layer containing its origin, so a tall wall can extend beyond that layer. Changing the layer height returns a selected layer to the bottom.
 
 ## Materials and gathering
 
-The **Materials** tab lists costs for unfinished pieces, either across the whole blueprint or just the selected layer. **Need** is the remaining build cost, **Bag** counts your inventory, **Chests** sums observed chest contents, and **Gather** is the shortfall after bag and chest counts. Unavailable prefabs are excluded and reported.
+The Materials tab lists costs for unfinished pieces. Switch between the whole blueprint and the selected layer.
 
-Open a chest normally while a blueprint is loaded to record it. Reopening updates that chest instead of adding it twice, and inventory changes in observed, loaded chests update their counts. Unloaded chests retain their last observed counts, which may be stale. **Forget chests** clears observations; leaving the world also clears them. Nothing is taken from a chest automatically.
+| Column | Meaning |
+| --- | --- |
+| **Need** | Materials required for the remaining pieces |
+| **Bag** | Materials currently in your inventory |
+| **Chests** | Last known contents of chests you have opened |
+| **Gather** | What is still missing after bag and chest counts |
 
-Check rows individually, use **Check stocked** for rows with no gathering shortfall, or **Check all** to bulk mark the current list. **Reset checks** clears the notes. Checkmarks never change quantities or satisfy placement costs: building still requires the materials in your own inventory.
+Open chests normally while a blueprint is loaded to record their contents. Opening the same chest again updates its count instead of counting it twice. Changes in observed, loaded chests update their counts; unloaded chests retain their last known contents. Those counts can become stale if someone moves items. **Forget chests** clears the observations.
 
-## Autobuild
+Check off individual materials, use **Check stocked** to mark rows with nothing left to gather, or **Check all** to mark the current list. **Reset checks** clears your marks.
 
-Select **Autobuild** in the planner, close it, and walk with the normal hammer equipped. It automatically tries nearby missing pieces without aiming or clicking. Press **Home** to switch between autobuild and click-to-build; the hotkey is configurable under `[Client]`.
+**Checkmarks are gathering notes.** They do not change quantities or authorize building. Chest contents are never withdrawn automatically: the materials must be in your own inventory when you build. Costs exclude unavailable pieces, which the planner reports. Completion counts reflect construction detected in the loaded world.
 
-Autobuild attempts at most one piece every half-second, and respects the normal hammer cooldown. It requires inventory materials, stamina, hammer durability, a learned recipe and any crafting station. Both assisted modes probe around the selected piece for real surfaces within reach and line of sight, then run the normal placement checks. Each probe stops at its first collider. Blocked autobuild candidates are skipped and retried after other pieces. The HUD explains specific placement failures when Valheim reports them; generic rejections ask you to check overlap, support and surface restrictions.
+## Pick up where you left off
 
-Opening a menu or putting the hammer away pauses autobuild. Loading a blueprint, dying or leaving the world resets it to click-to-build. The HUD shows when autobuild is on. Autobuild stays within the selected layer and does not advance to the next layer automatically.
+Your active hologram is saved automatically for each character and world, including:
 
-## Building by layers
+- A copy of the blueprint and its position and rotation.
+- Layer height and selected layer.
+- Gathering checkmarks and whether you chose Preview only.
 
-Use **Bottom** in the planner to start with the lowest occupied layer, then **Next** to work upward. **Previous** moves down and **All layers** restores the full blueprint. Empty height bands are skipped.
+Reconnect with the same character to the same world to restore it. Moving the original blueprint file does not lose the saved plan. **Autobuild is always off after reconnecting.** Chest observations last only for the current world session.
 
-The **Layer height** slider sets band thickness from 0.5 to 4 m (default 2 m). Heights are relative to the hologram origin. Whole pieces belong to the band containing their origin, so a tall wall can extend past a band's boundary. Changing the band thickness restarts a selected layer at the bottom.
+There is one active hologram per character and world. Loading another blueprint replaces it. **Clear hologram** also removes its saved placement. If a save cannot be read, the planner reports the problem and preserves the file.
 
-Only the selected layer's missing pieces are shown or eligible for assisted placement and autobuild. A built/total counter shows progress within that layer. Finish it, open the planner and select **Next**, then close the planner to resume. Existing real construction remains visible throughout.
+## Files and settings
 
-## Upgrading from the original mod
+These paths are relative to your r2modman profile:
 
-This is a replacement for the original shared planning workflow. Plan Hammer, rune inventory items, totems, shared plans, server blueprint sharing, terrain tools and direct bulk building are no longer registered. Old server settings do not apply.
+| Path | Contents |
+| --- | --- |
+| `BepInEx/config/PlanBuild/blueprints` | Imported and captured blueprints |
+| `BepInEx/config/PlanBuild/placements` | Saved holograms and gathering notes |
+| `BepInEx/config/marcopogo.PlanBuild.cfg` | Planner key, autobuild key, and blueprint directory settings |
+| `BepInEx/LogOutput.log` | Mod loading messages and errors |
 
-Back up characters and worlds that contain original PlanBuild items or planned pieces before switching. This version does not migrate those networked objects. Finish or remove old plans with the original mod first. Existing local blueprint files can still be imported.
+The configuration file is created on first launch. The positioning modifier combinations are currently fixed.
 
-## Saved placements
+## Blueprint support
 
-Reconnect with the same character to the same world to restore your last active hologram. Local saves live in `BepInEx/config/PlanBuild/placements`. They include a blueprint copy, so moving the original import file does not lose the plan. Completed real pieces are rediscovered from the world rather than trusted from the save.
+PlanBuild reads `.blueprint` and `.vbuild` files, up to **10,000 pieces** and **8 MB** per file.
 
-Autobuild is always off after reconnecting. Chest observations are session-only. **Clear hologram** also clears its saved placement. Invalid saves are preserved and reported in the planner so you can load a blueprint manually without losing the old file.
+- Terrain edits, container contents, and custom snap markers are not applied.
+- Pieces with nonstandard scales can be displayed but cannot be placed by hammer assistance.
+- Modded pieces require their original piece mods, including on the server when those mods require it.
+- Assisted building requires resource costs. Disable the world's free-build setting to use it.
+
+When switching from the original PlanBuild, finish or remove its shared plans with the original mod first and back up affected worlds and characters. This version does not migrate its plan objects, runes, Plan Hammer, or totems. Existing local blueprint files can still be imported.
 
 ## Development
 
-Build with a .NET SDK and local Valheim/BepInEx assemblies:
+Use a **.NET 8 SDK or newer**, a local Valheim installation, and BepInEx from your mod profile. From the repository root:
 
 ```sh
-dotnet build PlanBuild/PlanBuild.csproj -p:VALHEIM_INSTALL="/path/to/Valheim" -p:BEPINEX_PATH="/path/to/profile/BepInEx"
+dotnet build PlanBuild/PlanBuild.csproj -c Release \
+  -p:VALHEIM_INSTALL="/path/to/Valheim" \
+  -p:BEPINEX_PATH="/path/to/profile/BepInEx"
+
+dotnet test PlanBuildTest/PlanBuildTest.csproj \
+  -p:VALHEIM_INSTALL="/path/to/Valheim" \
+  -p:BEPINEX_PATH="/path/to/profile/BepInEx"
 ```
 
-`BEPINEX_PATH` defaults to the game's `BepInEx` directory. `Environment.props` can supply these paths. Reference assemblies are publicized inside `obj`, leaving the installed game unchanged. Building does not install or publish the mod.
+The mod DLL is `PlanBuild/bin/Release/net48/PlanBuild.dll`. Install only the mod DLL, not game assemblies or the entire build directory. Building does not install or publish anything and does not modify the installed game assemblies. `Environment.props` can supply local paths; `BEPINEX_PATH` defaults to the game's `BepInEx` directory.
 
-The explicit compile list includes only the client runtime and the reusable piece format. The legacy planning, networking and asset source remains in the repository for reference and is excluded from the assembly. HookGenPatcher is no longer required.
+The client implementation lives in [`PlanBuild/Client`](PlanBuild/Client). Legacy source remains in the repository but is excluded from the runtime build.
 
-Run format tests and placement compatibility checks with the same paths:
+Tests cover blueprint parsing, material accounting, layer selection, autobuild scheduling, placement saves, and the game methods used by the hammer and input hooks. They do not run Unity. Runtime validation should include UI layout, modifier shortcuts, obstructed placement, inventory and chest transfers, reconnecting, and a vanilla server with an unmodded observer.
 
-```sh
-dotnet test PlanBuildTest/PlanBuildTest.csproj -p:VALHEIM_INSTALL="/path/to/Valheim" -p:BEPINEX_PATH="/path/to/profile/BepInEx"
-```
+For bug reports, include the mod and Valheim versions, steps to reproduce, and relevant log entries. Include the blueprint file when the issue depends on a particular building.
 
-These tests do not run Unity. Before release, test with a vanilla server and an unmodded observer: capture/load a blueprint, align it, place pieces with exact materials, retry without materials, and check unknown recipes, missing stations, wards, blocked placement, reach, duplicate clicks, disconnect/reconnect and normal building with assistance off. Also verify autobuild with empty inventory, depleted stamina, a broken hammer, blocked surfaces and open menus; toggle Home and switch layers to ensure no queued or hidden-layer placement occurs. Confirm the observer sees only completed vanilla pieces and the server save contains no PlanBuild prefabs.
+## Acknowledgments and license
 
-For 0.20.0, check native UI layout at different resolutions, all wheel shortcuts with and without a hammer, and modifier release after a queued click. Open two chests, transfer materials, reopen them, and compare the checklist counts. Reconnect to verify alignment, layer and gathering notes, then switch character/world and clear the hologram to confirm isolation and removal. Automated save tests cover round trips, updates, corrupt files, invalid transforms and world/character paths; these runtime checks remain manual.
+This project builds on [the original PlanBuild](https://github.com/sirskunkalot/PlanBuild), created by MarcoPogo and developed with contributions from Jules, Algorithman, Dreous, and Jere. It uses [Jötunn](https://github.com/Valheim-Modding/Jotunn).
 
-## Credits
-
-The original PlanBuild mod was created by __[MarcoPogo](https://github.com/MathiasDecrock)__
-
-Blueprint functionality originally created by __[Algorithman](https://github.com/Algorithman)__ & __[Jules](https://github.com/sirskunkalot)__
-
-Blueprint Marketplace GUI created by __[Dreous](https://github.com/imcanida)__
-
-All further coding by __[MarcoPogo](https://github.com/MathiasDecrock)__ & __[Jules](https://github.com/sirskunkalot)__
-
-Special thanks to __[Jere](https://github.com/JereKuusela)__ for exchanging code and ideas
-
-Made with Löve and __[Jötunn](https://github.com/Valheim-Modding/Jotunn)__
-
-## Contact
-
-Source available on GitHub: [https://github.com/sirskunkalot/PlanBuild](https://github.com/sirskunkalot/PlanBuild)﻿. All contributions welcome!
-
-You can find us at the [Jötunn Discord](https://discord.gg/DdUt6g7gyA) (```Jules#7950``` and ```MarcoPogo#6095```).
+Licensed under the [WTFPL](LICENSE).
