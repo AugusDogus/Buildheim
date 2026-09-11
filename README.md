@@ -1,8 +1,8 @@
-# Buildheim
+<p align="center">
+  <img src="banner.png" alt="Buildheim, a Viking longhouse taking shape from a blueprint" width="900">
+</p>
 
-<img src="icon.png" alt="Buildheim" width="128" align="right">
-
-*Plan it. Gather it. Build it.*
+<p align="center">Plan it. Gather it. Build it.</p>
 
 A client-only blueprint mod for Valheim, inspired by Litematica. Load or capture a building, position a private hologram, and build it with your normal hammer.
 

@@ -1,0 +1,10 @@
+Asset: ../banner.png
+Tool: built-in image_gen
+Reference: AugusDogus/valheim-status-bot, assets/logo.png (local development worktree)
+
+Use case: logo-brand
+Asset type: wide GitHub README banner, approximately 3:1 aspect ratio.
+Primary request: Create a Buildheim banner matching the visual style and composition of the supplied Valheim Status Bot banner.
+Input image: style and layout reference only. Match its cinematic Nordic landscape, dark blue forest and fjord, misty mountains, warm horizon, and large readable weathered stone lettering with subtle gold edges.
+Composition: One horizontal banner. On the left third, a timber Viking longhouse under construction, with a few unfinished sections shown as delicate cyan blueprint outlines. On the right two thirds, one very large title, exactly "BUILDHEIM", spelled B U I L D H E I M, in the reference's Valheim-inspired angular stone serif lettering. Balance the building and title against a quiet landscape, with generous padding. The title should read clearly at a 900px display width.
+Constraints: Only the word BUILDHEIM. No subtitle, no status gem or runestone, no giant hammer, no surrounding decorative frame, no badge or square app-icon layout. This is a wide repository banner. Keep the building grounded in the landscape and the blueprint accent restrained.

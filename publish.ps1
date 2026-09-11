@@ -151,6 +151,7 @@ if($Target.Equals("Release")) {
     #Add-Content "$tsio_tmp_directory\README.md" -value "`r`n"
  
     Copy-Item "$SolutionPath\icon.png" "$tsio_tmp_directory"
+    Copy-Item "$SolutionPath\banner.png" "$tsio_tmp_directory"
 
     Copy-Item "$SolutionPath\manifest.json" "$tsio_tmp_directory"
 
