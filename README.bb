@@ -1,13 +1,22 @@
-[b]PlanBuild: client-only blueprints[/b]
+[b]Buildheim[/b]
+[i]Plan it. Gather it. Build it.[/i]
 
-Capture buildings, load .blueprint or .vbuild files, and position a private hologram. The server and other players do not need PlanBuild.
+A client-only blueprint mod for Valheim, inspired by Litematica. Capture or import buildings, position a private hologram, and build with your normal hammer. The server and other players do not need Buildheim.
 
-Install BepInEx and Jötunn 2.30.0 or newer on your client. Press End in a world to open the planner. Blueprints live in BepInEx/config/PlanBuild/blueprints. Capture nearby player-built pieces or load a file, adjust its position, then close the planner and equip your hammer. With Click to build selected, aim at missing hologram pieces near a surface and click. The recipe and pose are selected automatically. You must carry the materials; Valheim validates placement and consumes resources normally. Completed pieces disappear from the guide.
+Install BepInEx and Jötunn 2.30.0 or newer, then this project's Buildheim.dll. Remove any previous PlanBuild DLL when upgrading. Launch modded and press End in a world to open the planner.
 
-The old rune, Plan Hammer, totems, shared plans, terrain tools and server marketplace are no longer registered. Back up old worlds and characters, and finish or remove original plans with the original mod before upgrading.
+[b]Plan and build[/b]
+Import .blueprint or .vbuild files in the Blueprints tab, or capture nearby player-built pieces. With the planner closed, Ctrl + wheel moves the hologram forward/back, Ctrl + X + wheel moves sideways, Alt + wheel adjusts height, and Ctrl + Alt + wheel rotates. Shift uses larger steps.
 
-See README.md for usage, migration and development details.
+Choose Preview only, Click to build, or Autobuild in the Build tab. Home toggles autobuild. Materials must be in your inventory; normal reach, recipe, station and placement requirements apply. Use Bottom, Previous and Next to work through layers.
 
-Select Autobuild to place nearby pieces while walking with your hammer equipped. Home toggles autobuild. Materials, stamina, durability and normal placement checks still apply.
+[b]Gather and resume[/b]
+The Materials tab shows remaining costs, inventory contents and last known contents of chests you open. Check off gathering notes individually or in bulk. Checkmarks do not supply materials or withdraw items from chests.
 
-Build by layers with Bottom, Previous, Next and All layers. Adjust the layer height from 0.5 to 4 m. Only the selected layer is displayed and eligible for assisted building or autobuild.
+The blueprint, alignment, selected layer and gathering notes are saved per character and world. Autobuild is off after reconnecting.
+
+Fresh installs use BepInEx/config/Buildheim for blueprints and placements. Upgrades reuse an existing PlanBuild data folder and copy settings to augusdogus.Buildheim.cfg. Custom blueprint paths are preserved.
+
+[b]Project[/b]
+https://github.com/AugusDogus/Buildheim
+See README.md for installation, compatibility status, migration, development and upstream acknowledgments.

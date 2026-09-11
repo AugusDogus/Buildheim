@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BepInEx;
 using Jotunn.Managers;
 using UnityEngine;
 
@@ -158,7 +157,7 @@ namespace PlanBuild.Client
         }
         private void RestoreSession()
         {
-            string directory = Path.Combine(Paths.ConfigPath, "PlanBuild", "placements");
+            string directory = Path.Combine(Config.DataDirectory, "placements");
             if (!session.Open(directory, ZNet.instance.GetWorldUID(), Player.m_localPlayer.GetPlayerID(), out var save, out var error))
             { if (error.Length > 0) Status = error; return; }
             if (!BlueprintDocument.TryParse(save.Name, save.Blueprint, false, out var document, out error) ||

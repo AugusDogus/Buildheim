@@ -1,10 +1,10 @@
 {
-  "name": "PlanBuild",
+  "name": "Buildheim",
   "description": "Client-only blueprints with saved holograms, mouse-wheel positioning, material checklists and hammer autobuild. No server installation required.",
-  "version_number": "0.20.0",
+  "version_number": "0.20.1",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2333",
     "ValheimModding-Jotunn-2.30.0"
   ],
-  "website_url": "https://github.com/sirskunkalot/PlanBuild"
+  "website_url": "https://github.com/AugusDogus/Buildheim"
 }

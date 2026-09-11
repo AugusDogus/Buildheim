@@ -61,8 +61,8 @@ namespace PlanBuild.Client
             var gui = GUIManager.Instance;
             root = gui.CreateWoodpanel(GUIManager.CustomGUIFront.transform, new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, 700, 640, false);
-            root.name = "PlanBuild planner";
-            PlannerWidgets.Label(root.transform, "PlanBuild", 28, 12, 480, 46, 32, true);
+            root.name = "Buildheim planner";
+            PlannerWidgets.Label(root.transform, "Buildheim", 28, 12, 480, 46, 32, true);
             PlannerWidgets.Button(root.transform, "Close", 572, 20, 100, () => planner.SetVisible(false));
             tabs = new Button[3];
             pages = new GameObject[3];

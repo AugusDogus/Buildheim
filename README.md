@@ -1,15 +1,17 @@
-# PlanBuild
+# Buildheim
+
+*Plan it. Gather it. Build it.*
 
 A client-only blueprint mod for Valheim, inspired by Litematica. Load or capture a building, position a private hologram, and build it with your normal hammer.
 
-**Only you need the mod.** The server and other players do not need PlanBuild. Your blueprint stays local; the pieces you build become ordinary world objects. Building uses materials from your inventory.
+**Only you need the mod.** The server and other players do not need Buildheim. Your blueprint stays local; the pieces you build become ordinary world objects. Building uses materials from your inventory.
 
 ## Install
 
 In your r2modman profile:
 
 1. Install **BepInExPack Valheim 5.4.2333 or newer** and **Jötunn 2.30.0 or newer**.
-2. Copy this project's `PlanBuild.dll` into a folder under `BepInEx/plugins`. Keep only one PlanBuild DLL in the profile.
+2. Copy this project's `Buildheim.dll` into a folder under `BepInEx/plugins`. Remove the previous PlanBuild DLL when upgrading. Keep only one Buildheim DLL in the profile.
 3. Launch with **Start modded**, join a world, and press **End**.
 
 You can build the DLL using the [development instructions](#development) below. Use this project's build: the original PlanBuild package has a different workflow. Restart Valheim after replacing the DLL.
@@ -18,11 +20,11 @@ You can build the DLL using the [development instructions](#development) below. 
 
 ## Your first build
 
-1. Put `.blueprint` or `.vbuild` files in `BepInEx/config/PlanBuild/blueprints` inside your profile. Extract downloaded ZIPs first. Subfolders work too.
+1. Put `.blueprint` or `.vbuild` files in `BepInEx/config/Buildheim/blueprints` inside your profile. Extract downloaded ZIPs first. Subfolders work too.
 2. Press **End**, open **Blueprints**, and click **Refresh**. Choose a building to load its hologram and open the **Build** tab.
 3. Close the planner and position the hologram with the shortcuts below. Loading or moving a hologram does not spend materials.
 4. Open **Materials** to see what you need. Gather supplies and carry the materials for the pieces you want to place.
-5. Select **Click to build**, close the planner, and equip your normal hammer. Aim at a missing hologram piece and click. PlanBuild selects its recipe, position, and rotation, then Valheim checks and places it.
+5. Select **Click to build**, close the planner, and equip your normal hammer. Aim at a missing hologram piece and click. Buildheim selects its recipe, position, and rotation, then Valheim checks and places it.
 
 Completed pieces disappear from the hologram as they are detected in the loaded world.
 
@@ -101,16 +103,18 @@ These paths are relative to your r2modman profile:
 
 | Path | Contents |
 | --- | --- |
-| `BepInEx/config/PlanBuild/blueprints` | Imported and captured blueprints |
-| `BepInEx/config/PlanBuild/placements` | Saved holograms and gathering notes |
-| `BepInEx/config/marcopogo.PlanBuild.cfg` | Planner key, autobuild key, and blueprint directory settings |
+| `BepInEx/config/Buildheim/blueprints` | Imported and captured blueprints |
+| `BepInEx/config/Buildheim/placements` | Saved holograms and gathering notes |
+| `BepInEx/config/augusdogus.Buildheim.cfg` | Planner key, autobuild key, and blueprint directory settings |
 | `BepInEx/LogOutput.log` | Mod loading messages and errors |
 
 The configuration file is created on first launch. The positioning modifier combinations are currently fixed.
 
+Upgrading from our earlier PlanBuild builds preserves your setup: Buildheim copies `marcopogo.PlanBuild.cfg` into its new config file if one does not already exist, including custom keys and blueprint directories. If the profile already has `BepInEx/config/PlanBuild` and no Buildheim data folder, it continues using that existing folder for blueprints and saved placements. Fresh installs use the Buildheim paths above. Original files are preserved.
+
 ## Blueprint support
 
-PlanBuild reads `.blueprint` and `.vbuild` files, up to **10,000 pieces** and **8 MB** per file.
+Buildheim reads `.blueprint` and `.vbuild` files, up to **10,000 pieces** and **8 MB** per file.
 
 - Terrain edits, container contents, and custom snap markers are not applied.
 - Pieces with nonstandard scales can be displayed but cannot be placed by hammer assistance.
@@ -133,7 +137,7 @@ dotnet test PlanBuildTest/PlanBuildTest.csproj \
   -p:BEPINEX_PATH="/path/to/profile/BepInEx"
 ```
 
-The mod DLL is `PlanBuild/bin/Release/net48/PlanBuild.dll`. Install only the mod DLL, not game assemblies or the entire build directory. Building does not install or publish anything and does not modify the installed game assemblies. `Environment.props` can supply local paths; `BEPINEX_PATH` defaults to the game's `BepInEx` directory.
+The mod DLL is `PlanBuild/bin/Release/net48/Buildheim.dll`. Install only the mod DLL, not game assemblies or the entire build directory. Building does not install or publish anything and does not modify the installed game assemblies. `Environment.props` can supply local paths; `BEPINEX_PATH` defaults to the game's `BepInEx` directory.
 
 The client implementation lives in [`PlanBuild/Client`](PlanBuild/Client). Legacy source remains in the repository but is excluded from the runtime build.
 

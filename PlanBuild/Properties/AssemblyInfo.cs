@@ -5,11 +5,11 @@ using PlanBuild;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PlanBuild")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Buildheim")]
+[assembly: AssemblyDescription("Client-only blueprint planning and hammer building for Valheim")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PlanBuild")]
+[assembly: AssemblyProduct("Buildheim")]
 [assembly: AssemblyCopyright("WTFPL")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

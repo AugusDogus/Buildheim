@@ -2,6 +2,7 @@
   <Import Project="../Environment.props" Condition="Exists('../Environment.props')" />
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
+    <AssemblyName>Buildheim</AssemblyName>
     <LangVersion>8.0</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

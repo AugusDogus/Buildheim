@@ -7,12 +7,13 @@ namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid, "2.30.0")]
+    [BepInIncompatibility("marcopogo.PlanBuild")]
     [NetworkCompatibility(CompatibilityLevel.NotEnforced, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {
-        public const string PluginGUID = "marcopogo.PlanBuild";
-        public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.20.0";
+        public const string PluginGUID = "augusdogus.Buildheim";
+        public const string PluginName = "Buildheim";
+        public const string PluginVersion = "0.20.1";
 
         private ClientPlanner planner;
 
@@ -23,8 +24,15 @@ namespace PlanBuild
                 enabled = false;
                 return;
             }
+            if (!ClientPaths.TryMigrateConfig(BepInEx.Paths.ConfigPath, Config.ConfigFilePath, out bool copied, out string error))
+            {
+                Logger.LogError(error);
+                enabled = false;
+                return;
+            }
+            if (copied) Config.Reload();
             planner = new ClientPlanner(new ClientConfig(Config));
-            Logger.LogInfo("Client blueprint planner loaded. Press End in a world to open it.");
+            Logger.LogInfo("Buildheim loaded. Press End in a world to open the planner.");
         }
 
         private void Update() => planner?.Update();

@@ -1,3 +1,10 @@
+## 0.20.1 (Buildheim)
+
+- Rename the mod, package, DLL and planner to Buildheim.
+- Give Buildheim its own plugin ID and settings file; copy earlier client settings without overwriting existing Buildheim settings.
+- Reuse existing blueprint and placement folders on upgrade. Fresh installs use the Buildheim data folder.
+- Prevent loading Buildheim alongside the original PlanBuild plugin.
+
 ## 0.20.0
 
 - Use Valheim wood panels, fonts and controls with Build, Blueprints and Materials tabs.
