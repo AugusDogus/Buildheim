@@ -1,3 +1,9 @@
+## 1.0.0 (unreleased)
+
+- Prepare the first public Buildheim release with client-only blueprints, saved holograms, material checklists, and hammer autobuild.
+- Add a consistent repository layout, matching package artwork, and validated release packages.
+- Publish version tags to GitHub Releases and Thunderstore with the AI Generated category.
+
 ## 0.20.4
 
 - Rotate blueprints on the normal hammer's 22.5-degree grid, with 90-degree turns while holding Shift. Preserve old placements until explicitly rotated.
