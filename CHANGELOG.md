@@ -1,4 +1,4 @@
-## 1.0.0 (unreleased)
+## 1.0.0
 
 - Prepare the first public Buildheim release with client-only blueprints, saved holograms, material checklists, and hammer autobuild.
 - Add a consistent repository layout, matching package artwork, and validated release packages.
