@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using PlanBuild;
 
@@ -29,5 +29,5 @@ using PlanBuild;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion(PlanBuildPlugin.PluginVersion)]
-[assembly: AssemblyFileVersion(PlanBuildPlugin.PluginVersion)]
+[assembly: AssemblyVersion("0.20.4.0")]
+[assembly: AssemblyFileVersion("0.20.4.0")]

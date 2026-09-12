@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="banner.png" alt="Buildheim: blueprints for Valheim" width="900">
+  <img src="package/banner.png" alt="Buildheim: blueprints for Valheim" width="900">
 </p>
 
 <p align="center">Plan it. Gather it. Build it.</p>
@@ -8,7 +8,7 @@ A client-only blueprint mod for Valheim, inspired by Litematica. Load or capture
 
 **Only you need the mod.** The server and other players do not need Buildheim. Your blueprint stays local; the pieces you build become ordinary world objects. Building uses materials from your inventory.
 
-## Install
+## Installation
 
 In your r2modman profile:
 
@@ -16,7 +16,7 @@ In your r2modman profile:
 2. Copy this project's `Buildheim.dll` into a folder under `BepInEx/plugins`. Remove the previous PlanBuild DLL when upgrading. Keep only one Buildheim DLL in the profile.
 3. Launch with **Start modded**, join a world, and press **End**.
 
-You can build the DLL using the [development instructions](#development) below. Use this project's build: the original PlanBuild package has a different workflow. Restart Valheim after replacing the DLL.
+Download a ZIP from [Releases](https://github.com/AugusDogus/Buildheim/releases) or [Actions](https://github.com/AugusDogus/Buildheim/actions), or build the DLL using the [development instructions](docs/DEVELOPMENT.md). Use this project's build: the original PlanBuild package has a different workflow. Restart Valheim after replacing the DLL.
 
 **Compatibility:** compilation and automated checks pass against Valheim **1.0.7**, BepInExPack **5.4.2350**, and Jötunn **2.30.0**. This is a development build. The new UI, targeting, and reconnect workflow still need in-game validation; multiplayer compatibility is not yet fully verified.
 
@@ -152,30 +152,32 @@ Buildheim reads `.blueprint` and `.vbuild` files, up to **10,000 pieces** and **
 
 When switching from the original PlanBuild, finish or remove its shared plans with the original mod first and back up affected worlds and characters. This version does not migrate its plan objects, runes, Plan Hammer, or totems. Existing local blueprint files can still be imported.
 
-## Development
+## Build
 
-Use a **.NET 8 SDK or newer**, a local Valheim installation, and BepInEx from your mod profile. From the repository root:
+Use a **.NET 8 SDK**, a local Valheim installation, and BepInEx from your mod profile. From the repository root:
 
 ```sh
-dotnet build PlanBuild/PlanBuild.csproj -c Release \
-  -p:VALHEIM_INSTALL="/path/to/Valheim" \
-  -p:BEPINEX_PATH="/path/to/profile/BepInEx"
+dotnet build src/Buildheim/Buildheim.csproj -c Release \
+  -p:GameDir="/path/to/Valheim" \
+  -p:BepInExDir="/path/to/profile/BepInEx"
 
-dotnet test PlanBuildTest/PlanBuildTest.csproj \
-  -p:VALHEIM_INSTALL="/path/to/Valheim" \
-  -p:BEPINEX_PATH="/path/to/profile/BepInEx"
+dotnet test tests/Buildheim.Tests/Buildheim.Tests.csproj \
+  -p:GameDir="/path/to/Valheim" \
+  -p:BepInExDir="/path/to/profile/BepInEx"
 ```
 
-The mod DLL is `PlanBuild/bin/Release/net48/Buildheim.dll`. Install only the mod DLL, not game assemblies or the entire build directory. Building does not install or publish anything and does not modify the installed game assemblies. `Environment.props` can supply local paths; `BEPINEX_PATH` defaults to the game's `BepInEx` directory.
+The mod DLL is `src/Buildheim/bin/Release/net48/Buildheim.dll`. Install only the mod DLL, not game assemblies or the entire build directory. Building does not install or publish anything and does not modify the installed game assemblies. `Environment.props` can supply local paths; `BepInExDir` defaults to the game's `BepInEx` directory.
 
-The client implementation lives in [`PlanBuild/Client`](PlanBuild/Client). Legacy source remains in the repository but is excluded from the runtime build.
+The client implementation lives in [`src/Buildheim/Client`](src/Buildheim/Client). Legacy source is preserved under `legacy/` and excluded from the runtime build.
 
 Tests cover blueprint parsing, material accounting, layer selection, autobuild scheduling, placement saves, and the game methods used by the hammer and input hooks. They do not run Unity. Runtime validation should include UI layout, modifier shortcuts, obstructed placement, inventory and chest transfers, reconnecting, and a vanilla server with an unmodded observer.
 
 For bug reports, include the mod and Valheim versions, steps to reproduce, and relevant log entries. Include the blueprint file when the issue depends on a particular building.
 
+[Development and releases](docs/DEVELOPMENT.md) · [Repository layout](docs/REPOSITORY.md) · [Changelog](CHANGELOG.md)
+
 ## Acknowledgments and license
 
 This project builds on [the original PlanBuild](https://github.com/sirskunkalot/PlanBuild), created by MarcoPogo and developed with contributions from Jules, Algorithman, Dreous, and Jere. It uses [Jötunn](https://github.com/Valheim-Modding/Jotunn).
 
-Licensed under the [WTFPL](LICENSE).
+Licensed under the [WTFPL](LICENSE.md).

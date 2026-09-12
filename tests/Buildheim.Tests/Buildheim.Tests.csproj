@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.6.4" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.6.4" />
+    <!-- Only Jotunn's managed SimpleJson serializer runs in this .NET test host. -->
+    <PackageReference Include="JotunnLib" Version="2.30.0" ExcludeAssets="all" GeneratePathProperty="true" />
+    <Reference Include="$(PkgJotunnLib)/lib/net462/Jotunn.dll" />
+    <Reference Include="$(ManagedDir)/UnityEngine.dll" />
+    <Reference Include="$(ManagedDir)/UnityEngine.CoreModule.dll" />
+    <Reference Include="$(ManagedDir)/assembly_utils.dll" />
+    <Reference Include="$(ManagedDir)/assembly_valheim.dll" />
+    <Reference Include="$(BepInExDir)/core/BepInEx.dll" />
+    <Reference Include="$(BepInExDir)/core/Mono.Cecil.dll" />
+    <Compile Include="../../src/Buildheim/Blueprints/PieceEntry.cs" Link="PieceEntry.cs" />
+    <Compile Include="../../src/Buildheim/Client/BlueprintDocument.cs" Link="BlueprintDocument.cs" />
+    <Compile Include="../../src/Buildheim/Client/BuildMaterials.cs" Link="BuildMaterials.cs" />
+    <Compile Include="../../src/Buildheim/Client/MaterialChecklist.cs" Link="MaterialChecklist.cs" />
+    <Compile Include="../../src/Buildheim/Client/PlacementSave.cs" Link="PlacementSave.cs" />
+    <Compile Include="../../src/Buildheim/Client/ClientPaths.cs" Link="ClientPaths.cs" />
+    <Compile Include="../../src/Buildheim/Client/AutoBuildQueue.cs" Link="AutoBuildQueue.cs" />
+    <Compile Include="../../src/Buildheim/Client/BlueprintLayers.cs" Link="BlueprintLayers.cs" />
+    <Compile Include="../../src/Buildheim/Client/CaptureBounds.cs" Link="CaptureBounds.cs" />
+    <Compile Include="../../src/Buildheim/Client/MenuSlide.cs" Link="MenuSlide.cs" />
+    <Compile Include="../../src/Buildheim/Client/BlueprintRotation.cs" Link="BlueprintRotation.cs" />
+    <None Update="resources/*.blueprint" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

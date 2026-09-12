@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>Buildheim</AssemblyName>
+    <LangVersion>8.0</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Version>0.20.4</Version>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="JotunnLib" Version="2.30.0" ExcludeAssets="build" />
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="$(ManagedDir)/assembly_valheim.dll" Publicize="true" Private="false" />
+    <Reference Include="$(ManagedDir)/assembly_utils.dll" Private="false" />
+    <Reference Include="$(ManagedDir)/assembly_guiutils.dll" Private="false" />
+    <Reference Include="$(ManagedDir)/UnityEngine*.dll" Private="false" />
+    <Reference Include="$(BepInExDir)/core/BepInEx.dll" Private="false" />
+    <Reference Include="$(BepInExDir)/core/0Harmony.dll" Private="false" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="Client/*.cs" />
+    <Compile Include="Blueprints/PieceEntry.cs" />
+    <Compile Include="Properties/AssemblyInfo.cs" />
+    <Compile Include="Properties/IgnoreAccessModifiers.cs" />
+  </ItemGroup>
+  <Target Name="CheckGameReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(ManagedDir)/assembly_valheim.dll')" Text="Valheim assemblies not found. Set GameDir to your Valheim installation or ManagedDir to its Managed directory." />
+    <Error Condition="!Exists('$(BepInExDir)/core/BepInEx.dll')" Text="BepInEx assemblies not found. Set BepInExDir to your profile's BepInEx directory." />
+  </Target>
+  <Import Project="../../build/Package.targets" />
+</Project>

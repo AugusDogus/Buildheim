@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buildheim", "PlanBuild\PlanBuild.csproj", "{504A8E71-7B0C-42C9-BF37-DFE74B0312F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buildheim", "src\Buildheim\Buildheim.csproj", "{504A8E71-7B0C-42C9-BF37-DFE74B0312F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildheimTest", "PlanBuildTest\PlanBuildTest.csproj", "{86A4428E-11FF-4BD1-A726-C45FCCE02C4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buildheim.Tests", "tests\Buildheim.Tests\Buildheim.Tests.csproj", "{86A4428E-11FF-4BD1-A726-C45FCCE02C4E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{504A8E71-7B0C-42C9-BF37-DFE74B0312F4} = {504A8E71-7B0C-42C9-BF37-DFE74B0312F4}
 	EndProjectSection
@@ -16,9 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		CHANGELOG.md = CHANGELOG.md
-		manifest.json = manifest.json
-		publish.ps1 = publish.ps1
-		README.bb = README.bb
+		package\manifest.json = package\manifest.json
 		README.md = README.md
 	EndProjectSection
 EndProject
