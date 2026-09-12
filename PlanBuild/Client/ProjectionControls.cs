@@ -39,7 +39,7 @@ namespace PlanBuild.Client
             var projection = instance.activeProjection();
             float direction = Mathf.Sign(wheel);
             bool coarse = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            if (Control && Alt) projection.Yaw = Mathf.Repeat(projection.Yaw + direction * (coarse ? 22.5f : 1f), 360f);
+            if (Control && Alt) projection.Yaw = BlueprintRotation.Turn(projection.Yaw, (int)direction, coarse);
             else
             {
                 var axis = Vector3.up;

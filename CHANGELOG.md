@@ -1,3 +1,7 @@
+## 0.20.4
+
+- Rotate blueprints on the normal hammer's 22.5-degree grid, with 90-degree turns while holding Shift. Preserve old placements until explicitly rotated.
+
 ## 0.20.3
 
 - Replace radius capture with a dedicated Capture tab, two world-space corners and a visible selection box.

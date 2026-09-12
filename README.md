@@ -60,7 +60,9 @@ Use these with a hologram loaded and the planner closed. Movement follows your c
 | **F7** | Enable or disable the current placement while the planner is closed |
 | **F8** | Show or hide Buildheim's HUD while the planner is closed |
 
-Normal steps are **0.1 m** and **1°**. Hold Shift for **1 m** and **22.5°**. Building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. These shortcuts take priority over crouching and sitting while positioning.
+Normal steps are **0.1 m** and **22.5°**. Hold Shift for **1 m** and **90°**. Rotation lands on the normal hammer's angle grid, so blueprints whose pieces use standard angles remain compatible with ordinary hammer replacements. Existing saved placements keep their exact angles until you explicitly rotate them. Imported blueprints can still contain nonstandard piece angles.
+
+Building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. These shortcuts take priority over crouching and sitting while positioning.
 
 The planner slides open and closed with Valheim's inventory timing and uses its opening and closing sounds. Closing releases controls immediately; toggling again during the slide reverses its direction.
 
