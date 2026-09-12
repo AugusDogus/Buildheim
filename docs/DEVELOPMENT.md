@@ -98,4 +98,5 @@ already published on Thunderstore, release a new version.
 
 Verify planner layout, modifier shortcuts, obstructed placement, inventory and chest transfers, reconnecting, and a vanilla server with an unmodded observer. Automated tests cover blueprint parsing, materials, layers, scheduling, saves, and the game methods used by input and hammer hooks. They do not run Unity.
 
-Legacy source and tools live in `legacy/`. Unity asset sources live in `assets/unity/PlanBuild/`; the current client plugin does not require an asset-bundle build.
+The client plugin does not require an asset-bundle build. Editable banner and
+icon sources live in `assets/artwork/`.

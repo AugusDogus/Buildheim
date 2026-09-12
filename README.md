@@ -168,7 +168,7 @@ dotnet test tests/Buildheim.Tests/Buildheim.Tests.csproj \
 
 The mod DLL is `src/Buildheim/bin/Release/net48/Buildheim.dll`. Install only the mod DLL, not game assemblies or the entire build directory. Building does not install or publish anything and does not modify the installed game assemblies. `Environment.props` can supply local paths; `BepInExDir` defaults to the game's `BepInEx` directory.
 
-The client implementation lives in [`src/Buildheim/Client`](src/Buildheim/Client). Legacy source is preserved under `legacy/` and excluded from the runtime build.
+The client implementation lives in [`src/Buildheim/Client`](src/Buildheim/Client).
 
 Tests cover blueprint parsing, material accounting, layer selection, autobuild scheduling, placement saves, and the game methods used by the hammer and input hooks. They do not run Unity. Runtime validation should include UI layout, modifier shortcuts, obstructed placement, inventory and chest transfers, reconnecting, and a vanilla server with an unmodded observer.
 
