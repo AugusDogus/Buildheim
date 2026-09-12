@@ -13,7 +13,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "augusdogus.Buildheim";
         public const string PluginName = "Buildheim";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
 
         private ClientPlanner planner;
 

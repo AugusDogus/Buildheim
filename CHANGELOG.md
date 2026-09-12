@@ -1,3 +1,7 @@
+## 1.0.1
+
+- Fix Thunderstore banner and screenshot links using public GitHub images pinned to the release tag.
+
 ## 1.0.0
 
 - Prepare the first public Buildheim release with client-only blueprints, saved holograms, material checklists, and hammer autobuild.
