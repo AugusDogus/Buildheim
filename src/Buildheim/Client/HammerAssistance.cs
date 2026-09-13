@@ -108,9 +108,9 @@ namespace PlanBuild.Client
                 SelectRepair(__instance);
                 return true;
             }
-            if (!selected.HasInventoryResources())
+            if (selected.MissingMaterialsError() is string missingMaterials)
             {
-                instance.Status = Localization.instance.Localize(selected.Piece.m_name) + ": missing materials in your inventory.";
+                instance.Status = missingMaterials;
                 SelectRepair(__instance);
                 return true;
             }
@@ -218,8 +218,10 @@ namespace PlanBuild.Client
                 error = recipeError;
             else if (ZoneSystem.instance.GetGlobalKey(piece.FreeBuildKey()))
                 error = "Hammer assistance requires resource costs. Disable the world's free-build setting first.";
-            else if (!selected.HasInventoryResources() || !__instance.HaveRequirements(piece, Player.RequirementMode.CanBuild))
-                error = "Missing materials or a required crafting station. Carry the materials and build within station range.";
+            else if (selected.MissingMaterialsError() is string missingMaterials)
+                error = missingMaterials;
+            else if (!__instance.HaveRequirements(piece, Player.RequirementMode.CanBuild))
+                error = "Check the required crafting station and recipe requirements.";
             if (error == null) return true;
             __result = false;
             __instance.Message(MessageHud.MessageType.Center, error);
@@ -266,8 +268,8 @@ namespace PlanBuild.Client
                 instance.Status = name + ": " + PlacementFeedback.Describe(__instance.m_placementStatus);
             else if (ZoneSystem.instance.GetGlobalKey(ghostTarget.Piece.FreeBuildKey()))
                 instance.Status = name + ": disable the world's free-build setting to use hammer assistance.";
-            else if (!ghostTarget.HasInventoryResources())
-                instance.Status = name + ": missing materials in your inventory.";
+            else if (ghostTarget.MissingMaterialsError() is string missingMaterials)
+                instance.Status = missingMaterials;
             else if (!__instance.HaveRequirements(ghostTarget.Piece, Player.RequirementMode.CanBuild))
                 instance.Status = name + ": check the required crafting station and recipe requirements.";
         }

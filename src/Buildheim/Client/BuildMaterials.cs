@@ -12,6 +12,17 @@ namespace PlanBuild.Client
             return true;
         }
 
+        public static Dictionary<string, long> Missing(IEnumerable<KeyValuePair<string, int>> costs, Func<string, int> inventoryCount)
+        {
+            var missing = new Dictionary<string, long>();
+            foreach (var total in Total(costs))
+            {
+                long shortage = total.Value - inventoryCount(total.Key);
+                if (shortage > 0) missing.Add(total.Key, shortage);
+            }
+            return missing;
+        }
+
         public static Dictionary<string, long> Total(IEnumerable<KeyValuePair<string, int>> costs)
         {
             var totals = new Dictionary<string, long>();

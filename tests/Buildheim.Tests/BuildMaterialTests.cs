@@ -22,6 +22,26 @@ namespace PlanBuildTest
         }
 
         [TestMethod]
+        public void MissingListShowsOnlyTheAdditionalAmountsNeeded()
+        {
+            var costs = new Dictionary<string, int> { ["Fine wood"] = 5, ["Greydwarf eye"] = 5, ["Surtling core"] = 1 };
+            var inventory = new Dictionary<string, int> { ["Fine wood"] = 2, ["Greydwarf eye"] = 20, ["Surtling core"] = 0 };
+            var missing = BuildMaterials.Missing(costs, item => inventory[item]);
+            Assert.AreEqual(2, missing.Count);
+            Assert.AreEqual(3L, missing["Fine wood"]);
+            Assert.AreEqual(1L, missing["Surtling core"]);
+            Assert.IsFalse(missing.ContainsKey("Greydwarf eye"));
+        }
+
+        [TestMethod]
+        public void MissingListAggregatesDuplicatesAndUpdatesWhenInventoryChanges()
+        {
+            var costs = new[] { new KeyValuePair<string, int>("Wood", 2), new KeyValuePair<string, int>("Wood", 3) };
+            Assert.AreEqual(2L, BuildMaterials.Missing(costs, _ => 3)["Wood"]);
+            Assert.AreEqual(0, BuildMaterials.Missing(costs, _ => 5).Count);
+        }
+
+        [TestMethod]
         public void DuplicateRequirementsCannotSpendTheSameInventoryTwice()
         {
             var costs = new[] { new KeyValuePair<string, int>("Wood", 2), new KeyValuePair<string, int>("Wood", 3) };

@@ -187,11 +187,17 @@ namespace PlanBuild.Client
             return Vector3.Distance(hit, matrix.MultiplyPoint3x4(Planned.LocalBounds.ClosestPoint(localPoint))) <= 0.5f;
         }
 
-        public bool HasInventoryResources()
-        {
-            var costs = Piece.m_resources.Where(resource => resource.m_resItem)
+        private IEnumerable<KeyValuePair<string, int>> ResourceCosts => Piece.m_resources.Where(resource => resource.m_resItem)
                 .Select(resource => new KeyValuePair<string, int>(resource.m_resItem.m_itemData.m_shared.m_name, resource.GetAmount(0)));
-            return BuildMaterials.HasAll(costs, name => Player.GetInventory().CountItems(name));
+
+        public bool HasInventoryResources() => BuildMaterials.HasAll(ResourceCosts, name => Player.GetInventory().CountItems(name));
+
+        public string MissingMaterialsError()
+        {
+            var missing = BuildMaterials.Missing(ResourceCosts, name => Player.GetInventory().CountItems(name));
+            if (missing.Count == 0) return null;
+            var amounts = missing.Select(item => $"{item.Value} {Localization.instance.Localize(item.Key)}");
+            return Localization.instance.Localize(Piece.m_name) + ": missing " + string.Join(", ", amounts) + " from inventory.";
         }
     }
 }
