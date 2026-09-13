@@ -44,6 +44,7 @@ namespace PlanBuild.Client
             mode = buildMode;
             target = null;
             autoBuilder.Reset();
+            HideGhost(Player.m_localPlayer);
         }
 
         private bool Active(Player player) => Ready && projection != null && player == Player.m_localPlayer &&
@@ -54,18 +55,26 @@ namespace PlanBuild.Client
         {
             __state = false;
             if (instance == null || __instance != Player.m_localPlayer) return true;
-            instance.target = null;
             if (ProjectionControls.Adjusting)
             {
+                instance.target = null;
                 __instance.m_placePressedTime = -9999f;
                 __instance.m_removePressedTime = -9999f;
                 if (__instance.m_placementGhost) __instance.m_placementGhost.SetActive(false);
                 if (__instance.m_placementMarkerInstance) __instance.m_placementMarkerInstance.SetActive(false);
                 return false;
             }
-            if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible()) return true;
+            if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible())
+            {
+                instance.target = null;
+                return true;
+            }
             if (instance.mode == BuildMode.Automatic && (ZInput.GetButton("Remove") ||
-                ZInput.GetButton("JoyRemove") || ZInput.GetButton("JoyAltKeys"))) return true;
+                ZInput.GetButton("JoyRemove") || ZInput.GetButton("JoyAltKeys")))
+            {
+                instance.target = null;
+                return true;
+            }
             var selected = instance.mode == BuildMode.Automatic
                 ? instance.autoBuilder.Find(instance.projection, __instance)
                 : HammerTarget.Find(instance.projection, __instance);
@@ -75,17 +84,23 @@ namespace PlanBuild.Client
                 instance.Status = instance.mode == BuildMode.Automatic
                     ? "Waiting for a nearby buildable piece, materials or stamina."
                     : "Aim at a missing piece within hammer reach.";
+                HideGhost(__instance);
                 return true;
             }
-            if (!__instance.m_knownRecipes.Contains(selected.Piece.m_name) || !__instance.SetSelectedPiece(selected.Piece))
+            if (!__instance.m_knownRecipes.Contains(selected.Piece.m_name) ||
+                (__instance.GetSelectedPiece() != selected.Piece && !__instance.SetSelectedPiece(selected.Piece)))
             {
                 instance.Status = "Learn this hammer recipe before building it.";
+                instance.target = null;
+                HideGhost(__instance);
                 return true;
             }
             instance.Status = selected.HasInventoryResources()
                 ? "Click to build " + Localization.instance.Localize(selected.Piece.m_name)
                 : "Missing materials in your inventory for " + Localization.instance.Localize(selected.Piece.m_name);
             if (instance.mode != BuildMode.Automatic) return true;
+            instance.Status = "Next: " + Localization.instance.Localize(selected.Piece.m_name);
+            if (!instance.autoBuilder.TryAttempt(__instance)) return true;
             // Validate first, then queue one ordinary hammer click. UpdatePlacement remains
             // responsible for placement, materials, stamina, durability and the tool cooldown.
             __instance.UpdatePlacementGhost(false);
@@ -98,6 +113,38 @@ namespace PlanBuild.Client
             __state = true;
             instance.Status = "Autobuilding " + Localization.instance.Localize(selected.Piece.m_name);
             return true;
+        }
+
+        private static void HideGhost(Player player)
+        {
+            if (!player) return;
+            player.m_placePressedTime = -9999f;
+            if (player.m_placementGhost) player.m_placementGhost.SetActive(false);
+            if (player.m_placementMarkerInstance) player.m_placementMarkerInstance.SetActive(false);
+        }
+
+        [HarmonyTranspiler, HarmonyPatch(typeof(Player), "UpdatePlacement")]
+        private static IEnumerable<CodeInstruction> GuardSelectedRecipe(IEnumerable<CodeInstruction> instructions)
+        {
+            var getPiece = AccessTools.Method(typeof(PieceTable), nameof(PieceTable.GetSelectedPiece));
+            var code = instructions.ToList();
+            if (code.Count(instruction => instruction.Calls(getPiece)) != 1)
+                throw new InvalidOperationException("UpdatePlacement no longer reads one build recipe; assistance was disabled.");
+            foreach (var instruction in code)
+            {
+                yield return instruction;
+                if (!instruction.Calls(getPiece)) continue;
+                yield return new CodeInstruction(OpCodes.Ldarg_0);
+                yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(HammerAssistance), nameof(BuildRecipe)));
+            }
+        }
+
+        private static Piece BuildRecipe(Piece recipe, Player player)
+        {
+            if (instance == null || !instance.Active(player)) return recipe;
+            var selected = instance.target;
+            return selected != null && selected.Piece == recipe && !selected.Planned.Completed &&
+                instance.projection.Layers.Contains(selected.Planned.Entry.posY) ? recipe : null;
         }
 
         [HarmonyFinalizer, HarmonyPatch(typeof(Player), "UpdatePlacement")]

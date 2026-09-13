@@ -39,6 +39,21 @@ namespace PlanBuildTest
         }
 
         [TestMethod]
+        public void BlueprintSelectionCanRejectStaleRecipesBeforeVanillaChecksCosts()
+        {
+            using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
+            var update = game.MainModule.Types.Single(x => x.Name == "Player").Methods.Single(x => x.Name == "UpdatePlacement");
+            var recipe = update.Body.Instructions.Single(x => x.Operand is MethodReference method &&
+                method.DeclaringType.Name == "PieceTable" && method.Name == "GetSelectedPiece");
+            var requirement = update.Body.Instructions.Single(x => x.Operand is MethodReference method && method.Name == "HaveRequirements");
+            Assert.IsTrue(recipe.Offset < requirement.Offset);
+            Assert.IsTrue(update.Body.Instructions.Any(x => x.Offset > recipe.Offset && x.Offset < requirement.Offset &&
+                (x.OpCode == OpCodes.Brfalse || x.OpCode == OpCodes.Brfalse_S) &&
+                x.Operand is Instruction destination && destination.Offset > requirement.Offset),
+                "A null recipe must skip vanilla's requirement check and build attempt.");
+        }
+
+        [TestMethod]
         public void GhostPlacementUsesInterceptableSettersAndRetainsWorldChecks()
         {
             using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));

@@ -1,3 +1,7 @@
+## Unreleased
+
+- Keep the next autobuild target visible between attempts, recheck its materials and selected layer, and prevent clicks from using a stale hammer recipe.
+
 ## 1.1.0
 
 - Add an Open folder button to the Blueprints tab for the configured blueprint directory.

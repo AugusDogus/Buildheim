@@ -8,11 +8,6 @@ namespace PlanBuild.Client
 
         public HammerTarget Find(BlueprintProjection projection, Player player)
         {
-            var tool = player.GetRightItem();
-            if (tool == null || (tool.m_shared.m_useDurability && tool.m_durability <= 0) ||
-                !player.HaveStamina(tool.m_shared.m_attack.m_attackStamina) ||
-                Time.time - player.m_lastToolUseTime <= player.m_placeDelay) return null;
-
             HammerTarget selected = null;
             queue.Next(projection.Pieces.Count, Time.time, index =>
             {
@@ -25,6 +20,14 @@ namespace PlanBuild.Client
                 return true;
             });
             return selected;
+        }
+
+        public bool TryAttempt(Player player)
+        {
+            var tool = player.GetRightItem();
+            return tool != null && (!tool.m_shared.m_useDurability || tool.m_durability > 0) &&
+                player.HaveStamina(tool.m_shared.m_attack.m_attackStamina) &&
+                Time.time - player.m_lastToolUseTime > player.m_placeDelay && queue.TryAttempt(Time.time);
         }
 
         public void Reset() => queue.Reset();
