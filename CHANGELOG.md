@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Pick click-to-build targets from visible mesh geometry instead of the empty space inside a whole-piece bounding box.
 - Keep the next autobuild target visible between attempts, recheck its materials and selected layer, and prevent clicks from using a stale hammer recipe.
 
 ## 1.1.0

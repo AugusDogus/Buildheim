@@ -14,7 +14,9 @@ namespace PlanBuild.Client
         {
             public Mesh Mesh { get; }
             public Matrix4x4 LocalMatrix { get; }
-            public Part(Mesh mesh, Matrix4x4 matrix) { Mesh = mesh; LocalMatrix = matrix; }
+            public BlueprintHitTest HitTest { get; }
+            public Part(Mesh mesh, Matrix4x4 matrix, BlueprintHitTest hitTest)
+            { Mesh = mesh; LocalMatrix = matrix; HitTest = hitTest; }
         }
 
         internal sealed class ProjectedPiece
@@ -78,6 +80,7 @@ namespace PlanBuild.Client
             }
             var pieces = new List<ProjectedPiece>();
             int missing = 0;
+            var hitTests = new Dictionary<Mesh, BlueprintHitTest>();
             foreach (var entry in document.Pieces)
             {
                 var prefab = ZNetScene.instance.GetPrefab(entry.name);
@@ -90,7 +93,16 @@ namespace PlanBuild.Client
                     var renderer = filter.GetComponent<MeshRenderer>();
                     if (!filter.sharedMesh || !renderer || !renderer.enabled || lowerLods.Contains(renderer) ||
                         !ActiveBelowRoot(filter.transform, prefab.transform)) continue;
-                    parts.Add(new Part(filter.sharedMesh, prefab.transform.worldToLocalMatrix * filter.transform.localToWorldMatrix));
+                    var mesh = filter.sharedMesh;
+                    if (!hitTests.TryGetValue(mesh, out var hitTest))
+                    {
+                        // Some imported meshes discard CPU data. Use their individual mesh bounds
+                        // as a fallback, never the empty volume around the whole piece.
+                        hitTest = mesh.isReadable && Enumerable.Range(0, mesh.subMeshCount).All(i => mesh.GetTopology(i) == MeshTopology.Triangles)
+                            ? new BlueprintHitTest(mesh.vertices, mesh.triangles) : null;
+                        hitTests.Add(mesh, hitTest);
+                    }
+                    parts.Add(new Part(mesh, prefab.transform.worldToLocalMatrix * filter.transform.localToWorldMatrix, hitTest));
                 }
                 if (parts.Count == 0) { missing++; continue; }
                 pieces.Add(new ProjectedPiece(entry, prefab, parts));

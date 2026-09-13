@@ -40,17 +40,20 @@ namespace PlanBuild.Client
             {
                 var candidate = FromPiece(projection, planned, player);
                 if (candidate == null) continue;
-                var matrix = projection.PieceMatrix(planned);
-                var inverse = matrix.inverse;
-                var localRay = new Ray(inverse.MultiplyPoint3x4(ray.origin), inverse.MultiplyVector(ray.direction));
-                var aimBounds = planned.LocalBounds;
-                aimBounds.Expand(0.12f);
-                if (!aimBounds.IntersectRay(localRay, out float distance)) continue;
-                var hit = matrix.MultiplyPoint3x4(localRay.GetPoint(distance));
-                float worldDistance = Vector3.Dot(hit - ray.origin, ray.direction);
-                if (worldDistance < 0 || worldDistance >= closest) continue;
-                closest = worldDistance;
-                target = candidate;
+                var pieceMatrix = projection.PieceMatrix(planned);
+                foreach (var part in planned.Parts)
+                {
+                    var matrix = pieceMatrix * part.LocalMatrix;
+                    var inverse = matrix.inverse;
+                    var localRay = new Ray(inverse.MultiplyPoint3x4(ray.origin), inverse.MultiplyVector(ray.direction));
+                    if (!part.Mesh.bounds.IntersectRay(localRay, out float distance)) continue;
+                    if (part.HitTest != null && !part.HitTest.Intersect(localRay, out distance)) continue;
+                    var hit = matrix.MultiplyPoint3x4(localRay.GetPoint(distance));
+                    float worldDistance = Vector3.Dot(hit - ray.origin, ray.direction);
+                    if (worldDistance < 0 || worldDistance >= closest) continue;
+                    closest = worldDistance;
+                    target = candidate;
+                }
             }
             return target;
         }

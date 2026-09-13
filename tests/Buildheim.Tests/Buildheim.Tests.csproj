@@ -29,6 +29,7 @@
     <Compile Include="../../src/Buildheim/Client/CaptureBounds.cs" Link="CaptureBounds.cs" />
     <Compile Include="../../src/Buildheim/Client/MenuSlide.cs" Link="MenuSlide.cs" />
     <Compile Include="../../src/Buildheim/Client/BlueprintRotation.cs" Link="BlueprintRotation.cs" />
+    <Compile Include="../../src/Buildheim/Client/BlueprintHitTest.cs" Link="BlueprintHitTest.cs" />
     <None Update="resources/*.blueprint" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
