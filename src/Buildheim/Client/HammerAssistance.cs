@@ -190,8 +190,9 @@ namespace PlanBuild.Client
         private static Piece BuildRecipe(Piece recipe, Player player)
         {
             if (instance == null || !instance.Active(player)) return recipe;
-            // Repair is an intentional fallback, not a stale blueprint build recipe.
-            if (recipe && recipe.m_repairPiece) return recipe;
+            // A blocked blueprint click must not repair a real piece behind it.
+            // Restore ordinary repair clicks once no blueprint object is targeted.
+            if (recipe && recipe.m_repairPiece) return instance.selection == null ? recipe : null;
             var selected = instance.target;
             return selected != null && selected.RecipeKnown && selected.Piece == recipe && !selected.Planned.Completed &&
                 instance.projection.Layers.Contains(selected.Planned.Entry.posY) ? recipe : null;

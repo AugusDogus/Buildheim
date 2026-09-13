@@ -1,8 +1,8 @@
 ## Unreleased
 
-- Show the hovered blueprint's materials with Valheim's native icons, counts, shortage colors and crafting-station indicator, while retaining Repair for blocked builds.
+- Show the hovered blueprint's name, icon and materials in Valheim's native info card, including shortage colors and the crafting-station indicator.
 - Identify and highlight scenery, scaled imports and out-of-reach holograms before reporting why they cannot be built with the hammer.
-- Return the hammer to Repair when no blueprint piece is targeted or its recipe, materials or station requirements prevent building.
+- Return to ordinary Repair when no blueprint piece is targeted; blocked blueprint clicks cannot repair other structures behind the hologram.
 - Keep the build HUD compact, show positioning shortcuts only while adjusting, and avoid Valheim's piece name and material costs.
 - Keep locked recipes highlighted in the hologram and name the undiscovered materials, distinguishing them from hammer selection failures.
 - Measure hammer reach to the aimed and supporting surfaces instead of the piece origin, including overhead pieces.

@@ -3,8 +3,8 @@ using HarmonyLib;
 
 namespace PlanBuild.Client
 {
-    // Borrow the native material slots while Repair is selected. Rendering a
-    // blueprint's costs must never change the player's actual hammer selection.
+    // Show the hovered blueprint in the native info card even when its build
+    // is blocked. Rendering this card never changes the hammer's selection.
     internal sealed class BlueprintMaterialsHud : IDisposable
     {
         private static BlueprintMaterialsHud instance;
@@ -25,28 +25,10 @@ namespace PlanBuild.Client
             var hovered = instance.hoveredPiece();
             if (!hovered || hovered.m_repairPiece || hovered.m_removePiece) return;
 
-            string title = __instance.m_buildSelection.text;
-            var icon = __instance.m_buildIcon.sprite;
-            bool iconEnabled = __instance.m_buildIcon.enabled;
-            bool snapping = __instance.m_snappingIcon.enabled;
-            var snappingIcon = __instance.m_snappingIcon.sprite;
-            // This reuses the game's resource icons, shortage colors, counts and
-            // station indicator. The nested call has a non-Repair piece, so the
-            // guard above prevents recursion. Vanilla clears the slots again
-            // when hovering ends, the planner opens or Buildheim's HUD is hidden.
-            try
-            {
-                __instance.SetupPieceInfo(hovered);
-                __instance.m_pieceDescription.text = "Blueprint materials: " + Localization.instance.Localize(hovered.m_name);
-            }
-            finally
-            {
-                __instance.m_buildSelection.text = title;
-                __instance.m_buildIcon.sprite = icon;
-                __instance.m_buildIcon.enabled = iconEnabled;
-                __instance.m_snappingIcon.enabled = snapping;
-                __instance.m_snappingIcon.sprite = snappingIcon;
-            }
+            // The nested call has a non-Repair piece, so the guard above prevents
+            // recursion. Vanilla restores its own card when hovering ends, the
+            // planner opens or Buildheim's HUD is hidden.
+            __instance.SetupPieceInfo(hovered);
         }
 
         public void Dispose()
