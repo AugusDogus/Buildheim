@@ -22,8 +22,8 @@ Download a ZIP from [Releases](https://github.com/AugusDogus/Buildheim/releases)
 
 ## Your first build
 
-1. Put `.blueprint` or `.vbuild` files in `BepInEx/config/Buildheim/blueprints` inside your profile. Extract downloaded ZIPs first. Subfolders work too.
-2. Press **End**, open **Blueprints**, and click **Refresh**. Choose a building to load its hologram and open the **Build** tab.
+1. Press **End**, open **Blueprints**, and click **Open folder** to open your configured blueprint directory. Put `.blueprint` or `.vbuild` files there. Extract downloaded ZIPs first. Subfolders work too. Fresh installs use `BepInEx/config/Buildheim/blueprints` inside your profile.
+2. Return to the Blueprints tab and click **Refresh**. Choose a building to load its hologram and open the **Build** tab.
 3. Close the planner and position the hologram with the shortcuts below. Loading or moving a hologram does not spend materials.
 4. Open **Materials** to see what you need. Gather supplies and carry the materials for the pieces you want to place.
 5. Select **Click to build**, close the planner, and equip your normal hammer. Aim at a missing hologram piece and click. Buildheim selects its recipe, position, and rotation, then Valheim checks and places it.

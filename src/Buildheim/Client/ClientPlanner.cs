@@ -151,6 +151,29 @@ namespace PlanBuild.Client
             else Status = error;
         }
 
+        public void OpenBlueprintFolder()
+        {
+            try
+            {
+                string directory = Path.GetFullPath(Config.Directory.Value);
+                Directory.CreateDirectory(directory);
+                using (System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(directory)
+                {
+                    UseShellExecute = true,
+                    Verb = "open"
+                })) { }
+                Status = "Folder open requested. Add .blueprint or .vbuild files, then click Refresh.";
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException ||
+                ex is ArgumentException || ex is NotSupportedException || ex is System.ComponentModel.Win32Exception ||
+                ex is System.Security.SecurityException || ex is InvalidOperationException)
+            {
+                Status = "Cannot open the blueprint folder. Check the game log for its path and open it manually.";
+                Jotunn.Logger.LogWarning($"Cannot open blueprint folder '{Config.Directory.Value}': {ex.Message} " +
+                    "Check the directory setting, permissions, and default file manager.");
+            }
+        }
+
         public void BeginCapture()
         {
             if (Mode == BuildMode.Automatic) Mode = BuildMode.Assisted;

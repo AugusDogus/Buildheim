@@ -1,3 +1,7 @@
+## Unreleased
+
+- Add an Open folder button to the Blueprints tab for the configured blueprint directory.
+
 ## 1.0.1
 
 - Fix Thunderstore banner and screenshot links using public GitHub images pinned to the release tag.

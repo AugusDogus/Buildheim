@@ -181,7 +181,9 @@ namespace PlanBuild.Client
             PlannerWidgets.Label(parent, "Choose a blueprint", 0, 0, 330, 30, 22, true);
             PlannerWidgets.Button(parent, "New blueprint", 350, 0, 162, SelectCapture);
             PlannerWidgets.Button(parent, "Refresh", 524, 0, 120, planner.Refresh);
-            library = PlannerWidgets.Scroll(parent, 0, 48, 644, 390);
+            PlannerWidgets.Button(parent, "Open folder", 0, 48, 162, planner.OpenBlueprintFolder);
+            PlannerWidgets.Label(parent, "Add .blueprint or .vbuild files, then refresh.", 174, 48, 470, 36);
+            library = PlannerWidgets.Scroll(parent, 0, 96, 644, 342);
         }
 
         private void RefreshLibrary()
