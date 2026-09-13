@@ -15,6 +15,7 @@ namespace PlanBuild.Client
         private PlannerPresentation presentation;
         private GameObject hud;
         private Text hudText;
+        private readonly Vector3[] hudCorners = new Vector3[4];
         private GameObject[] pages;
         private Button[] tabs;
         private Button[] modes;
@@ -54,9 +55,10 @@ namespace PlanBuild.Client
                     string layer = planner.Projection.Layers.Selected.HasValue
                         ? $"Layer {planner.Projection.Layers.Ordinal}/{planner.Projection.Layers.Count}" : "All layers";
                     string detail = planner.Mode == BuildMode.Guide ? "Hologram only. Select and place pieces yourself." : planner.BuildStatus;
-                    hudText.text = $"{mode} | {layer} | {planner.Config.ToggleKey.Value}: planner | {planner.Config.AutoBuildKey.Value}: autobuild | " +
-                        $"{planner.Config.PlacementKey.Value}: placement | {planner.Config.HudKey.Value}: HUD\n{detail}\n{ProjectionControls.Hints}";
+                    hudText.text = $"{detail}\n{mode} | {layer} | {planner.Config.ToggleKey.Value}: planner";
+                    if (ProjectionControls.Adjusting) hudText.text += "\n" + ProjectionControls.Hints;
                 }
+                PositionHud();
             }
             if (!planner.Visible) return;
             hudToggle.text = $"{(planner.Config.ShowHud.Value ? "Hide HUD" : "Show HUD")} ({planner.Config.HudKey.Value})";
@@ -67,6 +69,39 @@ namespace PlanBuild.Client
             RefreshLibrary();
             if (selected == Tab.Materials) materials.Refresh();
             if (selected == Tab.Capture) capture.Refresh();
+        }
+
+        private void PositionHud()
+        {
+            var canvas = GUIManager.CustomGUIFront.GetComponent<RectTransform>();
+            var rect = hud.GetComponent<RectTransform>();
+            float width = Mathf.Min(640, canvas.rect.width - 32);
+            hudText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width - 24);
+            float height = hudText.preferredHeight + 12;
+            hudText.rectTransform.sizeDelta = new Vector2(width - 24, height - 8);
+            rect.sizeDelta = new Vector2(width, height);
+
+            float bottom = canvas.rect.yMin + 115;
+            var vanilla = Hud.instance;
+            if (vanilla && vanilla.m_buildHud.activeInHierarchy)
+            {
+                // Follow the real build UI so changes to UI scale or recipe layout
+                // cannot put our status over the game's name, description or costs.
+                Clear(vanilla.m_buildSelection.rectTransform);
+                Clear(vanilla.m_pieceDescription.rectTransform);
+                Clear(vanilla.m_buildIcon.rectTransform);
+                foreach (var requirement in vanilla.m_requirementItems)
+                    Clear(requirement.GetComponent<RectTransform>());
+            }
+            rect.anchoredPosition = new Vector2(0, bottom - canvas.rect.yMin);
+
+            void Clear(RectTransform occupied)
+            {
+                if (!occupied || !occupied.gameObject.activeInHierarchy) return;
+                occupied.GetWorldCorners(hudCorners);
+                foreach (var corner in hudCorners)
+                    bottom = Mathf.Max(bottom, canvas.InverseTransformPoint(corner).y + 12);
+            }
         }
 
         private void Create()

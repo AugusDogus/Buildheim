@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Keep the build HUD compact, show positioning shortcuts only while adjusting, and avoid Valheim's piece name and material costs.
 - Keep locked recipes highlighted in the hologram and name the undiscovered materials, distinguishing them from hammer selection failures.
 - Measure hammer reach to the aimed and supporting surfaces instead of the piece origin, including overhead pieces.
 - Use Valheim's own hammer preview for the selected piece, avoiding overlapping renders and keeping its name in placement feedback.

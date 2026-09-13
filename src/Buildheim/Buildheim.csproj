@@ -16,6 +16,7 @@
     <Reference Include="$(ManagedDir)/assembly_utils.dll" Private="false" />
     <Reference Include="$(ManagedDir)/assembly_guiutils.dll" Private="false" />
     <Reference Include="$(ManagedDir)/UnityEngine*.dll" Private="false" />
+    <Reference Include="$(ManagedDir)/Unity.TextMeshPro.dll" Private="false" />
     <Reference Include="$(BepInExDir)/core/BepInEx.dll" Private="false" />
     <Reference Include="$(BepInExDir)/core/0Harmony.dll" Private="false" />
     <Compile Include="Plugin.cs" />
