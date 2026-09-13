@@ -17,12 +17,10 @@ namespace PlanBuild.Client
         private BuildMode mode;
         private BlueprintProjection projection;
         private HammerTarget target;
-        public BlueprintProjection.ProjectedPiece SelectedPiece => target?.Planned;
-        private BlueprintProjection.ProjectedPiece validatedPiece;
-        public bool SelectedBuildable => target != null && validatedPiece == target.Planned &&
-            target.Player.m_placementStatus == Player.PlacementStatus.Valid &&
-            !ZoneSystem.instance.GetGlobalKey(target.Piece.FreeBuildKey()) && target.HasInventoryResources() &&
-            target.Player.HaveRequirements(target.Piece, Player.RequirementMode.CanBuild);
+        // Omit a hologram mesh only when the game's own placement preview represents it.
+        public BlueprintProjection.ProjectedPiece PreviewPiece => target != null &&
+            target.Player.m_placementGhost &&
+            target.Player.GetSelectedPiece() == target.Piece ? target.Planned : null;
         public string Status { get; private set; } = "Equip a hammer and aim at a missing piece.";
         public bool Ready { get; private set; }
 
@@ -48,7 +46,6 @@ namespace PlanBuild.Client
             projection = value;
             mode = buildMode;
             target = null;
-            validatedPiece = null;
             autoBuilder.Reset();
             HideGhost(Player.m_localPlayer);
         }
@@ -207,13 +204,16 @@ namespace PlanBuild.Client
         private static void EndGhost(Player __instance)
         {
             if (instance == null || !instance.Active(__instance)) return;
-            instance.validatedPiece = ghostTarget?.Planned;
             if (ghostTarget == null)
             {
                 __instance.m_placementStatus = Player.PlacementStatus.Invalid;
                 if (__instance.m_placementGhost) __instance.m_placementGhost.SetActive(false);
                 return;
             }
+            // Vanilla hides the ghost on a ray miss. Keep the selected blueprint visible,
+            // retaining its invalid status and native invalid-placement material.
+            __instance.m_placementGhost.SetActive(true);
+            __instance.m_placementGhost.transform.SetPositionAndRotation(ghostTarget.Position, ghostTarget.Rotation);
             string name = Localization.instance.Localize(ghostTarget.Piece.m_name);
             if (__instance.m_placementStatus != Player.PlacementStatus.Valid)
                 instance.Status = name + ": " + PlacementFeedback.Describe(__instance.m_placementStatus);

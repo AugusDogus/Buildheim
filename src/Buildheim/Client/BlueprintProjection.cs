@@ -56,7 +56,6 @@ namespace PlanBuild.Client
         public bool Enabled { get; set; } = true;
         public Quaternion Rotation => Quaternion.Euler(0, Yaw, 0);
         private readonly Material material;
-        private readonly TargetHighlight highlight = new TargetHighlight();
 
         private BlueprintProjection(BlueprintDocument document, List<ProjectedPiece> pieces, int missing, Material material)
         {
@@ -135,7 +134,7 @@ namespace PlanBuild.Client
         public Quaternion PieceRotation(ProjectedPiece piece) => Rotation * piece.Entry.GetRotation();
         public Matrix4x4 PieceMatrix(ProjectedPiece piece) => Matrix4x4.TRS(PiecePosition(piece), PieceRotation(piece), piece.Entry.GetScale());
 
-        public void Draw(ProjectedPiece selected = null, bool buildable = false)
+        public void Draw(ProjectedPiece selected = null)
         {
             var camera = GameCamera.instance ? GameCamera.instance.GetComponent<Camera>() : null;
             if (!camera) return;
@@ -150,10 +149,8 @@ namespace PlanBuild.Client
                             submesh, null, ShadowCastingMode.Off, false);
                 }
             }
-            if (selected != null && !selected.Completed && Layers.Contains(selected.Entry.posY))
-                highlight.Draw(this, selected, camera, buildable);
         }
 
-        public void Dispose() { highlight.Dispose(); UnityEngine.Object.Destroy(material); }
+        public void Dispose() => UnityEngine.Object.Destroy(material);
     }
 }
