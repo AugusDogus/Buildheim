@@ -6,6 +6,7 @@ namespace PlanBuild.Client
 {
     internal sealed class HammerTarget
     {
+        private enum Rejection { None, Completed, OtherLayer, NotAHammerPiece, Scaled, OutOfReach }
         public BlueprintProjection Projection { get; }
         public BlueprintProjection.ProjectedPiece Planned { get; }
         public Player Player { get; }
@@ -35,34 +36,50 @@ namespace PlanBuild.Client
         { Projection = projection; Planned = planned; Player = player; Piece = piece; }
 
         public static HammerTarget FromPiece(BlueprintProjection projection, BlueprintProjection.ProjectedPiece planned, Player player)
+            => FromPiece(projection, planned, player, out _);
+
+        private static HammerTarget FromPiece(BlueprintProjection projection, BlueprintProjection.ProjectedPiece planned, Player player,
+            out Rejection rejection)
         {
-            if (planned.Completed || !projection.Layers.Contains(planned.Entry.posY)) return null;
+            rejection = Rejection.Completed;
+            if (planned.Completed) return null;
+            rejection = Rejection.OtherLayer;
+            if (!projection.Layers.Contains(planned.Entry.posY)) return null;
             var piece = planned.Prefab.GetComponent<Piece>();
+            rejection = Rejection.NotAHammerPiece;
             if (!piece || piece.m_repairPiece || piece.m_removePiece) return null;
             // Vanilla placement has no scale input. Scaled imports remain visual guides.
+            rejection = Rejection.Scaled;
             if (Vector3.Distance(planned.Entry.GetScale(), planned.Prefab.transform.localScale) > 0.01f) return null;
             // A large piece's origin can be far away even when its near edge is within reach.
             // This is only a broad-phase filter; aim and support hits enforce actual reach.
             var matrix = projection.PieceMatrix(planned);
             var near = matrix.MultiplyPoint3x4(planned.LocalBounds.ClosestPoint(
                 matrix.inverse.MultiplyPoint3x4(player.m_eye.position)));
+            rejection = Rejection.OutOfReach;
             if (Vector3.Distance(player.m_eye.position, near) >=
                 player.m_maxPlaceDistance + piece.m_extraPlacementDistance) return null;
+            rejection = Rejection.None;
             return new HammerTarget(projection, planned, player, piece);
         }
 
-        public static HammerTarget Find(BlueprintProjection projection, Player player)
+        public static BlueprintSelection Find(BlueprintProjection projection, Player player)
         {
             if (!GameCamera.instance) return null;
             var camera = GameCamera.instance.transform;
             var ray = new Ray(camera.position, camera.forward);
             float closest = 50f;
             if (Physics.Raycast(ray, out var obstacle, closest, player.m_placeRayMask)) closest = obstacle.distance + 0.15f;
-            HammerTarget target = null;
+            bool trace = ZInput.GetButtonDown("Attack") || ZInput.GetButtonDown("JoyPlace");
+            float nearestMiss = 50f;
+            string missedPiece = "no missing hologram mesh intersected the camera ray";
+            BlueprintProjection.ProjectedPiece aimed = null;
+            Vector3 aimedPoint = default;
+            // Pick visible geometry before checking whether a hammer can build it.
+            // Otherwise scenery, scaled imports and distant pieces silently disappear.
             foreach (var planned in projection.Pieces)
             {
-                var candidate = FromPiece(projection, planned, player);
-                if (candidate == null) continue;
+                if (planned.Completed || !projection.Layers.Contains(planned.Entry.posY)) continue;
                 var pieceMatrix = projection.PieceMatrix(planned);
                 foreach (var part in planned.Parts)
                 {
@@ -72,15 +89,45 @@ namespace PlanBuild.Client
                     if (!part.Mesh.bounds.IntersectRay(localRay, out float distance)) continue;
                     if (part.HitTest != null && !part.HitTest.Intersect(localRay, out distance)) continue;
                     var hit = matrix.MultiplyPoint3x4(localRay.GetPoint(distance));
-                    if (Vector3.Distance(player.m_eye.position, hit) >=
-                        player.m_maxPlaceDistance + candidate.Piece.m_extraPlacementDistance) continue;
                     float worldDistance = Vector3.Dot(hit - ray.origin, ray.direction);
+                    if (trace && worldDistance >= 0 && worldDistance < nearestMiss)
+                    {
+                        nearestMiss = worldDistance;
+                        missedPiece = $"{planned.Entry.name} at {worldDistance:0.00} m, behind the first real collider";
+                    }
                     if (worldDistance < 0 || worldDistance >= closest) continue;
                     closest = worldDistance;
-                    target = candidate;
+                    aimed = planned;
+                    aimedPoint = hit;
                 }
             }
-            return target;
+            if (aimed == null)
+            {
+                if (trace)
+                {
+                    string blocker = obstacle.collider ? $"{obstacle.collider.name} at {obstacle.distance:0.00} m" : "none";
+                    Jotunn.Logger.LogInfo($"Blueprint aim missed: {missedPiece}; first real collider: {blocker}.");
+                }
+                return null;
+            }
+            var target = FromPiece(projection, aimed, player, out var rejection);
+            if (target != null && Vector3.Distance(player.m_eye.position, aimedPoint) >=
+                player.m_maxPlaceDistance + target.Piece.m_extraPlacementDistance)
+            {
+                target = null;
+                rejection = Rejection.OutOfReach;
+            }
+            if (target != null) return new BlueprintSelection.Hammer(target);
+            var piece = aimed.Prefab.GetComponent<Piece>();
+            string name = piece ? Localization.instance.Localize(piece.m_name) : aimed.Entry.name;
+            string reason = rejection switch
+            {
+                Rejection.NotAHammerPiece => "this blueprint object has no hammer recipe.",
+                Rejection.Scaled => "custom-sized pieces can only be shown as a guide.",
+                Rejection.OutOfReach => "outside hammer reach. Move closer to build it.",
+                _ => "this piece is not available in the current layer."
+            };
+            return new BlueprintSelection.Guide(aimed, name + ": " + reason);
         }
 
         public bool TrySurface(bool water, out RaycastHit hit)

@@ -16,9 +16,10 @@ namespace PlanBuild.Client
         private readonly AutoBuilder autoBuilder = new AutoBuilder();
         private BuildMode mode;
         private BlueprintProjection projection;
-        private HammerTarget target;
+        private BlueprintSelection selection;
+        private HammerTarget target => (selection as BlueprintSelection.Hammer)?.Target;
         // Omit a hologram mesh only when the game's own placement preview represents it.
-        public BlueprintProjection.ProjectedPiece AimedPiece => target?.Planned;
+        public BlueprintProjection.ProjectedPiece AimedPiece => selection?.Planned;
         public BlueprintProjection.ProjectedPiece PreviewPiece => target != null && target.RecipeKnown &&
             target.Player.m_placementGhost &&
             target.Player.GetSelectedPiece() == target.Piece ? target.Planned : null;
@@ -46,7 +47,7 @@ namespace PlanBuild.Client
             if (projection == value && mode == buildMode) return;
             projection = value;
             mode = buildMode;
-            target = null;
+            selection = null;
             autoBuilder.Reset();
             HideGhost(Player.m_localPlayer);
         }
@@ -61,7 +62,7 @@ namespace PlanBuild.Client
             if (instance == null || __instance != Player.m_localPlayer) return true;
             if (ProjectionControls.Adjusting)
             {
-                instance.target = null;
+                instance.selection = null;
                 __instance.m_placePressedTime = -9999f;
                 __instance.m_removePressedTime = -9999f;
                 if (__instance.m_placementGhost) __instance.m_placementGhost.SetActive(false);
@@ -70,19 +71,28 @@ namespace PlanBuild.Client
             }
             if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible())
             {
-                instance.target = null;
+                instance.selection = null;
                 return true;
             }
             if (instance.mode == BuildMode.Automatic && (ZInput.GetButton("Remove") ||
                 ZInput.GetButton("JoyRemove") || ZInput.GetButton("JoyAltKeys")))
             {
-                instance.target = null;
+                instance.selection = null;
                 return true;
             }
-            var selected = instance.mode == BuildMode.Automatic
-                ? instance.autoBuilder.Find(instance.projection, __instance)
-                : HammerTarget.Find(instance.projection, __instance);
-            instance.target = selected;
+            if (instance.mode == BuildMode.Automatic)
+            {
+                var next = instance.autoBuilder.Find(instance.projection, __instance);
+                instance.selection = next == null ? null : new BlueprintSelection.Hammer(next);
+            }
+            else instance.selection = HammerTarget.Find(instance.projection, __instance);
+            if (instance.selection is BlueprintSelection.Guide guide)
+            {
+                instance.Status = guide.Reason;
+                SelectRepair(__instance);
+                return true;
+            }
+            var selected = instance.target;
             if (selected == null)
             {
                 instance.Status = instance.mode == BuildMode.Automatic
@@ -352,7 +362,7 @@ namespace PlanBuild.Client
         {
             harmony.UnpatchSelf();
             projection = null;
-            target = null;
+            selection = null;
             ghostTarget = null;
             instance = null;
         }
