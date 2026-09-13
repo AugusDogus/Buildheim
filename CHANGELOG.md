@@ -1,4 +1,4 @@
-## Unreleased
+## 1.1.0
 
 - Add an Open folder button to the Blueprints tab for the configured blueprint directory.
 
