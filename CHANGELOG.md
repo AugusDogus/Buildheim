@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Keep locked recipes highlighted in the hologram and name the undiscovered materials, distinguishing them from hammer selection failures.
 - Measure hammer reach to the aimed and supporting surfaces instead of the piece origin, including overhead pieces.
 - Use Valheim's own hammer preview for the selected piece, avoiding overlapping renders and keeping its name in placement feedback.
 - Pick click-to-build targets from visible mesh geometry instead of the empty space inside a whole-piece bounding box.

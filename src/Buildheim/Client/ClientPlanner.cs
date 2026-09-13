@@ -140,7 +140,7 @@ namespace PlanBuild.Client
         {
             if (Player.m_localPlayer && !Player.m_localPlayer.IsDead() && scene == ZNetScene.instance)
             {
-                ActiveProjection?.Draw(assistance.PreviewPiece);
+                ActiveProjection?.Draw(assistance.PreviewPiece, assistance.AimedPiece);
                 Selection.Draw(Visible && view.CaptureVisible);
             }
         }

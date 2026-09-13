@@ -12,6 +12,24 @@ namespace PlanBuild.Client
         public Piece Piece { get; }
         public Vector3 Position => Projection.PiecePosition(Planned);
         public Quaternion Rotation => Projection.PieceRotation(Planned);
+        public bool RecipeKnown => Player.m_knownRecipes.Contains(Piece.m_name);
+
+        public string RecipeError()
+        {
+            string name = Localization.instance.Localize(Piece.m_name);
+            if (!RecipeKnown)
+            {
+                var undiscovered = Piece.m_resources.Where(resource => resource.m_resItem && resource.GetAmount(0) > 0)
+                    .Select(resource => resource.m_resItem.m_itemData.m_shared.m_name)
+                    .Where(resource => !Player.m_knownMaterial.Contains(resource))
+                    .Distinct().Select(resource => Localization.instance.Localize(resource)).ToArray();
+                return undiscovered.Length > 0
+                    ? name + ": recipe locked. Discover " + string.Join(", ", undiscovered) + " to unlock it."
+                    : name + ": recipe locked. Discover its required materials and crafting station first.";
+            }
+            return Player.IsPieceAvailable(Piece) ? null
+                : name + ": recipe learned, but unavailable in this hammer's build menu.";
+        }
 
         private HammerTarget(BlueprintProjection projection, BlueprintProjection.ProjectedPiece planned, Player player, Piece piece)
         { Projection = projection; Planned = planned; Player = player; Piece = piece; }

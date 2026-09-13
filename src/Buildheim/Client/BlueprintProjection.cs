@@ -56,6 +56,7 @@ namespace PlanBuild.Client
         public bool Enabled { get; set; } = true;
         public Quaternion Rotation => Quaternion.Euler(0, Yaw, 0);
         private readonly Material material;
+        private readonly Material aimedMaterial;
 
         private BlueprintProjection(BlueprintDocument document, List<ProjectedPiece> pieces, int missing, Material material)
         {
@@ -64,6 +65,7 @@ namespace PlanBuild.Client
             Layers = new BlueprintLayers(pieces.Select(piece => piece.Entry.posY));
             MissingPrefabs = missing;
             this.material = material;
+            aimedMaterial = new Material(material) { color = new Color(1f, 0.85f, 0.2f, 0.3f) };
         }
 
         public static bool TryCreate(BlueprintDocument document, out BlueprintProjection projection, out string error)
@@ -134,7 +136,7 @@ namespace PlanBuild.Client
         public Quaternion PieceRotation(ProjectedPiece piece) => Rotation * piece.Entry.GetRotation();
         public Matrix4x4 PieceMatrix(ProjectedPiece piece) => Matrix4x4.TRS(PiecePosition(piece), PieceRotation(piece), piece.Entry.GetScale());
 
-        public void Draw(ProjectedPiece selected = null)
+        public void Draw(ProjectedPiece selected = null, ProjectedPiece aimed = null)
         {
             var camera = GameCamera.instance ? GameCamera.instance.GetComponent<Camera>() : null;
             if (!camera) return;
@@ -145,12 +147,16 @@ namespace PlanBuild.Client
                 foreach (var part in piece.Parts)
                 {
                     for (int submesh = 0; submesh < part.Mesh.subMeshCount; submesh++)
-                        Graphics.DrawMesh(part.Mesh, matrix * part.LocalMatrix, material, 0, camera,
+                        Graphics.DrawMesh(part.Mesh, matrix * part.LocalMatrix, piece == aimed ? aimedMaterial : material, 0, camera,
                             submesh, null, ShadowCastingMode.Off, false);
                 }
             }
         }
 
-        public void Dispose() => UnityEngine.Object.Destroy(material);
+        public void Dispose()
+        {
+            UnityEngine.Object.Destroy(material);
+            UnityEngine.Object.Destroy(aimedMaterial);
+        }
     }
 }

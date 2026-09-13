@@ -18,7 +18,8 @@ namespace PlanBuild.Client
         private BlueprintProjection projection;
         private HammerTarget target;
         // Omit a hologram mesh only when the game's own placement preview represents it.
-        public BlueprintProjection.ProjectedPiece PreviewPiece => target != null &&
+        public BlueprintProjection.ProjectedPiece AimedPiece => target?.Planned;
+        public BlueprintProjection.ProjectedPiece PreviewPiece => target != null && target.RecipeKnown &&
             target.Player.m_placementGhost &&
             target.Player.GetSelectedPiece() == target.Piece ? target.Planned : null;
         public string Status { get; private set; } = "Equip a hammer and aim at a missing piece.";
@@ -90,11 +91,17 @@ namespace PlanBuild.Client
                 HideGhost(__instance);
                 return true;
             }
-            if (!__instance.m_knownRecipes.Contains(selected.Piece.m_name) ||
-                (__instance.GetSelectedPiece() != selected.Piece && !__instance.SetSelectedPiece(selected.Piece)))
+            string recipeError = selected.RecipeError();
+            if (recipeError != null)
             {
-                instance.Status = "Learn this hammer recipe before building it.";
-                instance.target = null;
+                instance.Status = recipeError;
+                HideGhost(__instance);
+                return true;
+            }
+            if (__instance.GetSelectedPiece() != selected.Piece && !__instance.SetSelectedPiece(selected.Piece))
+            {
+                instance.Status = Localization.instance.Localize(selected.Piece.m_name) +
+                    ": the hammer could not select this recipe. Reopen its build menu and try again.";
                 HideGhost(__instance);
                 return true;
             }
@@ -146,7 +153,7 @@ namespace PlanBuild.Client
         {
             if (instance == null || !instance.Active(player)) return recipe;
             var selected = instance.target;
-            return selected != null && selected.Piece == recipe && !selected.Planned.Completed &&
+            return selected != null && selected.RecipeKnown && selected.Piece == recipe && !selected.Planned.Completed &&
                 instance.projection.Layers.Contains(selected.Planned.Entry.posY) ? recipe : null;
         }
 
@@ -167,8 +174,8 @@ namespace PlanBuild.Client
             if (selected == null || selected.Piece != piece || selected.Planned.Completed ||
                 !instance.projection.Layers.Contains(selected.Planned.Entry.posY))
                 error = "Aim at a missing blueprint piece to build it.";
-            else if (!__instance.m_knownRecipes.Contains(piece.m_name) || !__instance.IsPieceAvailable(piece))
-                error = "Learn this hammer recipe before building it.";
+            else if (selected.RecipeError() is string recipeError)
+                error = recipeError;
             else if (ZoneSystem.instance.GetGlobalKey(piece.FreeBuildKey()))
                 error = "Hammer assistance requires resource costs. Disable the world's free-build setting first.";
             else if (!selected.HasInventoryResources() || !__instance.HaveRequirements(piece, Player.RequirementMode.CanBuild))
@@ -193,7 +200,7 @@ namespace PlanBuild.Client
             ghostTarget = null;
             if (instance == null || !instance.Active(__instance)) return;
             var selected = instance.target;
-            if (selected == null || selected.Planned.Completed || !instance.projection.Layers.Contains(selected.Planned.Entry.posY) ||
+            if (selected == null || !selected.RecipeKnown || selected.Planned.Completed || !instance.projection.Layers.Contains(selected.Planned.Entry.posY) ||
                 __instance.GetSelectedPiece() != selected.Piece ||
                 !__instance.m_placementGhost) return;
             ghostTarget = selected;
