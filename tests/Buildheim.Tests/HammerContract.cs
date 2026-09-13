@@ -13,6 +13,24 @@ namespace PlanBuildTest
     public class HammerContract
     {
         [TestMethod]
+        public void RepairSelectionUsesTheRepairPathAndSkipsBuilding()
+        {
+            using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
+            var update = game.MainModule.Types.Single(x => x.Name == "Player").Methods.Single(x => x.Name == "UpdatePlacement");
+            var code = update.Body.Instructions;
+            var repairFlag = code.Single(x => x.Operand is FieldReference field && field.Name == "m_repairPiece");
+            var repair = code.Single(x => x.Operand is MethodReference method && method.Name == "Repair");
+            var build = code.Single(x => x.Operand is MethodReference method && method.Name == "TryPlacePiece");
+            Assert.IsTrue(repairFlag.Offset < repair.Offset && repair.Offset < build.Offset);
+            Assert.IsTrue(repairFlag.Next.OpCode.FlowControl == FlowControl.Cond_Branch &&
+                repairFlag.Next.Operand is Instruction nonRepair && nonRepair.Offset > repair.Offset,
+                "Vanilla must distinguish the repair selection from a build recipe.");
+            Assert.IsTrue(repair.Next.OpCode.FlowControl == FlowControl.Branch &&
+                repair.Next.Operand is Instruction afterBuild && afterBuild.Offset > build.Offset,
+                "A repair click must skip blueprint placement and its resource consumption.");
+        }
+
+        [TestMethod]
         public void VanillaClickConsumesResourcesOnlyAfterPlacementSucceeds()
         {
             using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));

@@ -88,26 +88,40 @@ namespace PlanBuild.Client
                 instance.Status = instance.mode == BuildMode.Automatic
                     ? "Waiting for a nearby buildable piece, materials or stamina."
                     : "Aim at a missing piece within hammer reach.";
-                HideGhost(__instance);
+                SelectRepair(__instance);
                 return true;
             }
             string recipeError = selected.RecipeError();
             if (recipeError != null)
             {
                 instance.Status = recipeError;
-                HideGhost(__instance);
+                SelectRepair(__instance);
+                return true;
+            }
+            if (!selected.HasInventoryResources())
+            {
+                instance.Status = Localization.instance.Localize(selected.Piece.m_name) + ": missing materials in your inventory.";
+                SelectRepair(__instance);
+                return true;
+            }
+            if (ZoneSystem.instance.GetGlobalKey(selected.Piece.FreeBuildKey()) ||
+                !__instance.HaveRequirements(selected.Piece, Player.RequirementMode.CanBuild))
+            {
+                instance.Status = Localization.instance.Localize(selected.Piece.m_name) + ": " +
+                    (ZoneSystem.instance.GetGlobalKey(selected.Piece.FreeBuildKey())
+                        ? "disable the world's free-build setting to use hammer assistance."
+                        : "check the required crafting station and recipe requirements.");
+                SelectRepair(__instance);
                 return true;
             }
             if (__instance.GetSelectedPiece() != selected.Piece && !__instance.SetSelectedPiece(selected.Piece))
             {
                 instance.Status = Localization.instance.Localize(selected.Piece.m_name) +
                     ": the hammer could not select this recipe. Reopen its build menu and try again.";
-                HideGhost(__instance);
+                SelectRepair(__instance);
                 return true;
             }
-            instance.Status = selected.HasInventoryResources()
-                ? "Click to build " + Localization.instance.Localize(selected.Piece.m_name)
-                : "Missing materials in your inventory for " + Localization.instance.Localize(selected.Piece.m_name);
+            instance.Status = "Click to build " + Localization.instance.Localize(selected.Piece.m_name);
             if (instance.mode != BuildMode.Automatic) return true;
             instance.Status = "Next: " + Localization.instance.Localize(selected.Piece.m_name);
             if (!instance.autoBuilder.TryAttempt(__instance)) return true;
@@ -123,6 +137,20 @@ namespace PlanBuild.Client
             __state = true;
             instance.Status = "Autobuilding " + Localization.instance.Localize(selected.Piece.m_name);
             return true;
+        }
+
+        private static void SelectRepair(Player player)
+        {
+            // Update vanilla's selected recipe as well as hiding its old preview. Avoid
+            // recreating the repair selection every frame while a target stays blocked.
+            if (player.GetSelectedPiece()?.m_repairPiece != true && player.m_buildPieces)
+            {
+                var repair = player.m_buildPieces.m_pieces.Where(prefab => prefab)
+                    .Select(prefab => prefab.GetComponent<Piece>()).FirstOrDefault(piece => piece && piece.m_repairPiece);
+                if (repair && !player.SetSelectedPiece(repair))
+                    Jotunn.Logger.LogWarning("The hammer could not select Repair after clearing a blueprint recipe.");
+            }
+            HideGhost(player);
         }
 
         private static void HideGhost(Player player)
@@ -152,6 +180,8 @@ namespace PlanBuild.Client
         private static Piece BuildRecipe(Piece recipe, Player player)
         {
             if (instance == null || !instance.Active(player)) return recipe;
+            // Repair is an intentional fallback, not a stale blueprint build recipe.
+            if (recipe && recipe.m_repairPiece) return recipe;
             var selected = instance.target;
             return selected != null && selected.RecipeKnown && selected.Piece == recipe && !selected.Planned.Completed &&
                 instance.projection.Layers.Contains(selected.Planned.Entry.posY) ? recipe : null;
