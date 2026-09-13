@@ -88,6 +88,10 @@ Press **F7** again or choose **Enable placement** to resume. Disabling turns aut
 
 To hide only the build status and shortcut hints, press **F8** or use **Hide HUD** at the top of the planner. Use the same key or **Show HUD** to bring it back. This preference persists across restarts and does not change the hologram or build mode, including autobuild.
 
+The selected blueprint piece has a colored preview and an outline: **green** means placement checks and inventory requirements pass; **yellow** means it is targeted but currently blocked. The HUD names that piece and explains placement or material problems.
+
+In click-to-build mode, aim at the piece's visible shape. In autobuild mode, the highlight shows the next candidate for half a second before its attempt. Autobuild skips pieces whose materials or recipe requirements are missing and rechecks the selected layer as you move. An unsuccessful attempt advances to another candidate.
+
 ## Build from the bottom up
 
 In the Build tab, choose **Bottom** to show the lowest occupied layer. Finish it, then use **Next** to move upward. **Previous** moves down, and **All layers** shows the whole blueprint again. Empty layers are skipped.

@@ -18,6 +18,11 @@ namespace PlanBuild.Client
         private BlueprintProjection projection;
         private HammerTarget target;
         public BlueprintProjection.ProjectedPiece SelectedPiece => target?.Planned;
+        private BlueprintProjection.ProjectedPiece validatedPiece;
+        public bool SelectedBuildable => target != null && validatedPiece == target.Planned &&
+            target.Player.m_placementStatus == Player.PlacementStatus.Valid &&
+            !ZoneSystem.instance.GetGlobalKey(target.Piece.FreeBuildKey()) && target.HasInventoryResources() &&
+            target.Player.HaveRequirements(target.Piece, Player.RequirementMode.CanBuild);
         public string Status { get; private set; } = "Equip a hammer and aim at a missing piece.";
         public bool Ready { get; private set; }
 
@@ -43,6 +48,7 @@ namespace PlanBuild.Client
             projection = value;
             mode = buildMode;
             target = null;
+            validatedPiece = null;
             autoBuilder.Reset();
             HideGhost(Player.m_localPlayer);
         }
@@ -201,18 +207,22 @@ namespace PlanBuild.Client
         private static void EndGhost(Player __instance)
         {
             if (instance == null || !instance.Active(__instance)) return;
+            instance.validatedPiece = ghostTarget?.Planned;
             if (ghostTarget == null)
             {
                 __instance.m_placementStatus = Player.PlacementStatus.Invalid;
                 if (__instance.m_placementGhost) __instance.m_placementGhost.SetActive(false);
                 return;
             }
+            string name = Localization.instance.Localize(ghostTarget.Piece.m_name);
             if (__instance.m_placementStatus != Player.PlacementStatus.Valid)
-                instance.Status = PlacementFeedback.Describe(__instance.m_placementStatus);
+                instance.Status = name + ": " + PlacementFeedback.Describe(__instance.m_placementStatus);
+            else if (ZoneSystem.instance.GetGlobalKey(ghostTarget.Piece.FreeBuildKey()))
+                instance.Status = name + ": disable the world's free-build setting to use hammer assistance.";
             else if (!ghostTarget.HasInventoryResources())
-                instance.Status = "Missing inventory materials for " + Localization.instance.Localize(ghostTarget.Piece.m_name);
+                instance.Status = name + ": missing materials in your inventory.";
             else if (!__instance.HaveRequirements(ghostTarget.Piece, Player.RequirementMode.CanBuild))
-                instance.Status = "Recipe requirements are not met. Check the required station and content availability.";
+                instance.Status = name + ": check the required crafting station and recipe requirements.";
         }
 
         [HarmonyFinalizer, HarmonyPatch(typeof(Player), "UpdatePlacementGhost")]
