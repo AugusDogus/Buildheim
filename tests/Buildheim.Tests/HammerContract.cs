@@ -13,6 +13,28 @@ namespace PlanBuildTest
     public class HammerContract
     {
         [TestMethod]
+        public void NativePieceInfoRendersLiveMaterialCostsWithoutSelectingARecipe()
+        {
+            using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
+            var info = game.MainModule.Types.Single(x => x.Name == "Hud").Methods.Single(x => x.Name == "SetupPieceInfo");
+            var infoCalls = info.Body.Instructions.Where(x => x.Operand is MethodReference)
+                .Select(x => ((MethodReference)x.Operand).Name).ToList();
+            CollectionAssert.Contains(infoCalls, "SetupRequirement");
+            CollectionAssert.Contains(infoCalls, "HaveBuildStationInRange");
+            CollectionAssert.DoesNotContain(infoCalls, "SetSelectedPiece");
+            CollectionAssert.DoesNotContain(infoCalls, "ConsumeResources");
+
+            var costs = game.MainModule.Types.Single(x => x.Name == "InventoryGui").Methods.Single(x => x.Name == "SetupRequirement");
+            var costCalls = costs.Body.Instructions.Where(x => x.Operand is MethodReference)
+                .Select(x => ((MethodReference)x.Operand).Name).ToList();
+            CollectionAssert.Contains(costCalls, "GetIcon");
+            CollectionAssert.Contains(costCalls, "CountItems");
+            CollectionAssert.Contains(costCalls, "GetAmount");
+            CollectionAssert.Contains(costCalls, "get_red");
+            CollectionAssert.Contains(costCalls, "get_white");
+        }
+
+        [TestMethod]
         public void RepairSelectionUsesTheRepairPathAndSkipsBuilding()
         {
             using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));

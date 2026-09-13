@@ -27,6 +27,7 @@ namespace PlanBuild.Client
         public string Status { get; private set; } = "Choose a blueprint or select a box to capture a building.";
         public bool Visible { get; private set; }
         public string BuildStatus => controls.Held ? "Positioning hologram. Release modifiers to build." : assistance.Status;
+        public Piece HoveredPiece => assistance.AimedPiece?.Prefab.GetComponent<Piece>();
 
         public ClientPlanner(ClientConfig config)
         {

@@ -11,6 +11,7 @@ namespace PlanBuild.Client
     {
         private enum Tab { Build, Blueprints, Materials, Capture }
         private readonly ClientPlanner planner;
+        private readonly BlueprintMaterialsHud materialHud;
         private GameObject root;
         private PlannerPresentation presentation;
         private GameObject hud;
@@ -32,7 +33,11 @@ namespace PlanBuild.Client
         public bool CaptureVisible => selected == Tab.Capture;
         public void SelectCapture() { if (root) Select(Tab.Capture); else selected = Tab.Capture; }
 
-        public PlannerWindow(ClientPlanner planner) { this.planner = planner; }
+        public PlannerWindow(ClientPlanner planner)
+        {
+            this.planner = planner;
+            materialHud = new BlueprintMaterialsHud(() => hud && hud.activeInHierarchy ? planner.HoveredPiece : null);
+        }
 
         public void Update()
         {
@@ -238,6 +243,11 @@ namespace PlanBuild.Client
         }
 
         public void Hide() { presentation?.Hide(); if (hud) hud.SetActive(false); }
-        public void Dispose() { if (root) UnityEngine.Object.Destroy(root); if (hud) UnityEngine.Object.Destroy(hud); }
+        public void Dispose()
+        {
+            materialHud.Dispose();
+            if (root) UnityEngine.Object.Destroy(root);
+            if (hud) UnityEngine.Object.Destroy(hud);
+        }
     }
 }

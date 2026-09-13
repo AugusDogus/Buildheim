@@ -108,9 +108,9 @@ namespace PlanBuild.Client
                 SelectRepair(__instance);
                 return true;
             }
-            if (selected.MissingMaterialsError() is string missingMaterials)
+            if (!selected.HasInventoryResources())
             {
-                instance.Status = missingMaterials;
+                instance.Status = Localization.instance.Localize(selected.Piece.m_name) + ": missing materials in your inventory.";
                 SelectRepair(__instance);
                 return true;
             }
@@ -268,8 +268,8 @@ namespace PlanBuild.Client
                 instance.Status = name + ": " + PlacementFeedback.Describe(__instance.m_placementStatus);
             else if (ZoneSystem.instance.GetGlobalKey(ghostTarget.Piece.FreeBuildKey()))
                 instance.Status = name + ": disable the world's free-build setting to use hammer assistance.";
-            else if (ghostTarget.MissingMaterialsError() is string missingMaterials)
-                instance.Status = missingMaterials;
+            else if (!ghostTarget.HasInventoryResources())
+                instance.Status = name + ": missing materials in your inventory.";
             else if (!__instance.HaveRequirements(ghostTarget.Piece, Player.RequirementMode.CanBuild))
                 instance.Status = name + ": check the required crafting station and recipe requirements.";
         }

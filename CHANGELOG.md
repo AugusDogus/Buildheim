@@ -1,6 +1,6 @@
 ## Unreleased
 
-- Show the names and remaining quantities of materials missing from inventory for the hovered piece.
+- Show the hovered blueprint's materials with Valheim's native icons, counts, shortage colors and crafting-station indicator, while retaining Repair for blocked builds.
 - Identify and highlight scenery, scaled imports and out-of-reach holograms before reporting why they cannot be built with the hammer.
 - Return the hammer to Repair when no blueprint piece is targeted or its recipe, materials or station requirements prevent building.
 - Keep the build HUD compact, show positioning shortcuts only while adjusting, and avoid Valheim's piece name and material costs.
