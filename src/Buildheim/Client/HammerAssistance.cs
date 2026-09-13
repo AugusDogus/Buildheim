@@ -256,7 +256,7 @@ namespace PlanBuild.Client
             if (ghostTarget == null || ghostTarget.Player != __instance || !__result) return;
             // Preserve vanilla's real surface normal, terrain, water and support piece. Only move
             // the placement point when the hit surface actually touches the projected geometry.
-            if (!ghostTarget.NearSurface(point) || Vector3.Distance(__instance.m_eye.position, ghostTarget.Position) >=
+            if (!ghostTarget.NearSurface(point) || Vector3.Distance(__instance.m_eye.position, point) >=
                 __instance.m_maxPlaceDistance + ghostTarget.Piece.m_extraPlacementDistance)
             {
                 __result = false;

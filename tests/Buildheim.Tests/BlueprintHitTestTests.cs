@@ -30,6 +30,17 @@ namespace PlanBuildTest
         }
 
         [TestMethod]
+        public void LookingUpSelectsTheUndersideOfAnElevatedPiece()
+        {
+            var ceiling = new BlueprintHitTest(new[]
+            {
+                new Vector3(-2, 4, -2), new Vector3(2, 4, -2), new Vector3(0, 4, 2)
+            }, new[] { 0, 1, 2 });
+            Assert.IsTrue(ceiling.Intersect(new Ray(new Vector3(0, 1.5f, 0), Vector3.up), out float distance));
+            Assert.AreEqual(2.5f, distance, 0.0001f);
+        }
+
+        [TestMethod]
         public void NearestTriangleWinsRegardlessOfMeshOrder()
         {
             var mesh = new BlueprintHitTest(new[]

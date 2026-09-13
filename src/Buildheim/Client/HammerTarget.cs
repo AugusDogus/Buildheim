@@ -22,8 +22,13 @@ namespace PlanBuild.Client
             var piece = planned.Prefab.GetComponent<Piece>();
             if (!piece || piece.m_repairPiece || piece.m_removePiece) return null;
             // Vanilla placement has no scale input. Scaled imports remain visual guides.
-            if (Vector3.Distance(planned.Entry.GetScale(), planned.Prefab.transform.localScale) > 0.01f ||
-                Vector3.Distance(player.m_eye.position, projection.PiecePosition(planned)) >=
+            if (Vector3.Distance(planned.Entry.GetScale(), planned.Prefab.transform.localScale) > 0.01f) return null;
+            // A large piece's origin can be far away even when its near edge is within reach.
+            // This is only a broad-phase filter; aim and support hits enforce actual reach.
+            var matrix = projection.PieceMatrix(planned);
+            var near = matrix.MultiplyPoint3x4(planned.LocalBounds.ClosestPoint(
+                matrix.inverse.MultiplyPoint3x4(player.m_eye.position)));
+            if (Vector3.Distance(player.m_eye.position, near) >=
                 player.m_maxPlaceDistance + piece.m_extraPlacementDistance) return null;
             return new HammerTarget(projection, planned, player, piece);
         }
@@ -49,6 +54,8 @@ namespace PlanBuild.Client
                     if (!part.Mesh.bounds.IntersectRay(localRay, out float distance)) continue;
                     if (part.HitTest != null && !part.HitTest.Intersect(localRay, out distance)) continue;
                     var hit = matrix.MultiplyPoint3x4(localRay.GetPoint(distance));
+                    if (Vector3.Distance(player.m_eye.position, hit) >=
+                        player.m_maxPlaceDistance + candidate.Piece.m_extraPlacementDistance) continue;
                     float worldDistance = Vector3.Dot(hit - ray.origin, ray.direction);
                     if (worldDistance < 0 || worldDistance >= closest) continue;
                     closest = worldDistance;
@@ -91,7 +98,8 @@ namespace PlanBuild.Client
             float reach = Player.m_maxPlaceDistance + Piece.m_extraPlacementDistance;
             if (!Physics.Raycast(Player.m_eye.position, offset.normalized, out hit,
                     Mathf.Min(reach, offset.magnitude + 0.5f), mask) ||
-                !hit.collider || hit.collider.attachedRigidbody || !NearSurface(hit.point)) return false;
+                !hit.collider || hit.collider.attachedRigidbody ||
+                Vector3.Distance(Player.m_eye.position, hit.point) >= reach || !NearSurface(hit.point)) return false;
             var terrain = hit.collider.GetComponent<Heightmap>();
             var support = hit.collider.GetComponentInParent<Piece>();
             var wear = support ? support.GetComponent<WearNTear>() : null;

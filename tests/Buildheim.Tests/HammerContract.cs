@@ -54,6 +54,19 @@ namespace PlanBuildTest
         }
 
         [TestMethod]
+        public void VanillaReachIsMeasuredToTheRayHitRatherThanThePieceOrigin()
+        {
+            using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
+            var ray = game.MainModule.Types.Single(x => x.Name == "Player").Methods.Single(x => x.Name == "PieceRayTest");
+            var code = ray.Body.Instructions;
+            var distance = code.Single(x => x.Operand is MethodReference method && method.DeclaringType.Name == "Vector3" && method.Name == "Distance");
+            Assert.IsTrue(code.Any(x => x.Offset < distance.Offset && x.Operand is FieldReference field && field.Name == "m_eye"));
+            Assert.IsTrue(distance.Previous.Operand is MethodReference point && point.DeclaringType.Name == "RaycastHit" && point.Name == "get_point",
+                "Vanilla's range check must measure to the actual hit surface.");
+            Assert.IsTrue(code.Any(x => x.Operand is FieldReference field && field.Name == "m_extraPlacementDistance"));
+        }
+
+        [TestMethod]
         public void GhostPlacementUsesInterceptableSettersAndRetainsWorldChecks()
         {
             using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));

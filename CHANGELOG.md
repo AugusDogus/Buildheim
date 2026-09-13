@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Measure hammer reach to the aimed and supporting surfaces instead of the piece origin, including overhead pieces.
 - Use Valheim's own hammer preview for the selected piece, avoiding overlapping renders and keeping its name in placement feedback.
 - Pick click-to-build targets from visible mesh geometry instead of the empty space inside a whole-piece bounding box.
 - Keep the next autobuild target visible between attempts, recheck its materials and selected layer, and prevent clicks from using a stale hammer recipe.
