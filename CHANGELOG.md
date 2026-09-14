@@ -1,4 +1,4 @@
-## Unreleased
+## 1.2.0
 
 - Hide build status when no blueprint piece is targeted or the hammer is put away, and keep active status clear of the stamina bar.
 - Show the hovered blueprint's name, icon and materials in Valheim's native info card, including shortage colors and the crafting-station indicator.

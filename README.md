@@ -66,7 +66,7 @@ Building pauses while positioning modifiers are held, and the wheel does not als
 
 The planner slides open and closed with Valheim's inventory timing and uses its opening and closing sounds. Closing releases controls immediately; toggling again during the slide reverses its direction.
 
-**Move to my feet** in the Build tab relocates the blueprint origin to your character. Shortcut hints are shown while the planner is closed, unless you disable the placement or hide the HUD.
+**Move to my feet** in the Build tab relocates the blueprint origin to your character. Positioning shortcuts appear while you hold a positioning modifier, unless you hide the HUD.
 
 ## Choose how to build
 
@@ -88,7 +88,9 @@ Press **F7** again or choose **Enable placement** to resume. Disabling turns aut
 
 To hide only the build status and shortcut hints, press **F8** or use **Hide HUD** at the top of the planner. Use the same key or **Show HUD** to bring it back. This preference persists across restarts and does not change the hologram or build mode, including autobuild.
 
-The selected blueprint piece uses Valheim's normal hammer preview and invalid-placement coloring. The HUD names that piece and explains placement or material problems. A visible preview does not bypass material, reach or placement requirements.
+The selected blueprint piece uses Valheim's normal hammer preview and invalid-placement coloring. Blocked targets remain highlighted in the hologram. Valheim's native info card shows the hovered hammer piece's name, icon, material costs and crafting station, with shortage colors for materials missing from your inventory. A visible preview does not bypass material, reach or placement requirements.
+
+Build status appears for the current target and hides when there is no target or you put the hammer away. Capture and positioning keep their own instructions visible while active. The compact status panel avoids the native building UI and stamina bar.
 
 In click-to-build mode, aim at the piece's visible shape. In autobuild mode, the hammer preview shows the next candidate for half a second before its attempt. Autobuild skips pieces whose materials or recipe requirements are missing and rechecks the selected layer as you move. An unsuccessful attempt advances to another candidate.
 
