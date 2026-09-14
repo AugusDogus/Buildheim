@@ -19,7 +19,8 @@ namespace PlanBuild.Client
         private BlueprintSelection selection;
         private HammerTarget target => (selection as BlueprintSelection.Hammer)?.Target;
         // Omit a hologram mesh only when the game's own placement preview represents it.
-        public BlueprintProjection.ProjectedPiece AimedPiece => selection?.Planned;
+        public BlueprintProjection.ProjectedPiece AimedPiece => Active(Player.m_localPlayer) &&
+            Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible() ? selection?.Planned : null;
         public BlueprintProjection.ProjectedPiece PreviewPiece => target != null && target.RecipeKnown &&
             target.Player.m_placementGhost &&
             target.Player.GetSelectedPiece() == target.Piece ? target.Planned : null;
@@ -52,7 +53,7 @@ namespace PlanBuild.Client
             HideGhost(Player.m_localPlayer);
         }
 
-        private bool Active(Player player) => Ready && projection != null && player == Player.m_localPlayer &&
+        private bool Active(Player player) => Ready && projection != null && player && player == Player.m_localPlayer &&
             !player.IsDead() && player.GetRightItem()?.m_dropPrefab?.name == "Hammer";
 
         [HarmonyPrefix, HarmonyPatch(typeof(Player), "UpdatePlacement")]

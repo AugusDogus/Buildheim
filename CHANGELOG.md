@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Hide build status when no blueprint piece is targeted or the hammer is put away, and keep active status clear of the stamina bar.
 - Show the hovered blueprint's name, icon and materials in Valheim's native info card, including shortage colors and the crafting-station indicator.
 - Identify and highlight scenery, scaled imports and out-of-reach holograms before reporting why they cannot be built with the hammer.
 - Return to ordinary Repair when no blueprint piece is targeted; blocked blueprint clicks cannot repair other structures behind the hologram.

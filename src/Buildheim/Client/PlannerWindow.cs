@@ -44,7 +44,7 @@ namespace PlanBuild.Client
             if (!GUIManager.CustomGUIFront) return;
             if (!root) Create();
             presentation.Update(planner.Visible, GUIManager.CustomGUIFront.GetComponent<RectTransform>().rect);
-            bool showHud = planner.Config.ShowHud.Value && !presentation.Present && (planner.PlacementEnabled || planner.Selection.Editing) && Player.m_localPlayer.TakeInput();
+            bool showHud = planner.Config.ShowHud.Value && !presentation.Present && planner.HasHudActivity && Player.m_localPlayer.TakeInput();
             hud.SetActive(showHud);
             if (showHud)
             {
@@ -98,7 +98,25 @@ namespace PlanBuild.Client
                 foreach (var requirement in vanilla.m_requirementItems)
                     Clear(requirement.GetComponent<RectTransform>());
             }
-            rect.anchoredPosition = new Vector2(0, bottom - canvas.rect.yMin);
+            float horizontal = 0;
+            if (vanilla && vanilla.m_staminaBar2Root && vanilla.m_staminaBar2Root.gameObject.activeInHierarchy)
+            {
+                // Reserve the bar's space even while it fades, keeping status steady as
+                // stamina changes. Prefer moving beside it over moving toward the crosshair.
+                vanilla.m_staminaBar2Root.GetWorldCorners(hudCorners);
+                var lower = canvas.InverseTransformPoint(hudCorners[0]);
+                var upper = canvas.InverseTransformPoint(hudCorners[2]);
+                if (bottom < upper.y + 12 && bottom + height > lower.y - 12 &&
+                    canvas.rect.center.x + width / 2 > lower.x - 12 && canvas.rect.center.x - width / 2 < upper.x + 12)
+                {
+                    float right = upper.x + 12 + width / 2;
+                    if (right + width / 2 <= canvas.rect.xMax - 16)
+                        horizontal = right - canvas.rect.center.x;
+                    else
+                        bottom = upper.y + 12;
+                }
+            }
+            rect.anchoredPosition = new Vector2(horizontal, bottom - canvas.rect.yMin);
 
             void Clear(RectTransform occupied)
             {
