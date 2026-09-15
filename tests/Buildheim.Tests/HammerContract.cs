@@ -94,6 +94,35 @@ namespace PlanBuildTest
         }
 
         [TestMethod]
+        public void FreeBuildingIsReadableAndBypassesVanillaRequirements()
+        {
+            using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
+            var player = game.MainModule.Types.Single(x => x.Name == "Player");
+
+            // Assistance reads the mode through this public property rather than the private field.
+            var disabled = player.Properties.Single(x => x.Name == "PlacementCostDisabled");
+            Assert.AreEqual("System.Boolean", disabled.PropertyType.FullName);
+            Assert.IsTrue(disabled.GetMethod.Body.Instructions.Any(x => x.Operand is FieldReference field &&
+                field.Name == "m_noPlacementCost"), "PlacementCostDisabled must report the no-placement-cost mode.");
+
+            // Vanilla skips its own requirement check in this mode, so assistance must not enforce
+            // recipes, materials or crafting stations that the game itself has stopped enforcing.
+            var update = player.Methods.Single(x => x.Name == "UpdatePlacement");
+            var cost = update.Body.Instructions.First(x => x.Operand is FieldReference field && field.Name == "m_noPlacementCost");
+            var requirement = update.Body.Instructions.Single(x => x.Operand is MethodReference method && method.Name == "HaveRequirements");
+            Assert.IsTrue(cost.Offset < requirement.Offset, "Vanilla must test free building before checking requirements.");
+            Assert.IsTrue(cost.Next.OpCode.FlowControl == FlowControl.Cond_Branch &&
+                cost.Next.Operand is Instruction skip && skip.Offset > requirement.Offset,
+                "Free building must branch past vanilla's requirement check.");
+
+            // The same flag unlocks the whole build menu, which is why free building widens the set
+            // of pieces a blueprint can aim at rather than narrowing it.
+            var available = player.Methods.Single(x => x.Name == "UpdateAvailablePiecesList");
+            Assert.IsTrue(available.Body.Instructions.Any(x => x.Operand is FieldReference field && field.Name == "m_noPlacementCost"));
+            Assert.IsTrue(available.Body.Instructions.Any(x => x.Operand is MethodReference method && method.Name == "UpdateAvailable"));
+        }
+
+        [TestMethod]
         public void VanillaReachIsMeasuredToTheRayHitRatherThanThePieceOrigin()
         {
             using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
