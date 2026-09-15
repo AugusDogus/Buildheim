@@ -1,3 +1,9 @@
+## 1.2.1
+
+- Restore ordinary hammer use when the blueprint is out of range or all pieces in the active layers are built.
+- Show why hammer assistance is paused in the build HUD and planner.
+- Respect disabled placement costs in hammer assistance and autobuild, including recipe, material and crafting-station requirements.
+
 ## 1.2.0
 
 - Hide build status when no blueprint piece is targeted or the hammer is put away, and keep active status clear of the stamina bar.
