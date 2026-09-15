@@ -55,8 +55,8 @@ namespace PlanBuild.Client
         public float Radius { get; }
         // True while any piece in an active layer is still unbuilt. The delegate is held rather than
         // rebuilt, because this is read every frame.
-        public bool HasWork => AssistanceWork.HasWork(Pieces.Count, buildable);
-        private readonly Func<int, bool> buildable;
+        public bool HasWork => AssistanceWork.HasWork(Pieces.Count, pieceState, Layers);
+        private readonly Func<int, (bool Completed, float Height)> pieceState;
         public Vector3 Position { get; set; }
         public float Yaw { get; set; }
         public bool Enabled { get; set; } = true;
@@ -73,7 +73,7 @@ namespace PlanBuild.Client
             foreach (var piece in pieces)
                 Radius = Mathf.Max(Radius, AssistanceRange.PieceRadius(
                     piece.Entry.GetPosition(), piece.LocalBounds, piece.Entry.GetScale()));
-            buildable = index => !Pieces[index].Completed && Layers.Contains(Pieces[index].Entry.posY);
+            pieceState = index => (Pieces[index].Completed, Pieces[index].Entry.posY);
             this.material = material;
             aimedMaterial = new Material(material) { color = new Color(1f, 0.85f, 0.2f, 0.3f) };
         }
