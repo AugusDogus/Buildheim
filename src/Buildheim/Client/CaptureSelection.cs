@@ -19,8 +19,9 @@ namespace PlanBuild.Client
         public string Status { get; private set; } = "Aim at the ground or a building and pick two opposite corners.";
         public const string Hints = "Left click: corner A | Right click: corner B | Middle click: switch corner\nCtrl + wheel: forward/back | Ctrl + X + wheel: sideways | Alt + wheel: height | Shift: 1 m";
         private bool Active => Editing && canTakeInput();
-        private static bool Control => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-        private static bool Alt => Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+        // Read modifiers from the same input system as ZInput.GetMouseScrollWheel.
+        private static bool Control => ZInput.GetKey(KeyCode.LeftControl) || ZInput.GetKey(KeyCode.RightControl);
+        private static bool Alt => ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetKey(KeyCode.RightAlt);
 
         public CaptureSelection(Func<bool> canTakeInput)
         {
@@ -90,9 +91,9 @@ namespace PlanBuild.Client
             if (!Alt && GameCamera.instance)
             {
                 var rotation = Quaternion.Euler(0, GameCamera.instance.transform.eulerAngles.y, 0);
-                axis = rotation * (Input.GetKey(KeyCode.X) ? Vector3.right : Vector3.forward);
+                axis = rotation * (ZInput.GetKey(KeyCode.X) ? Vector3.right : Vector3.forward);
             }
-            bool coarse = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            bool coarse = ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift);
             var position = selected.Value + axis * Mathf.Sign(wheel) * (coarse ? 1f : 0.1f);
             if (instance.firstSelected) instance.First = position; else instance.Second = position;
         }
@@ -119,7 +120,7 @@ namespace PlanBuild.Client
         [HarmonyPrefix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetButtonDown))]
         private static bool SuppressSit(string name, ref bool __result)
         {
-            if (instance == null || !instance.Active || !Control || name != "Sit" || !Input.GetKey(KeyCode.X)) return true;
+            if (instance == null || !instance.Active || !Control || name != "Sit" || !ZInput.GetKey(KeyCode.X)) return true;
             __result = false;
             return false;
         }

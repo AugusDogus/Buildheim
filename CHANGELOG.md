@@ -1,3 +1,7 @@
+## Unreleased
+
+- Read blueprint and capture-box positioning modifiers through Valheim's input system, matching mouse-wheel input.
+
 ## 1.2.0
 
 - Hide build status when no blueprint piece is targeted or the hammer is put away, and keep active status clear of the stamina bar.
