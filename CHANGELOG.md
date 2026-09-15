@@ -1,3 +1,7 @@
+## Unreleased
+
+- Read blueprint and capture-box positioning modifiers through Valheim's input system, matching mouse-wheel input.
+
 ## 1.2.1
 
 - Restore ordinary hammer use when the blueprint is out of range or all pieces in the active layers are built.

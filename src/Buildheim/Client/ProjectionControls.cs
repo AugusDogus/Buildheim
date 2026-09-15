@@ -14,8 +14,9 @@ namespace PlanBuild.Client
         public const string Hints = "Ctrl + wheel: forward/back   |   Ctrl + X + wheel: sideways\nAlt + wheel: height   |   Ctrl + Alt + wheel: rotate   |   Shift: larger steps";
         public static bool Adjusting => instance != null && instance.Held;
         public bool Held => activeProjection() != null && (Control || Alt);
-        private static bool Control => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-        private static bool Alt => Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+        // Read modifiers from the same input system as ZInput.GetMouseScrollWheel.
+        private static bool Control => ZInput.GetKey(KeyCode.LeftControl) || ZInput.GetKey(KeyCode.RightControl);
+        private static bool Alt => ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetKey(KeyCode.RightAlt);
 
         public ProjectionControls(Func<BlueprintProjection> activeProjection)
         {
@@ -38,7 +39,7 @@ namespace PlanBuild.Client
             instance.lastFrame = Time.frameCount;
             var projection = instance.activeProjection();
             float direction = Mathf.Sign(wheel);
-            bool coarse = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            bool coarse = ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift);
             if (Control && Alt) projection.Yaw = BlueprintRotation.Turn(projection.Yaw, (int)direction, coarse);
             else
             {
@@ -46,7 +47,7 @@ namespace PlanBuild.Client
                 if (!Alt && GameCamera.instance)
                 {
                     var forward = Quaternion.Euler(0, GameCamera.instance.transform.eulerAngles.y, 0);
-                    axis = forward * (Input.GetKey(KeyCode.X) ? Vector3.right : Vector3.forward);
+                    axis = forward * (ZInput.GetKey(KeyCode.X) ? Vector3.right : Vector3.forward);
                 }
                 projection.Position += axis * direction * (coarse ? 1f : 0.1f);
             }
@@ -57,7 +58,7 @@ namespace PlanBuild.Client
         private static bool PreventModifierActions(string name, ref bool __result)
         {
             if (instance == null || !instance.Held || !Control) return true;
-            if (name != "Crouch" && !(name == "Sit" && Input.GetKey(KeyCode.X))) return true;
+            if (name != "Crouch" && !(name == "Sit" && ZInput.GetKey(KeyCode.X))) return true;
             __result = false;
             return false;
         }

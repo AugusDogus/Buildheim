@@ -105,3 +105,21 @@ Verify planner layout, modifier shortcuts, obstructed placement, inventory and c
 
 The client plugin does not require an asset-bundle build. Editable banner and
 icon sources live in `assets/artwork/`.
+
+### Positioning modifier regression (issue #2)
+
+With a blueprint loaded and the planner closed:
+
+1. Hold Ctrl + Alt and scroll one notch. Expect a 22.5° turn.
+2. Keep Ctrl + Alt held, add Shift, and scroll. Expect a 90° turn.
+3. Release only Shift and scroll. Expect a 22.5° turn.
+4. Release all keys, hold Ctrl + Alt again, and scroll. Expect a 22.5° turn.
+5. Repeat with each Shift key. With both held, releasing only one should retain
+   90° turns; releasing both should restore 22.5° turns.
+6. Check movement and capture-box adjustment too: Shift gives 1 m steps, and
+   releasing it restores 0.1 m steps, including after releasing all modifiers.
+7. Check Ctrl + X sideways movement and that Ctrl/X do not also crouch or sit
+   while positioning. Release the modifiers and confirm normal controls return.
+
+These checks require Unity's keyboard input. The .NET tests do not simulate
+physical key presses or verify that the game's input backends agree.
