@@ -13,10 +13,24 @@ namespace PlanBuild.Client
         public Piece Piece { get; }
         public Vector3 Position => Projection.PiecePosition(Planned);
         public Quaternion Rotation => Projection.PieceRotation(Planned);
-        public bool RecipeKnown => Player.m_knownRecipes.Contains(Piece.m_name);
+        // Valheim's no-placement-cost mode (/nocost, debugmode) removes recipe, material and
+        // crafting-station requirements from the game itself: PieceTable.UpdateAvailable lists every
+        // piece regardless of m_knownRecipes, and Player.UpdatePlacement places without consuming
+        // anything. Assistance re-checks all three below, so without this it refuses to help in
+        // exactly the mode that grants free building, and SelectRepair takes the hammer back on
+        // every frame.
+        public bool CostsWaived => Player && Player.PlacementCostDisabled;
+
+        // The crafting-station and recipe check, waived for the same reason. Vanilla's own
+        // placement path reads `m_noPlacementCost || HaveRequirements(...)`, so this matches it.
+        public bool RequirementsMet => CostsWaived ||
+            Player.HaveRequirements(Piece, global::Player.RequirementMode.CanBuild);
+
+        public bool RecipeKnown => CostsWaived || Player.m_knownRecipes.Contains(Piece.m_name);
 
         public string RecipeError()
         {
+            if (CostsWaived) return null;
             string name = Localization.instance.Localize(Piece.m_name);
             if (!RecipeKnown)
             {
@@ -190,10 +204,12 @@ namespace PlanBuild.Client
         private IEnumerable<KeyValuePair<string, int>> ResourceCosts => Piece.m_resources.Where(resource => resource.m_resItem)
                 .Select(resource => new KeyValuePair<string, int>(resource.m_resItem.m_itemData.m_shared.m_name, resource.GetAmount(0)));
 
-        public bool HasInventoryResources() => BuildMaterials.HasAll(ResourceCosts, name => Player.GetInventory().CountItems(name));
+        public bool HasInventoryResources() => CostsWaived ||
+            BuildMaterials.HasAll(ResourceCosts, name => Player.GetInventory().CountItems(name));
 
         public string MissingMaterialsError()
         {
+            if (CostsWaived) return null;
             var missing = BuildMaterials.Missing(ResourceCosts, name => Player.GetInventory().CountItems(name));
             if (missing.Count == 0) return null;
             var amounts = missing.Select(item => $"{item.Value} {Localization.instance.Localize(item.Key)}");
