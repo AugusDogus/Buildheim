@@ -30,6 +30,8 @@
     <Compile Include="../../src/Buildheim/Client/MenuSlide.cs" Link="MenuSlide.cs" />
     <Compile Include="../../src/Buildheim/Client/BlueprintRotation.cs" Link="BlueprintRotation.cs" />
     <Compile Include="../../src/Buildheim/Client/BlueprintHitTest.cs" Link="BlueprintHitTest.cs" />
+    <Compile Include="../../src/Buildheim/Client/AssistanceRange.cs" Link="AssistanceRange.cs" />
+    <Compile Include="../../src/Buildheim/Client/AssistanceWork.cs" Link="AssistanceWork.cs" />
     <None Update="resources/*.blueprint" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

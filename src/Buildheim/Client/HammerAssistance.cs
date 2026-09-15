@@ -53,8 +53,17 @@ namespace PlanBuild.Client
             HideGhost(Player.m_localPlayer);
         }
 
-        private bool Active(Player player) => Ready && projection != null && player && player == Player.m_localPlayer &&
-            !player.IsDead() && player.GetRightItem()?.m_dropPrefab?.name == "Hammer";
+        // A placement the player is nowhere near must not take the hammer. See AssistanceRange.
+        private bool InRange(Player player) => projection != null && player && AssistanceRange.InRange(
+            player.transform.position, projection.Position, projection.Radius, player.m_maxPlaceDistance);
+
+        private bool Holding(Player player) => player && player == Player.m_localPlayer && !player.IsDead() &&
+            player.GetRightItem()?.m_dropPrefab?.name == "Hammer";
+
+        // A finished blueprint has nothing to target and draws nothing, so assistance must stand
+        // down rather than hold the hammer on Repair. See AssistanceWork.
+        private bool Active(Player player) => Ready && projection != null && Holding(player) &&
+            InRange(player) && projection.HasWork;
 
         [HarmonyPrefix, HarmonyPatch(typeof(Player), "UpdatePlacement")]
         private static bool SelectPiece(Player __instance, bool takeInput, out bool __state)
@@ -73,6 +82,16 @@ namespace PlanBuild.Client
             if (!instance.Active(__instance) || !takeInput || Hud.IsPieceSelectionVisible())
             {
                 instance.selection = null;
+                // Say why the hammer is ordinary here, rather than changing behaviour in silence.
+                if (instance.projection != null && instance.Holding(__instance))
+                {
+                    if (!instance.InRange(__instance))
+                        instance.Status = "Out of range of " + instance.projection.Name +
+                            ". Move closer to use hammer assistance.";
+                    else if (!instance.projection.HasWork)
+                        instance.Status = instance.projection.Name +
+                            " is already built. Hammer assistance is off; disable the placement when you are done with it.";
+                }
                 return true;
             }
             if (instance.mode == BuildMode.Automatic && (ZInput.GetButton("Remove") ||

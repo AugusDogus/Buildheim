@@ -51,6 +51,12 @@ namespace PlanBuild.Client
         public IReadOnlyList<ProjectedPiece> Pieces { get; }
         public BlueprintLayers Layers { get; }
         public int MissingPrefabs { get; }
+        // Bounding-sphere radius around the blueprint's origin, for AssistanceRange.
+        public float Radius { get; }
+        // True while any piece in an active layer is still unbuilt. The delegate is held rather than
+        // rebuilt, because this is read every frame.
+        public bool HasWork => AssistanceWork.HasWork(Pieces.Count, buildable);
+        private readonly Func<int, bool> buildable;
         public Vector3 Position { get; set; }
         public float Yaw { get; set; }
         public bool Enabled { get; set; } = true;
@@ -64,6 +70,10 @@ namespace PlanBuild.Client
             Pieces = pieces;
             Layers = new BlueprintLayers(pieces.Select(piece => piece.Entry.posY));
             MissingPrefabs = missing;
+            foreach (var piece in pieces)
+                Radius = Mathf.Max(Radius, AssistanceRange.PieceRadius(
+                    piece.Entry.GetPosition(), piece.LocalBounds, piece.Entry.GetScale()));
+            buildable = index => !Pieces[index].Completed && Layers.Contains(Pieces[index].Entry.posY);
             this.material = material;
             aimedMaterial = new Material(material) { color = new Color(1f, 0.85f, 0.2f, 0.3f) };
         }
