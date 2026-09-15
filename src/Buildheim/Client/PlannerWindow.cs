@@ -222,6 +222,8 @@ namespace PlanBuild.Client
                 ? $"Placement disabled: hologram and assistance are off. Press {planner.Config.PlacementKey.Value} or Enable placement to resume."
                 : planner.Mode == BuildMode.Guide
                 ? "Preview only: the hologram is a guide. Select and place hammer pieces yourself."
+                : planner.AssistancePauseReason is string reason
+                ? reason
                 : planner.Mode == BuildMode.Automatic
                     ? $"Autobuild ON: walk with your hammer to place nearby pieces. {planner.Config.AutoBuildKey.Value} pauses it."
                     : "Click to build: aim at a hologram piece and click. Its recipe and position are selected for you.";
