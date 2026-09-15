@@ -12,10 +12,10 @@ namespace PlanBuild.Client
             queue.Next(projection.Pieces.Count, Time.time, index =>
             {
                 var candidate = HammerTarget.FromPiece(projection, projection.Pieces[index], player);
-                if (candidate == null || !player.m_knownRecipes.Contains(candidate.Piece.m_name) ||
+                if (candidate == null || !candidate.RecipeKnown ||
                     !player.IsPieceAvailable(candidate.Piece) || !candidate.HasInventoryResources() ||
                     ZoneSystem.instance.GetGlobalKey(candidate.Piece.FreeBuildKey()) ||
-                    !player.HaveRequirements(candidate.Piece, Player.RequirementMode.CanBuild)) return false;
+                    !candidate.RequirementsMet) return false;
                 selected = candidate;
                 return true;
             });
