@@ -14,6 +14,7 @@ namespace PlanBuild.Client
         public ConfigEntry<KeyCode> PlacementKey { get; }
         public ConfigEntry<KeyCode> HudKey { get; }
         public ConfigEntry<bool> ShowHud { get; }
+        public ConfigEntry<bool> LogRotationInput { get; }
 
         public ClientConfig(ConfigFile config)
         {
@@ -26,6 +27,8 @@ namespace PlanBuild.Client
             PlacementKey = config.Bind("Client", "Placement key", KeyCode.F7, "Enable or disable the current placement without clearing it. Disabling hides the hologram and stops build assistance.");
             HudKey = config.Bind("Client", "HUD key", KeyCode.F8, "Show or hide Buildheim's HUD while the planner is closed. Does not change placement or build mode.");
             ShowHud = config.Bind("Client", "Show HUD", true, "Show Buildheim's build status and shortcut hints. Hiding the HUD does not stop autobuild or hide the hologram.");
+            LogRotationInput = config.Bind("Diagnostics", "Log rotation input", false,
+                "Log the first 100 blueprint rotation steps to BepInEx/LogOutput.log, including Shift state and angle changes. Enable when investigating unexpected rotation steps; restart the game to reset the limit.");
         }
     }
 }

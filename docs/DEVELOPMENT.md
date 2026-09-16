@@ -123,3 +123,12 @@ With a blueprint loaded and the planner closed:
 
 These checks require Unity's keyboard input. The .NET tests do not simulate
 physical key presses or verify that the game's input backends agree.
+
+If the problem persists, enable `Log rotation input = true` in the `[Diagnostics]`
+section of `BepInEx/config/augusdogus.Buildheim.cfg` and restart. Rotate one wheel
+notch at each stage above, pausing between stages. Share the lines containing
+`Buildheim rotation trace:` from `BepInEx/LogOutput.log`, then disable the setting.
+The trace records up to 100 rotation steps per game session: timestamps, frame
+numbers, wheel values, angle changes, window focus, and each Shift key's state
+from both input APIs. It does not record typed text. This distinguishes a single
+90° step from repeated 22.5° steps without guessing which input state is wrong.

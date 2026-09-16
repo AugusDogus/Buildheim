@@ -10,7 +10,9 @@ namespace PlanBuild.Client
         private static ProjectionControls instance;
         private readonly Harmony harmony = new Harmony(PlanBuildPlugin.PluginGUID + ".positioning");
         private readonly Func<BlueprintProjection> activeProjection;
+        private readonly Func<bool> logRotationInput;
         private int lastFrame = -1;
+        private int loggedRotations;
         public const string Hints = "Ctrl + wheel: forward/back   |   Ctrl + X + wheel: sideways\nAlt + wheel: height   |   Ctrl + Alt + wheel: rotate   |   Shift: larger steps";
         public static bool Adjusting => instance != null && instance.Held;
         public bool Held => activeProjection() != null && (Control || Alt);
@@ -18,9 +20,10 @@ namespace PlanBuild.Client
         private static bool Control => ZInput.GetKey(KeyCode.LeftControl) || ZInput.GetKey(KeyCode.RightControl);
         private static bool Alt => ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetKey(KeyCode.RightAlt);
 
-        public ProjectionControls(Func<BlueprintProjection> activeProjection)
+        public ProjectionControls(Func<BlueprintProjection> activeProjection, Func<bool> logRotationInput)
         {
             this.activeProjection = activeProjection;
+            this.logRotationInput = logRotationInput;
             instance = this;
             harmony.PatchAll(typeof(ProjectionControls));
         }
@@ -39,8 +42,15 @@ namespace PlanBuild.Client
             instance.lastFrame = Time.frameCount;
             var projection = instance.activeProjection();
             float direction = Mathf.Sign(wheel);
-            bool coarse = ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift);
-            if (Control && Alt) projection.Yaw = BlueprintRotation.Turn(projection.Yaw, (int)direction, coarse);
+            bool leftShift = ZInput.GetKey(KeyCode.LeftShift);
+            bool rightShift = ZInput.GetKey(KeyCode.RightShift);
+            bool coarse = leftShift || rightShift;
+            if (Control && Alt)
+            {
+                float before = projection.Yaw;
+                projection.Yaw = BlueprintRotation.Turn(before, (int)direction, coarse);
+                instance.TraceRotation(wheel, leftShift, rightShift, before, projection.Yaw);
+            }
             else
             {
                 var axis = Vector3.up;
@@ -52,6 +62,22 @@ namespace PlanBuild.Client
                 projection.Position += axis * direction * (coarse ? 1f : 0.1f);
             }
             ProjectionProgress.Refresh(projection);
+        }
+
+        // Read legacy state only for comparison. It must not affect positioning.
+        private void TraceRotation(float wheel, bool leftShift, bool rightShift, float before, float after)
+        {
+            if (!logRotationInput() || loggedRotations >= 100) return;
+            if (loggedRotations == 0)
+                Jotunn.Logger.LogInfo($"Buildheim rotation trace: build={typeof(ProjectionControls).Assembly.ManifestModule.ModuleVersionId}; logging up to 100 rotation steps.");
+            loggedRotations++;
+            Jotunn.Logger.LogInfo(FormattableString.Invariant(
+                $"Buildheim rotation trace: sample={loggedRotations} frame={Time.frameCount} time={Time.realtimeSinceStartup:F3} wheel={wheel:R} yaw={before:R}->{after:R} delta={Mathf.DeltaAngle(before, after):R} ") +
+                $"focused={Application.isFocused} " +
+                $"shiftL={leftShift} shiftR={rightShift} " +
+                $"legacyShiftL={Input.GetKey(KeyCode.LeftShift)} legacyShiftR={Input.GetKey(KeyCode.RightShift)}");
+            if (loggedRotations == 100)
+                Jotunn.Logger.LogInfo("Buildheim rotation trace: limit reached; restart the game to record another reproduction.");
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetButtonDown))]

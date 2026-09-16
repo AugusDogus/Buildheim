@@ -38,7 +38,7 @@ namespace PlanBuild.Client
                 !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible());
             controls = new ProjectionControls(() => !Visible && Player.m_localPlayer &&
                 !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible()
-                ? ActiveProjection : null);
+                ? ActiveProjection : null, () => Config.LogRotationInput.Value);
             chests = new ChestObservation(Materials);
             view = new PlannerWindow(this);
         }

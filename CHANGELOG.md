@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Read blueprint and capture-box positioning modifiers through Valheim's input system, matching mouse-wheel input.
+- Add opt-in, bounded rotation input diagnostics to investigate unexpected rotation steps.
 
 ## 1.2.1
 
