@@ -7,6 +7,11 @@
     <Version>1.2.1</Version>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- PR artifacts collect input evidence without requiring config edits. Release builds remain opt-in. -->
+    <InputDiagnostics Condition="'$(InputDiagnostics)' == '' And '$(GITHUB_EVENT_NAME)' == 'pull_request'">true</InputDiagnostics>
+  </PropertyGroup>
+  <PropertyGroup Condition="'InputDiagnostics' == 'true'">
+    <DefineConstants>$(DefineConstants);BUILDHEIM_INPUT_REPORT</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JotunnLib" Version="2.30.0" ExcludeAssets="build" />
@@ -16,6 +21,7 @@
     <Reference Include="$(ManagedDir)/assembly_utils.dll" Private="false" />
     <Reference Include="$(ManagedDir)/assembly_guiutils.dll" Private="false" />
     <Reference Include="$(ManagedDir)/UnityEngine*.dll" Private="false" />
+    <Reference Include="$(ManagedDir)/Unity.InputSystem.dll" Private="false" />
     <Reference Include="$(ManagedDir)/Unity.TextMeshPro.dll" Private="false" />
     <Reference Include="$(BepInExDir)/core/BepInEx.dll" Private="false" />
     <Reference Include="$(BepInExDir)/core/0Harmony.dll" Private="false" />

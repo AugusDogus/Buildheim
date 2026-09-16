@@ -10,9 +10,8 @@ namespace PlanBuild.Client
         private static ProjectionControls instance;
         private readonly Harmony harmony = new Harmony(PlanBuildPlugin.PluginGUID + ".positioning");
         private readonly Func<BlueprintProjection> activeProjection;
-        private readonly Func<bool> logRotationInput;
+        private readonly RotationInputReport inputReport;
         private int lastFrame = -1;
-        private int loggedRotations;
         public const string Hints = "Ctrl + wheel: forward/back   |   Ctrl + X + wheel: sideways\nAlt + wheel: height   |   Ctrl + Alt + wheel: rotate   |   Shift: larger steps";
         public static bool Adjusting => instance != null && instance.Held;
         public bool Held => activeProjection() != null && (Control || Alt);
@@ -23,14 +22,18 @@ namespace PlanBuild.Client
         public ProjectionControls(Func<BlueprintProjection> activeProjection, Func<bool> logRotationInput)
         {
             this.activeProjection = activeProjection;
-            this.logRotationInput = logRotationInput;
+            inputReport = new RotationInputReport(logRotationInput);
             instance = this;
             harmony.PatchAll(typeof(ProjectionControls));
         }
 
         // Read even when vanilla skips camera zoom and hammer rotation. The postfix below
         // handles this sample once; all later consumers in the frame receive zero.
-        public void Update() { if (Held) ZInput.GetMouseScrollWheel(); }
+        public void Update()
+        {
+            inputReport.Observe(activeProjection() != null);
+            if (Held) ZInput.GetMouseScrollWheel();
+        }
 
         [HarmonyPostfix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetMouseScrollWheel))]
         private static void Scroll(ref float __result)
@@ -49,7 +52,7 @@ namespace PlanBuild.Client
             {
                 float before = projection.Yaw;
                 projection.Yaw = BlueprintRotation.Turn(before, (int)direction, coarse);
-                instance.TraceRotation(wheel, leftShift, rightShift, before, projection.Yaw);
+                instance.inputReport.Rotation(wheel, coarse, before, projection.Yaw);
             }
             else
             {
@@ -64,22 +67,6 @@ namespace PlanBuild.Client
             ProjectionProgress.Refresh(projection);
         }
 
-        // Read legacy state only for comparison. It must not affect positioning.
-        private void TraceRotation(float wheel, bool leftShift, bool rightShift, float before, float after)
-        {
-            if (!logRotationInput() || loggedRotations >= 100) return;
-            if (loggedRotations == 0)
-                Jotunn.Logger.LogInfo($"Buildheim rotation trace: build={typeof(ProjectionControls).Assembly.ManifestModule.ModuleVersionId}; logging up to 100 rotation steps.");
-            loggedRotations++;
-            Jotunn.Logger.LogInfo(FormattableString.Invariant(
-                $"Buildheim rotation trace: sample={loggedRotations} frame={Time.frameCount} time={Time.realtimeSinceStartup:F3} wheel={wheel:R} yaw={before:R}->{after:R} delta={Mathf.DeltaAngle(before, after):R} ") +
-                $"focused={Application.isFocused} " +
-                $"shiftL={leftShift} shiftR={rightShift} " +
-                $"legacyShiftL={Input.GetKey(KeyCode.LeftShift)} legacyShiftR={Input.GetKey(KeyCode.RightShift)}");
-            if (loggedRotations == 100)
-                Jotunn.Logger.LogInfo("Buildheim rotation trace: limit reached; restart the game to record another reproduction.");
-        }
-
         [HarmonyPrefix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetButtonDown))]
         private static bool PreventModifierActions(string name, ref bool __result)
         {
@@ -89,6 +76,6 @@ namespace PlanBuild.Client
             return false;
         }
 
-        public void Dispose() { harmony.UnpatchSelf(); instance = null; }
+        public void Dispose() { inputReport.Dispose(); harmony.UnpatchSelf(); instance = null; }
     }
 }

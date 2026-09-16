@@ -28,7 +28,7 @@ namespace PlanBuild.Client
             HudKey = config.Bind("Client", "HUD key", KeyCode.F8, "Show or hide Buildheim's HUD while the planner is closed. Does not change placement or build mode.");
             ShowHud = config.Bind("Client", "Show HUD", true, "Show Buildheim's build status and shortcut hints. Hiding the HUD does not stop autobuild or hide the hologram.");
             LogRotationInput = config.Bind("Diagnostics", "Log rotation input", false,
-                "Log the first 100 blueprint rotation steps to BepInEx/LogOutput.log, including Shift state and angle changes. Enable when investigating unexpected rotation steps; restart the game to reset the limit.");
+                "Record modifier transitions and rotations in BepInEx/Buildheim-input-report.txt (up to 2000 events). Includes input backends, loaded mods and input patches. Restart the game to start a new report. Diagnostic builds enable this automatically.");
         }
     }
 }

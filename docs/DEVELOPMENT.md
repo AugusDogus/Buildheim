@@ -124,11 +124,36 @@ With a blueprint loaded and the planner closed:
 These checks require Unity's keyboard input. The .NET tests do not simulate
 physical key presses or verify that the game's input backends agree.
 
-If the problem persists, enable `Log rotation input = true` in the `[Diagnostics]`
-section of `BepInEx/config/augusdogus.Buildheim.cfg` and restart. Rotate one wheel
-notch at each stage above, pausing between stages. Share the lines containing
-`Buildheim rotation trace:` from `BepInEx/LogOutput.log`, then disable the setting.
-The trace records up to 100 rotation steps per game session: timestamps, frame
-numbers, wheel values, angle changes, window focus, and each Shift key's state
-from both input APIs. It does not record typed text. This distinguishes a single
-90° step from repeated 22.5° steps without guessing which input state is wrong.
+### One-reproduction input report
+
+PR builds enable recording automatically in the `thunderstore-package`
+artifact, even if an existing config disables it. Build locally with
+`-p:InputDiagnostics=true` for the same behavior. Give the reporter the DLL from
+this package. They only
+need to reproduce their usual sequence once and attach
+`BepInEx/Buildheim-input-report.txt` from their mod profile. No config editing,
+log filtering, or additional test matrix is needed for this capture.
+
+The report starts when a blueprint projection is usable. It records modifier
+transitions and rotations, including focus, raw Unity Input System state,
+Valheim's ZInput state, legacy Unity input, and Windows asynchronous key state.
+It also lists loaded mods, input patch owners, input devices, keyboard layout,
+and Windows StickyKeys flags. It records no typed text, flushes each event, stops
+after 2000 events, and replaces the report on the next recorded session.
+
+Interpret a mismatch as evidence about a layer, not proof of a specific cause:
+
+- Windows and Unity disagree: investigate input delivery or Unity state.
+- Raw Unity and ZInput disagree: investigate the wrapper and input patches.
+- All layers report Shift down: physical key state, accessibility, remapping,
+  and synthesized input remain possibilities. This is not proof of a false state.
+- Angle changes disagree with the chosen step: investigate rotation handling.
+
+Windows asynchronous key state is not a hardware trace and may read as up when
+access is unavailable, particularly without focus. State reads are sequential,
+so a single transient mismatch also needs context from adjacent events.
+Loaded mods and patch ownership show possible interference, not culpability.
+
+Normal builds leave recording off unless `Log rotation input = true` is enabled
+in the `[Diagnostics]` config section. The diagnostic build does not change
+which input state controls rotation.
