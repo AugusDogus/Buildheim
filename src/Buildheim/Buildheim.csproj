@@ -10,7 +10,7 @@
     <!-- PR artifacts collect input evidence without requiring config edits. Release builds remain opt-in. -->
     <InputDiagnostics Condition="'$(InputDiagnostics)' == '' And '$(GITHUB_EVENT_NAME)' == 'pull_request'">true</InputDiagnostics>
   </PropertyGroup>
-  <PropertyGroup Condition="'InputDiagnostics' == 'true'">
+  <PropertyGroup Condition="'$(InputDiagnostics)' == 'true'">
     <DefineConstants>$(DefineConstants);BUILDHEIM_INPUT_REPORT</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
