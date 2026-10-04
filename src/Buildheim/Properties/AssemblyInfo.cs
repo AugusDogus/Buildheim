@@ -10,7 +10,7 @@ using PlanBuild;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Buildheim")]
-[assembly: AssemblyCopyright("WTFPL")]
+[assembly: AssemblyCopyright("Copyright (c) 2026 AugusDogus (original contributions)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -186,4 +186,6 @@ For bug reports, include the mod and Valheim versions, steps to reproduce, and r
 
 This project builds on [the original PlanBuild](https://github.com/sirskunkalot/PlanBuild), created by MarcoPogo and developed with contributions from Jules, Algorithman, Dreous, and Jere. It uses [Jötunn](https://github.com/Valheim-Modding/Jotunn).
 
-Licensed under the [WTFPL](LICENSE.md).
+Original AugusDogus contributions are licensed under [MIT](LICENSE.md).
+Inherited PlanBuild code and artwork retain their WTFPL permissions; see the
+[third-party notices](package/THIRD-PARTY-NOTICES.md). Font notices are preserved separately.
