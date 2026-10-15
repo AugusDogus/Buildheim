@@ -1,3 +1,9 @@
+## Unreleased
+
+- Keep a placement-active indicator visible during gameplay even when HUD details are hidden, with the configured keys to disable placement or open the planner.
+- Preserve other tools' placement updates while positioning modifiers are held, restoring PlantEasily's cultivator shortcuts.
+- Show the current HUD visibility preference and toggle key in the planner.
+
 ## 1.2.1
 
 - Restore ordinary hammer use when the blueprint is out of range or all pieces in the active layers are built.

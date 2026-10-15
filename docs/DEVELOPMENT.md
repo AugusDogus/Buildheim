@@ -103,5 +103,13 @@ already published on Thunderstore, release a new version.
 
 Verify planner layout, modifier shortcuts, obstructed placement, inventory and chest transfers, reconnecting, and a vanilla server with an unmodded observer. Automated tests cover blueprint parsing, materials, layers, scheduling, saves, and the game methods used by input and hammer hooks. They do not run Unity.
 
+For placement-mode visibility and shortcut compatibility (issue #7):
+
+- Load a blueprint, close the planner, hide HUD details with F8, and put the hammer away. The placement-active indicator must remain visible, including far from the blueprint and after all its pieces are built.
+- Change the placement and planner key bindings. The indicator must show the configured keys. Disable placement and verify the indicator disappears; enable it and verify it returns. Reconnect with placement enabled and HUD details hidden to check the restored state.
+- Check both HUD toggle states in the planner. Hidden details must include the hovered-material overlay, while the placement indicator stays visible. Check the two-line button at different UI scales.
+- With PlantEasily enabled and a cultivator equipped, hold its configured modifier (default right Ctrl) and press each arrow key. Grid dimensions must change with Buildheim placement both enabled and disabled, including Preview only mode and HUD details hidden.
+- With the hammer equipped, confirm modifiers still pause building and Ctrl/Alt + wheel positioning still consumes the wheel without camera zoom or hammer rotation. Opening menus or entering capture mode must suspend placement controls and hide the placement indicator.
+
 The client plugin does not require an asset-bundle build. Editable banner and
 icon sources live in `assets/artwork/`.

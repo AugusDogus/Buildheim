@@ -24,8 +24,8 @@ namespace PlanBuild.Client
             ToggleKey = config.Bind("Client", "Planner key", KeyCode.End, "Open or close the blueprint planner.");
             AutoBuildKey = config.Bind("Client", "Autobuild key", KeyCode.Home, "Toggle autobuild for the current blueprint while the planner is closed.");
             PlacementKey = config.Bind("Client", "Placement key", KeyCode.F7, "Enable or disable the current placement without clearing it. Disabling hides the hologram and stops build assistance.");
-            HudKey = config.Bind("Client", "HUD key", KeyCode.F8, "Show or hide Buildheim's HUD while the planner is closed. Does not change placement or build mode.");
-            ShowHud = config.Bind("Client", "Show HUD", true, "Show Buildheim's build status and shortcut hints. Hiding the HUD does not stop autobuild or hide the hologram.");
+            HudKey = config.Bind("Client", "HUD key", KeyCode.F8, "Show or hide Buildheim's HUD details while the planner is closed. The placement-active indicator stays visible. Does not change placement or build mode.");
+            ShowHud = config.Bind("Client", "Show HUD", true, "Show Buildheim's build status and shortcut hints. The placement-active indicator stays visible. Hiding the HUD does not stop autobuild or hide the hologram.");
         }
     }
 }
