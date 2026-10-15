@@ -156,6 +156,22 @@ namespace PlanBuildTest
         }
 
         [TestMethod]
+        public void PlacementUpdateDispatchesBuildGuiShortcutsBeforeBuilding()
+        {
+            // PlantEasily reads Ctrl+Arrow in UpdateBuildGuiInput. Skipping UpdatePlacement
+            // while another tool is equipped prevents those shortcuts from ever being read.
+            using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
+            var player = game.MainModule.Types.Single(type => type.Name == "Player");
+            var update = player.Methods.Single(method => method.Name == "UpdatePlacement");
+            var shortcuts = update.Body.Instructions.Single(instruction => instruction.Operand is MethodReference method &&
+                method.Name == "UpdateBuildGuiInput");
+            var build = update.Body.Instructions.Single(instruction => instruction.Operand is MethodReference method &&
+                method.Name == "TryPlacePiece");
+            Assert.IsTrue(shortcuts.Offset < build.Offset,
+                "The placement update must dispatch tool shortcuts before attempting to build.");
+        }
+
+        [TestMethod]
         public void PositioningCanConsumeWheelInputBeforeHammerRotationAndCameraZoom()
         {
             using var game = AssemblyDefinition.ReadAssembly(Path.Combine(AppContext.BaseDirectory, "assembly_valheim.dll"));
