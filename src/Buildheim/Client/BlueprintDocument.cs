@@ -10,11 +10,14 @@ namespace PlanBuild.Client
         public const int MaxPieces = 10000;
         public string Name { get; }
         public IReadOnlyList<PieceEntry> Pieces { get; }
+        public IReadOnlyList<SnapPointEntry> SnapPoints { get; }
 
-        public BlueprintDocument(string name, IReadOnlyList<PieceEntry> pieces)
+        public BlueprintDocument(string name, IReadOnlyList<PieceEntry> pieces,
+            IReadOnlyList<SnapPointEntry> snapPoints = null)
         {
             Name = name;
             Pieces = pieces;
+            SnapPoints = snapPoints ?? Array.Empty<SnapPointEntry>();
         }
 
         public static bool TryParse(string name, IEnumerable<string> lines, bool vbuild,
@@ -23,7 +26,8 @@ namespace PlanBuild.Client
             document = null;
             error = string.Empty;
             var pieces = new List<PieceEntry>();
-            bool readingPieces = true;
+            var snapPoints = new List<SnapPointEntry>();
+            Section section = Section.Pieces;
             int lineNumber = 0;
             try
             {
@@ -33,9 +37,21 @@ namespace PlanBuild.Client
                     string line = raw.Trim();
                     if (line.Length == 0) continue;
                     if (line.StartsWith("#Name:")) name = line.Substring(6).Trim();
-                    if (line == "#Pieces") readingPieces = true;
-                    if (line == "#SnapPoints" || line == "#Terrain" || line == "#Description") readingPieces = false;
-                    if (line.StartsWith("#") || !readingPieces) continue;
+                    if (line == "#Pieces") { section = Section.Pieces; continue; }
+                    if (line == "#SnapPoints") { section = Section.SnapPoints; continue; }
+                    if (line == "#Terrain" || line == "#Description") { section = Section.Other; continue; }
+                    if (line.StartsWith("#") || section == Section.Other) continue;
+
+                    if (section == Section.SnapPoints)
+                    {
+                        if (!SnapPointEntry.TryParse(line, out var snapPoint))
+                        {
+                            error = $"Invalid snap point on line {lineNumber}. Fix the file and reload it.";
+                            return false;
+                        }
+                        snapPoints.Add(snapPoint);
+                        continue;
+                    }
 
                     var entry = vbuild ? PieceEntry.FromVBuild(line) : PieceEntry.FromBlueprint(line);
                     if (string.IsNullOrWhiteSpace(entry.name) || !ValidTransform(entry))
@@ -61,9 +77,11 @@ namespace PlanBuild.Client
                 error = "This file contains no building pieces. Choose another blueprint.";
                 return false;
             }
-            document = new BlueprintDocument(name, pieces);
+            document = new BlueprintDocument(name, pieces, snapPoints);
             return true;
         }
+
+        private enum Section { Pieces, SnapPoints, Other }
 
         private static bool ValidTransform(PieceEntry entry)
         {
@@ -76,6 +94,11 @@ namespace PlanBuild.Client
         public IEnumerable<string> Serialize()
         {
             yield return "#Name:" + Name;
+            if (SnapPoints.Count > 0)
+            {
+                yield return "#SnapPoints";
+                foreach (var point in SnapPoints) yield return point.Line;
+            }
             yield return "#Pieces";
             foreach (var piece in Pieces) yield return piece.line;
         }

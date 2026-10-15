@@ -1,3 +1,7 @@
+## Unreleased
+
+- Preserve blueprint snap points and add a Build-tab action to align a blueprint with an aimed building snap point.
+
 ## 1.2.1
 
 - Restore ordinary hammer use when the blueprint is out of range or all pieces in the active layers are built.
