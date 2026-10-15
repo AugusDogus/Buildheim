@@ -49,6 +49,7 @@ namespace PlanBuild.Client
 
         public string Name { get; }
         public IReadOnlyList<ProjectedPiece> Pieces { get; }
+        public IReadOnlyList<Vector3> SnapPoints { get; }
         public BlueprintLayers Layers { get; }
         public int MissingPrefabs { get; }
         // Bounding-sphere radius around the blueprint's origin, for AssistanceRange.
@@ -68,6 +69,13 @@ namespace PlanBuild.Client
         {
             Name = document.Name;
             Pieces = pieces;
+            SnapPoints = document.SnapPoints.Count > 0
+                ? document.SnapPoints.Select(point => point.Position).ToArray()
+                : pieces.SelectMany(piece => piece.Prefab.GetComponentsInChildren<Transform>(true)
+                    .Where(point => point.CompareTag("snappoint"))
+                    .Select(point => piece.Entry.GetPosition() + piece.Entry.GetRotation() * Vector3.Scale(
+                        piece.Entry.GetScale(), piece.Prefab.transform.InverseTransformPoint(point.position))))
+                    .ToArray();
             Layers = new BlueprintLayers(pieces.Select(piece => piece.Entry.posY));
             MissingPrefabs = missing;
             foreach (var piece in pieces)
@@ -145,6 +153,13 @@ namespace PlanBuild.Client
         public Vector3 PiecePosition(ProjectedPiece piece) => Position + Rotation * piece.Entry.GetPosition();
         public Quaternion PieceRotation(ProjectedPiece piece) => Rotation * piece.Entry.GetRotation();
         public Matrix4x4 PieceMatrix(ProjectedPiece piece) => Matrix4x4.TRS(PiecePosition(piece), PieceRotation(piece), piece.Entry.GetScale());
+
+        public bool SnapTo(Vector3 target)
+        {
+            if (!BlueprintSnapping.TryPosition(SnapPoints, Position, Rotation, target, out var position)) return false;
+            Position = position;
+            return true;
+        }
 
         public void Draw(ProjectedPiece selected = null, ProjectedPiece aimed = null)
         {

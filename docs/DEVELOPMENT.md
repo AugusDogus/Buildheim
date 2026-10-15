@@ -103,5 +103,12 @@ already published on Thunderstore, release a new version.
 
 Verify planner layout, modifier shortcuts, obstructed placement, inventory and chest transfers, reconnecting, and a vanilla server with an unmodded observer. Automated tests cover blueprint parsing, materials, layers, scheduling, saves, and the game methods used by input and hammer hooks. They do not run Unity.
 
+For blueprint snapping (issue #6):
+
+- Load a capture or `.vbuild` file without custom markers, move it near an existing floor or wall, and rotate it. Aim near the intended connection, open Build, and choose **Snap to target**. The nearest native points must coincide in all three axes while rotation and internal piece spacing remain unchanged.
+- Repeat with a `.blueprint` containing `#SnapPoints`. Custom markers must take precedence. Snap twice to the same target, reconnect, and verify the position and markers remain intact.
+- Aim at terrain or a piece with no snap points. The action must explain the failure and leave the hologram unchanged. Check a blueprint whose pieces have no snap points too.
+- Check the Build tab at different UI scales. Snap controls, positioning hints, placement buttons, and status must not overlap. Verify manual movement and normal hammer building still work after snapping.
+
 The client plugin does not require an asset-bundle build. Editable banner and
 icon sources live in `assets/artwork/`.

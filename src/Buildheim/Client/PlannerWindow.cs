@@ -204,6 +204,8 @@ namespace PlanBuild.Client
                 () => planner.SetPlacementEnabled(!planner.PlacementEnabled)).GetComponentInChildren<Text>();
             PlannerWidgets.Button(body, "Move to my feet", 218, 336, 210, planner.MoveToFeet);
             PlannerWidgets.Button(body, "Clear hologram", 436, 336, 208, planner.Clear);
+            PlannerWidgets.Button(body, "Snap to target", 0, 380, 210, planner.SnapToTarget);
+            PlannerWidgets.Label(body, "Aim at a building before opening the planner.", 218, 380, 426, 36);
         }
 
         private void RefreshBuild()

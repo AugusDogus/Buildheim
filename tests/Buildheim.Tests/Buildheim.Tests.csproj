@@ -19,6 +19,7 @@
     <Reference Include="$(BepInExDir)/core/BepInEx.dll" />
     <Reference Include="$(BepInExDir)/core/Mono.Cecil.dll" />
     <Compile Include="../../src/Buildheim/Blueprints/PieceEntry.cs" Link="PieceEntry.cs" />
+    <Compile Include="../../src/Buildheim/Blueprints/SnapPointEntry.cs" Link="SnapPointEntry.cs" />
     <Compile Include="../../src/Buildheim/Client/BlueprintDocument.cs" Link="BlueprintDocument.cs" />
     <Compile Include="../../src/Buildheim/Client/BuildMaterials.cs" Link="BuildMaterials.cs" />
     <Compile Include="../../src/Buildheim/Client/MaterialChecklist.cs" Link="MaterialChecklist.cs" />
@@ -29,6 +30,7 @@
     <Compile Include="../../src/Buildheim/Client/CaptureBounds.cs" Link="CaptureBounds.cs" />
     <Compile Include="../../src/Buildheim/Client/MenuSlide.cs" Link="MenuSlide.cs" />
     <Compile Include="../../src/Buildheim/Client/BlueprintRotation.cs" Link="BlueprintRotation.cs" />
+    <Compile Include="../../src/Buildheim/Client/BlueprintSnapping.cs" Link="BlueprintSnapping.cs" />
     <Compile Include="../../src/Buildheim/Client/BlueprintHitTest.cs" Link="BlueprintHitTest.cs" />
     <Compile Include="../../src/Buildheim/Client/AssistanceRange.cs" Link="AssistanceRange.cs" />
     <Compile Include="../../src/Buildheim/Client/AssistanceWork.cs" Link="AssistanceWork.cs" />

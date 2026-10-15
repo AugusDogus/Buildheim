@@ -25,6 +25,7 @@ Download a ZIP from [Releases](https://github.com/AugusDogus/Buildheim/releases)
 1. Press **End**, open **Blueprints**, and click **Open folder** to open your configured blueprint directory. Put `.blueprint` or `.vbuild` files there. Extract downloaded ZIPs first. Subfolders work too. Fresh installs use `BepInEx/config/Buildheim/blueprints` inside your profile.
 2. Return to the Blueprints tab and click **Refresh**. Choose a building to load its hologram and open the **Build** tab.
 3. Close the planner and position the hologram with the shortcuts below. Loading or moving a hologram does not spend materials.
+   To align it with an existing building, aim at that building's snap point before opening the planner, then click **Snap to target** in the Build tab.
 4. Open **Materials** to see what you need. Gather supplies and carry the materials for the pieces you want to place.
 5. Select **Click to build**, close the planner, and equip your normal hammer. Aim at a missing hologram piece and click. Buildheim selects its recipe, position, and rotation, then Valheim checks and places it.
 
@@ -59,6 +60,8 @@ Use these with a hologram loaded and the planner closed. Movement follows your c
 | **Home** | Toggle autobuild while the planner is closed |
 | **F7** | Enable or disable the current placement while the planner is closed |
 | **F8** | Show or hide Buildheim's HUD while the planner is closed |
+
+The Build tab's **Snap to target** action aligns the closest snap point in the loaded blueprint with the snap point on the building you aimed at. Position and rotate the hologram roughly first, aim near the desired connection on an existing piece, then open the planner and click the action. Rotation stays unchanged. Custom `#SnapPoints` markers are used when present; otherwise Buildheim reads the native snap points from the blueprint's pieces, including old captures and `.vbuild` files. If either side has no snap points or the aim misses a building, the position is left unchanged.
 
 Normal steps are **0.1 m** and **22.5°**. Hold Shift for **1 m** and **90°**. Rotation lands on the normal hammer's angle grid, so blueprints whose pieces use standard angles remain compatible with ordinary hammer replacements. Existing saved placements keep their exact angles until you explicitly rotate them. Imported blueprints can still contain nonstandard piece angles.
 
@@ -151,7 +154,7 @@ Upgrading from our earlier PlanBuild builds preserves your setup: Buildheim copi
 
 Buildheim reads `.blueprint` and `.vbuild` files, up to **10,000 pieces** and **8 MB** per file.
 
-- Terrain edits, container contents, and custom snap markers are not applied.
+- Terrain edits and container contents are not applied. Custom snap markers are preserved and used by **Snap to target**.
 - Pieces with nonstandard scales can be displayed but cannot be placed by hammer assistance.
 - Modded pieces require their original piece mods, including on the server when those mods require it.
 - Assisted building requires resource costs. Disable the world's free-build setting to use it.

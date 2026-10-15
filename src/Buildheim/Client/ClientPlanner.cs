@@ -230,6 +230,54 @@ namespace PlanBuild.Client
             Projection.Position = Player.m_localPlayer.transform.position;
             ProjectionProgress.Refresh(Projection);
         }
+
+        public void SnapToTarget()
+        {
+            if (Projection == null) return;
+            if (Projection.SnapPoints.Count == 0)
+            {
+                Status = "This blueprint has no snap points. Its position is unchanged; use manual positioning.";
+                return;
+            }
+            if (!TryFindTargetSnapPoint(out var target, out var error))
+            {
+                Status = error;
+                return;
+            }
+            Projection.SnapTo(target);
+            ProjectionProgress.Refresh(Projection);
+            Status = "Blueprint snapped to the aimed building point.";
+            SaveSession();
+        }
+
+        private static bool TryFindTargetSnapPoint(out Vector3 position, out string error)
+        {
+            position = Vector3.zero;
+            error = "Aim at a building snap point, then try again.";
+            if (!Player.m_localPlayer || !GameCamera.instance) return false;
+            var camera = GameCamera.instance.GetComponent<Camera>();
+            if (!camera) return false;
+            if (!Physics.Raycast(camera.ViewportPointToRay(new Vector3(0.5f, 0.5f)), out var hit, 100f,
+                Player.m_localPlayer.m_placeRayMask, QueryTriggerInteraction.Ignore)) return false;
+            var piece = hit.collider.GetComponentInParent<Piece>();
+            if (!piece)
+            {
+                error = "Aim at a building with snap points, then try again.";
+                return false;
+            }
+            var point = piece.GetComponentsInChildren<Transform>(true)
+                .Where(transform => transform.CompareTag("snappoint"))
+                .OrderBy(transform => (transform.position - hit.point).sqrMagnitude)
+                .FirstOrDefault();
+            if (!point)
+            {
+                error = "The aimed building has no snap points. Aim at another building or use manual positioning.";
+                return false;
+            }
+            position = point.position;
+            return true;
+        }
+
         private void RestoreSession()
         {
             string directory = Path.Combine(Config.DataDirectory, "placements");
