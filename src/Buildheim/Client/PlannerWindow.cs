@@ -36,7 +36,7 @@ namespace PlanBuild.Client
         public PlannerWindow(ClientPlanner planner)
         {
             this.planner = planner;
-            materialHud = new BlueprintMaterialsHud(() => hud && hud.activeInHierarchy ? planner.HoveredPiece : null);
+            materialHud = new BlueprintMaterialsHud(() => planner.Config.ShowHud.Value && hud && hud.activeInHierarchy ? planner.HoveredPiece : null);
         }
 
         public void Update()
@@ -44,29 +44,35 @@ namespace PlanBuild.Client
             if (!GUIManager.CustomGUIFront) return;
             if (!root) Create();
             presentation.Update(planner.Visible, GUIManager.CustomGUIFront.GetComponent<RectTransform>().rect);
-            bool showHud = planner.Config.ShowHud.Value && !presentation.Present && planner.HasHudActivity && Player.m_localPlayer.TakeInput();
+            bool showDetails = planner.Config.ShowHud.Value && planner.HasHudActivity;
+            bool showPlacement = planner.PlacementEnabled && !planner.Selection.Editing;
+            bool showHud = !presentation.Present && !Hud.IsPieceSelectionVisible() &&
+                Player.m_localPlayer.TakeInput() && (showPlacement || showDetails);
             hud.SetActive(showHud);
             if (showHud)
             {
-                if (planner.Selection.Editing)
+                hudText.text = showPlacement
+                    ? $"Buildheim placement active | {planner.Config.PlacementKey.Value}: disable | {planner.Config.ToggleKey.Value}: planner"
+                    : "";
+                if (showDetails && planner.Selection.Editing)
                 {
                     var selection = planner.Selection;
                     string size = selection.TryBounds(out var box) ? $" | {box.Width:0.0} × {box.Height:0.0} × {box.Depth:0.0} m" : "";
                     hudText.text = $"Capture | adjusting corner {selection.SelectedCorner}{size} | {planner.Config.ToggleKey.Value}: review and save\n{selection.Status}\n{CaptureSelection.Hints}";
                 }
-                else
+                else if (showDetails)
                 {
                     string mode = ModeName(planner.Mode);
                     string layer = planner.Projection.Layers.Selected.HasValue
                         ? $"Layer {planner.Projection.Layers.Ordinal}/{planner.Projection.Layers.Count}" : "All layers";
                     string detail = planner.Mode == BuildMode.Guide ? "Hologram only. Select and place pieces yourself." : planner.BuildStatus;
-                    hudText.text = $"{detail}\n{mode} | {layer} | {planner.Config.ToggleKey.Value}: planner";
+                    hudText.text += $"\n{detail}\n{mode} | {layer}";
                     if (ProjectionControls.Adjusting) hudText.text += "\n" + ProjectionControls.Hints;
                 }
                 PositionHud();
             }
             if (!planner.Visible) return;
-            hudToggle.text = $"{(planner.Config.ShowHud.Value ? "Hide HUD" : "Show HUD")} ({planner.Config.HudKey.Value})";
+            hudToggle.text = $"HUD {(planner.Config.ShowHud.Value ? "shown" : "hidden")}\nToggle: {planner.Config.HudKey.Value}";
             RefreshBuild();
             status.text = planner.Status;
             if (Time.unscaledTime < nextRefresh) return;
@@ -135,7 +141,7 @@ namespace PlanBuild.Client
             root.name = "Buildheim planner";
             presentation = new PlannerPresentation(root);
             PlannerWidgets.Label(root.transform, "Buildheim", 28, 12, 360, 46, 32, true);
-            hudToggle = PlannerWidgets.Button(root.transform, "Hide HUD", 396, 20, 164, planner.ToggleHud).GetComponentInChildren<Text>();
+            hudToggle = PlannerWidgets.Button(root.transform, "", 396, 12, 164, planner.ToggleHud, 52).GetComponentInChildren<Text>();
             PlannerWidgets.Button(root.transform, "Close", 572, 20, 100, () => planner.SetVisible(false));
             tabs = new Button[4];
             pages = new GameObject[4];

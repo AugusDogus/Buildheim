@@ -110,5 +110,13 @@ For blueprint snapping (issue #6):
 - Aim at terrain or a piece with no snap points. The action must explain the failure and leave the hologram unchanged. Check a blueprint whose pieces have no snap points too.
 - Check the Build tab at different UI scales. Snap controls, positioning hints, placement buttons, and status must not overlap. Verify manual movement and normal hammer building still work after snapping.
 
+For placement-mode visibility and shortcut compatibility (issue #7):
+
+- Load a blueprint, close the planner, hide HUD details with F8, and put the hammer away. The placement-active indicator must remain visible, including far from the blueprint and after all its pieces are built.
+- Change the placement and planner key bindings. The indicator must show the configured keys. Disable placement and verify the indicator disappears; enable it and verify it returns. Reconnect with placement enabled and HUD details hidden to check the restored state.
+- Check both HUD toggle states in the planner. Hidden details must include the hovered-material overlay, while the placement indicator stays visible. Check the two-line button at different UI scales.
+- With PlantEasily enabled and a cultivator equipped, hold its configured modifier (default right Ctrl) and press each arrow key. Grid dimensions must change with Buildheim placement both enabled and disabled, including Preview only mode and HUD details hidden.
+- With the hammer equipped, confirm modifiers still pause building and Ctrl/Alt + wheel positioning still consumes the wheel without camera zoom or hammer rotation. Opening menus or entering capture mode must suspend placement controls and hide the placement indicator.
+
 The client plugin does not require an asset-bundle build. Editable banner and
 icon sources live in `assets/artwork/`.

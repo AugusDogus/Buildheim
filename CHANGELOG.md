@@ -1,6 +1,9 @@
 ## Unreleased
 
 - Preserve blueprint snap points and add a Build-tab action to align a blueprint with an aimed building snap point.
+- Keep a placement-active indicator visible during gameplay even when HUD details are hidden, with the configured keys to disable placement or open the planner.
+- Preserve other tools' placement updates while positioning modifiers are held, restoring PlantEasily's cultivator shortcuts.
+- Show the current HUD visibility preference and toggle key in the planner.
 
 ## 1.2.1
 
