@@ -8,6 +8,7 @@ namespace PlanBuild.Client
     internal sealed class BlueprintDocument
     {
         public const int MaxPieces = 10000;
+        public const int MaxSnapPoints = 10000;
         public string Name { get; }
         public IReadOnlyList<PieceEntry> Pieces { get; }
         public IReadOnlyList<SnapPointEntry> SnapPoints { get; }
@@ -50,6 +51,11 @@ namespace PlanBuild.Client
                             return false;
                         }
                         snapPoints.Add(snapPoint);
+                        if (snapPoints.Count > MaxSnapPoints)
+                        {
+                            error = $"Blueprint exceeds the {MaxSnapPoints} snap point limit. Remove extra snap points and reload it.";
+                            return false;
+                        }
                         continue;
                     }
 

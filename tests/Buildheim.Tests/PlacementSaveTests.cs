@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlanBuild.Client;
 
@@ -93,6 +94,19 @@ namespace PlanBuildTest
             invalid.Yaw = float.NaN;
             Assert.IsFalse(PlacementStore.TryWrite(path, invalid, out _));
             Assert.AreEqual(original, File.ReadAllText(path));
+        }
+
+        [TestMethod]
+        public void SavesBlueprintAtPieceLimitWithSnapPoints()
+        {
+            var save = Sample();
+            save.Blueprint = new[] { "#Name:House", "#SnapPoints", "0;0;0", "#Pieces" }
+                .Concat(Enumerable.Repeat("wood_wall;Building;0;0;0;0;0;0;1;\"\";1;1;1", BlueprintDocument.MaxPieces))
+                .ToArray();
+            string path = PlacementStore.PathFor(directory, 111, 222);
+            Assert.IsTrue(PlacementStore.TryWrite(path, save, out var error), error);
+            Assert.IsTrue(PlacementStore.TryRead(path, out var read, out error), error);
+            Assert.AreEqual(save.Blueprint.Length, read.Blueprint.Length);
         }
 
         [DataTestMethod]

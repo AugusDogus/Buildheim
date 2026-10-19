@@ -131,7 +131,7 @@ namespace PlanBuild.Client
         {
             var gui = GUIManager.Instance;
             root = gui.CreateWoodpanel(GUIManager.CustomGUIFront.transform, new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f), Vector2.zero, 700, 640, false);
+                new Vector2(0.5f, 0.5f), Vector2.zero, 700, 680, false);
             root.name = "Buildheim planner";
             presentation = new PlannerPresentation(root);
             PlannerWidgets.Label(root.transform, "Buildheim", 28, 12, 360, 46, 32, true);
@@ -143,13 +143,13 @@ namespace PlanBuild.Client
             {
                 Tab tab = (Tab)i;
                 tabs[i] = PlannerWidgets.Button(root.transform, tab.ToString(), 28 + i * 164, 70, 152, () => Select(tab));
-                pages[i] = PlannerWidgets.Group(root.transform, 28, 124, 644, 442);
+                pages[i] = PlannerWidgets.Group(root.transform, 28, 124, 644, 484);
             }
             CreateBuild(pages[0].transform);
             CreateLibrary(pages[1].transform);
             materials = new MaterialsPanel(planner, pages[2].transform);
             capture = new CapturePanel(planner, pages[3].transform);
-            status = PlannerWidgets.Label(root.transform, "", 28, 578, 644, 46, 16);
+            status = PlannerWidgets.Label(root.transform, "", 28, 620, 644, 46, 16);
             hud = PlannerWidgets.Group(GUIManager.CustomGUIFront.transform, 0, 0, 820, 118);
             var rect = hud.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0);
@@ -180,7 +180,7 @@ namespace PlanBuild.Client
         private void CreateBuild(Transform parent)
         {
             buildTitle = PlannerWidgets.Label(parent, "", 0, 0, 644, 48, 20, true);
-            buildControls = PlannerWidgets.Group(parent, 0, 58, 644, 390);
+            buildControls = PlannerWidgets.Group(parent, 0, 58, 644, 426);
             var body = buildControls.transform;
             modes = new Button[3];
             for (int i = 0; i < 3; i++)
