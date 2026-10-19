@@ -54,6 +54,8 @@ namespace PlanBuild.Client
                 hudText.text = showPlacement
                     ? $"Buildheim placement active | {planner.Config.PlacementKey.Value}: disable | {planner.Config.ToggleKey.Value}: planner"
                     : "";
+                if (showPlacement && planner.Config.ShowHud.Value)
+                    hudText.text += "\n" + ProjectionControls.Hints;
                 if (showDetails && planner.Selection.Editing)
                 {
                     var selection = planner.Selection;
@@ -67,7 +69,6 @@ namespace PlanBuild.Client
                         ? $"Layer {planner.Projection.Layers.Ordinal}/{planner.Projection.Layers.Count}" : "All layers";
                     string detail = planner.Mode == BuildMode.Guide ? "Hologram only. Select and place pieces yourself." : planner.BuildStatus;
                     hudText.text += $"\n{detail}\n{mode} | {layer}";
-                    if (ProjectionControls.Adjusting) hudText.text += "\n" + ProjectionControls.Hints;
                 }
                 PositionHud();
             }
