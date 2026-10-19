@@ -23,7 +23,8 @@ namespace PlanBuild.Client
         public string[] CheckedMaterials { get; set; }
 
         public bool IsValid() => Version == 1 && !string.IsNullOrWhiteSpace(Name) && Name.Length <= 512 &&
-            Blueprint != null && Blueprint.Length > 0 && Blueprint.Length <= BlueprintDocument.MaxPieces + 2 &&
+            Blueprint != null && Blueprint.Length > 0 &&
+            Blueprint.Length <= BlueprintDocument.MaxPieces + BlueprintDocument.MaxSnapPoints + 3 &&
             Blueprint.All(line => line != null) && new[] { X, Y, Z, Yaw, LayerHeight }.All(Finite) &&
             LayerHeight >= 0.5f && LayerHeight <= 4f && CheckedMaterials != null && CheckedMaterials.Length <= 10000 &&
             CheckedMaterials.All(name => !string.IsNullOrWhiteSpace(name) && name.Length <= 512);
