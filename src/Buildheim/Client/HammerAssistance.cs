@@ -84,7 +84,8 @@ namespace PlanBuild.Client
         {
             __state = false;
             if (instance == null || __instance != Player.m_localPlayer) return true;
-            if (ProjectionControls.Adjusting)
+            // Other tools still need UpdateBuildGuiInput, including PlantEasily's Ctrl+Arrow shortcuts.
+            if (instance.Holding(__instance) && ProjectionControls.Adjusting)
             {
                 instance.selection = null;
                 __instance.m_placePressedTime = -9999f;

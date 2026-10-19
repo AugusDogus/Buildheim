@@ -62,7 +62,7 @@ Use these with a hologram loaded and the planner closed. Movement follows your c
 
 Normal steps are **0.1 m** and **22.5°**. Hold Shift for **1 m** and **90°**. Rotation lands on the normal hammer's angle grid, so blueprints whose pieces use standard angles remain compatible with ordinary hammer replacements. Existing saved placements keep their exact angles until you explicitly rotate them. Imported blueprints can still contain nonstandard piece angles.
 
-Building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. These shortcuts take priority over crouching and sitting while positioning.
+Hammer building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. Other tools keep their placement updates, including PlantEasily's Ctrl + arrow shortcuts with the cultivator. These shortcuts take priority over crouching and sitting while positioning.
 
 The planner slides open and closed with Valheim's inventory timing and uses its opening and closing sounds. Closing releases controls immediately; toggling again during the slide reverses its direction.
 
@@ -86,7 +86,9 @@ Press **F7**, or choose **Disable placement** in the Build tab, to hide the holo
 
 Press **F7** again or choose **Enable placement** to resume. Disabling turns autobuild off; enable it again explicitly when ready. The placement stays disabled across reconnects until you enable it.
 
-To hide only the build status and shortcut hints, press **F8** or use **Hide HUD** at the top of the planner. Use the same key or **Show HUD** to bring it back. This preference persists across restarts and does not change the hologram or build mode, including autobuild.
+To hide only the build status and shortcut hints, press **F8** or click the HUD toggle at the top of the planner. When HUD details are shown, the positioning shortcuts stay visible even when you are not holding a modifier. The button shows the current preference, **HUD shown** or **HUD hidden**, and the configured toggle key. This preference persists across restarts and does not change the hologram or build mode, including autobuild.
+
+**Buildheim placement active** stays visible during gameplay even with the HUD hidden, no hammer equipped, or no unfinished hologram pieces nearby. It shows your configured keys to disable placement or open the planner. Disable placement with **F7** to release its positioning shortcuts. The indicator is hidden while using menus or editing a capture box, when placement controls are suspended.
 
 The selected blueprint piece uses Valheim's normal hammer preview and invalid-placement coloring. Blocked targets remain highlighted in the hologram. Valheim's native info card shows the hovered hammer piece's name, icon, material costs and crafting station, with shortage colors for materials missing from your inventory. A visible preview does not bypass material, reach or placement requirements.
 
