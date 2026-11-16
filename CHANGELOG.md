@@ -1,4 +1,4 @@
-## Unreleased
+## 1.3.0
 
 - Preserve blueprint snap points and add a Build-tab action to align a blueprint with an aimed building snap point.
 - Keep a placement-active indicator visible during gameplay even when HUD details are hidden, with the configured keys to disable placement or open the planner.
