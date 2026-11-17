@@ -6,7 +6,7 @@ namespace PlanBuild.Client
     internal sealed class CapturePanel
     {
         private readonly ClientPlanner planner;
-        private readonly Text corners, dimensions;
+        private readonly Text corners, dimensions, controls;
         private readonly Button save;
 
         public CapturePanel(ClientPlanner planner, Transform parent)
@@ -18,8 +18,7 @@ namespace PlanBuild.Client
             PlannerWidgets.Button(parent, "Clear selection", 330, 100, 314, planner.Selection.Clear);
             corners = PlannerWidgets.Label(parent, "", 0, 150, 644, 58, 18);
             dimensions = PlannerWidgets.Label(parent, "", 0, 216, 644, 48, 20, true);
-            PlannerWidgets.Label(parent, "Pick opposite corners with left and right click. The wheel adjusts the selected corner; Alt changes its height. Middle click switches corners.",
-                0, 274, 644, 60, 17);
+            controls = PlannerWidgets.Label(parent, "", 0, 274, 644, 60, 17);
             PlannerWidgets.Label(parent, "Includes loaded, player-built pieces whose placement point is inside the box. Corner A is the blueprint origin.",
                 0, 340, 644, 48, 16);
             save = PlannerWidgets.Button(parent, "Save blueprint", 0, 400, 644, () => planner.Capture(name.text));
@@ -28,6 +27,9 @@ namespace PlanBuild.Client
         public void Refresh()
         {
             var selection = planner.Selection;
+            var keys = planner.Config.Positioning;
+            controls.text = "Pick opposite corners with left and right click. " +
+                $"{keys.Move.Label} + wheel moves the selected corner; {keys.Height.Label} + wheel changes its height. Middle click switches corners.";
             corners.text = $"A (cyan): {Position(selection.First)}\nB (orange): {Position(selection.Second)}";
             bool ready = selection.TryBounds(out var box) && box.HasVolume;
             int count = ready ? BlueprintLibrary.CapturePieces(box, selection.First.Value).Count : 0;

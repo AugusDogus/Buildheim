@@ -21,7 +21,7 @@ namespace PlanBuild.Client
         private Button[] tabs;
         private Button[] modes;
         private GameObject buildControls;
-        private Text buildTitle, modeDescription, layerLabel, positionLabel, status;
+        private Text buildTitle, modeDescription, layerLabel, positionLabel, positionHints, status;
         private Text placementToggle, hudToggle;
         private Slider layerHeight;
         private ScrollRect library;
@@ -55,12 +55,12 @@ namespace PlanBuild.Client
                     ? $"Buildheim placement active | {planner.Config.PlacementKey.Value}: disable | {planner.Config.ToggleKey.Value}: planner"
                     : "";
                 if (showPlacement && planner.Config.ShowHud.Value)
-                    hudText.text += "\n" + ProjectionControls.Hints;
+                    hudText.text += "\n" + planner.Config.Positioning.ProjectionHints;
                 if (showDetails && planner.Selection.Editing)
                 {
                     var selection = planner.Selection;
                     string size = selection.TryBounds(out var box) ? $" | {box.Width:0.0} × {box.Height:0.0} × {box.Depth:0.0} m" : "";
-                    hudText.text = $"Capture | adjusting corner {selection.SelectedCorner}{size} | {planner.Config.ToggleKey.Value}: review and save\n{selection.Status}\n{CaptureSelection.Hints}";
+                    hudText.text = $"Capture | adjusting corner {selection.SelectedCorner}{size} | {planner.Config.ToggleKey.Value}: review and save\n{selection.Status}\n{planner.Config.Positioning.CaptureHints}";
                 }
                 else if (showDetails)
                 {
@@ -206,7 +206,7 @@ namespace PlanBuild.Client
             layerHeight = PlannerWidgets.Slider(body, 140, 184, 350, 0.5f, 4, 2,
                 value => planner.Projection?.Layers.SetHeight(Mathf.Round(value * 2) / 2));
             positionLabel = PlannerWidgets.Label(body, "", 0, 224, 644, 30, 18, true);
-            PlannerWidgets.Label(body, ProjectionControls.Hints, 0, 257, 644, 58, 17);
+            positionHints = PlannerWidgets.Label(body, "", 0, 257, 644, 58, 17);
             placementToggle = PlannerWidgets.Button(body, "Disable placement", 0, 336, 210,
                 () => planner.SetPlacementEnabled(!planner.PlacementEnabled)).GetComponentInChildren<Text>();
             PlannerWidgets.Button(body, "Move to my feet", 218, 336, 210, planner.MoveToFeet);
@@ -243,6 +243,7 @@ namespace PlanBuild.Client
             layerLabel.text = $"{layer} | {built}/{total} built | {layers.Height:0.0} m per layer";
             layerHeight.SetValueWithoutNotify(layers.Height);
             positionLabel.text = $"Position hologram | height {projection.Position.y:0.0} m | rotation {projection.Yaw:0.#}°";
+            positionHints.text = planner.Config.Positioning.ProjectionHints;
         }
 
         private void CreateLibrary(Transform parent)

@@ -10,16 +10,17 @@ namespace PlanBuild.Client
         private static ProjectionControls instance;
         private readonly Harmony harmony = new Harmony(PlanBuildPlugin.PluginGUID + ".positioning");
         private readonly Func<BlueprintProjection> activeProjection;
+        private readonly Func<PositioningKeys> keys;
         private int lastFrame = -1;
-        public const string Hints = "Ctrl + wheel: forward/back   |   Ctrl + X + wheel: sideways\nAlt + wheel: height   |   Ctrl + Alt + wheel: rotate   |   Shift: larger steps";
         public static bool Adjusting => instance != null && instance.Held;
-        public bool Held => activeProjection() != null && (Control || Alt);
-        private static bool Control => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-        private static bool Alt => Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+        public bool Held => activeProjection() != null && (Move || Height);
+        private bool Move => keys().Move.Held(Input.GetKey);
+        private bool Height => keys().Height.Held(Input.GetKey);
 
-        public ProjectionControls(Func<BlueprintProjection> activeProjection)
+        public ProjectionControls(Func<BlueprintProjection> activeProjection, Func<PositioningKeys> keys)
         {
             this.activeProjection = activeProjection;
+            this.keys = keys;
             instance = this;
             harmony.PatchAll(typeof(ProjectionControls));
         }
@@ -37,16 +38,18 @@ namespace PlanBuild.Client
             if (wheel == 0 || instance.lastFrame == Time.frameCount) return;
             instance.lastFrame = Time.frameCount;
             var projection = instance.activeProjection();
+            var keys = instance.keys();
             float direction = Mathf.Sign(wheel);
-            bool coarse = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            if (Control && Alt) projection.Yaw = BlueprintRotation.Turn(projection.Yaw, (int)direction, coarse);
+            bool coarse = keys.Larger.Held(Input.GetKey);
+            bool move = instance.Move, height = instance.Height;
+            if (move && height) projection.Yaw = BlueprintRotation.Turn(projection.Yaw, (int)direction, coarse);
             else
             {
                 var axis = Vector3.up;
-                if (!Alt && GameCamera.instance)
+                if (!height && GameCamera.instance)
                 {
                     var forward = Quaternion.Euler(0, GameCamera.instance.transform.eulerAngles.y, 0);
-                    axis = forward * (Input.GetKey(KeyCode.X) ? Vector3.right : Vector3.forward);
+                    axis = forward * (keys.SidewaysHeld(Input.GetKey) ? Vector3.right : Vector3.forward);
                 }
                 projection.Position += axis * direction * (coarse ? 1f : 0.1f);
             }
@@ -56,8 +59,8 @@ namespace PlanBuild.Client
         [HarmonyPrefix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetButtonDown))]
         private static bool PreventModifierActions(string name, ref bool __result)
         {
-            if (instance == null || !instance.Held || !Control) return true;
-            if (name != "Crouch" && !(name == "Sit" && Input.GetKey(KeyCode.X))) return true;
+            if (instance == null || !instance.Held || !instance.Move) return true;
+            if (name != "Crouch" && !(name == "Sit" && instance.keys().SidewaysHeld(Input.GetKey))) return true;
             __result = false;
             return false;
         }

@@ -122,5 +122,13 @@ For placement-mode visibility and shortcut compatibility (issue #7):
 - With PlantEasily enabled and a cultivator equipped, hold its configured modifier (default right Ctrl) and press each arrow key. Grid dimensions must change with Buildheim placement both enabled and disabled, including Preview only mode and HUD details hidden.
 - With the hammer equipped, confirm modifiers still pause building and Ctrl/Alt + wheel positioning still consumes the wheel without camera zoom or hammer rotation. Opening menus or entering capture mode must suspend placement controls and hide the placement indicator.
 
+For configurable positioning keys (issue #12):
+
+- On a fresh config, confirm the `[Positioning]` section defaults (left/right Ctrl, Alt and Shift, plus X) and that positioning, rotation, larger steps and the HUD and planner hints match the previous behavior.
+- Rebind the move, height, sideways and larger-steps keys, with one alternate set to `None`. Each action must follow the new keys, the old keys must do nothing, and the HUD, Build tab, Capture tab and capture HUD must name the configured keys. Changing a key through a configuration manager must apply without restarting.
+- With Ctrl rebound away from the move modifier, Ctrl must crouch normally while positioning. Holding the configured move modifier must still ignore crouch, and move modifier plus sideways key must not sit.
+- With the hammer equipped, holding any configured move or height modifier must pause building and consume the wheel without camera zoom or hammer rotation. Repeat the PlantEasily cultivator check above with Buildheim's move modifier rebound.
+- Edit a capture box with rebound keys, including raising corner B with the height modifier. Saving a flat box must name the configured height modifier.
+
 The client plugin does not require an asset-bundle build. Editable banner and
 icon sources live in `assets/artwork/`.

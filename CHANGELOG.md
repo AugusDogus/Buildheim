@@ -1,3 +1,7 @@
+## Unreleased
+
+- Make the blueprint and capture-box positioning keys configurable in the `[Positioning]` config section, defaulting to the previous Ctrl, Alt, X and Shift bindings, and show the configured keys in the HUD and planner.
+
 ## 1.3.0
 
 - Preserve blueprint snap points and add a Build-tab action to align a blueprint with an aimed building snap point.

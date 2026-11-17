@@ -34,6 +34,7 @@
     <Compile Include="../../src/Buildheim/Client/BlueprintHitTest.cs" Link="BlueprintHitTest.cs" />
     <Compile Include="../../src/Buildheim/Client/AssistanceRange.cs" Link="AssistanceRange.cs" />
     <Compile Include="../../src/Buildheim/Client/AssistanceWork.cs" Link="AssistanceWork.cs" />
+    <Compile Include="../../src/Buildheim/Client/PositioningKeys.cs" Link="PositioningKeys.cs" />
     <None Update="resources/*.blueprint" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

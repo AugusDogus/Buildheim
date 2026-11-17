@@ -35,10 +35,11 @@ namespace PlanBuild.Client
         {
             Config = config;
             Selection = new CaptureSelection(() => !Visible && Player.m_localPlayer &&
-                !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible());
+                !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible(),
+                () => config.Positioning);
             controls = new ProjectionControls(() => !Visible && Player.m_localPlayer &&
                 !Player.m_localPlayer.IsDead() && Player.m_localPlayer.TakeInput() && !Hud.IsPieceSelectionVisible()
-                ? ActiveProjection : null);
+                ? ActiveProjection : null, () => config.Positioning);
             chests = new ChestObservation(Materials);
             view = new PlannerWindow(this);
         }
@@ -189,6 +190,11 @@ namespace PlanBuild.Client
         {
             if (!Selection.TryBounds(out var bounds) || !Selection.First.HasValue)
             { Status = "Select both corners before saving a blueprint."; return; }
+            if (!bounds.HasVolume)
+            {
+                Status = $"Select two corners with width, height and depth. Use {Config.Positioning.Height.Label} + wheel to raise the upper corner.";
+                return;
+            }
             if (BlueprintLibrary.TryCapture(Config.Directory.Value, name, bounds, Selection.First.Value, out var error))
             { Refresh(); Selection.End(); Status = $"Saved {name}.blueprint. Corner A defines its origin."; }
             else Status = error;
