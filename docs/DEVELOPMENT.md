@@ -68,6 +68,10 @@ create a GitHub release and publish that same ZIP with [Thunderstore CLI](https:
 The publishing token is passed only to the publish step. Branch pushes, pull requests,
 and manual runs without a release tag only build and check.
 
+On pull requests from this repository, the workflow also posts a single PR comment
+linking the test build ZIP with install steps, and updates it after each push.
+Fork pull requests only build, because their workflow token cannot comment.
+
 Repository Actions settings:
 
 - Variable `THUNDERSTORE_NAMESPACE`: `AugusDogus`.
