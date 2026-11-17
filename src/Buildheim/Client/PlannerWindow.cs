@@ -55,7 +55,7 @@ namespace PlanBuild.Client
                     ? $"Buildheim placement active | {planner.Config.PlacementKey.Value}: disable | {planner.Config.ToggleKey.Value}: planner"
                     : "";
                 if (showPlacement && planner.Config.ShowHud.Value)
-                    hudText.text += "\n" + ProjectionControls.Hints;
+                    hudText.text += "\n\n" + ProjectionControls.Hints;
                 if (showDetails && planner.Selection.Editing)
                 {
                     var selection = planner.Selection;

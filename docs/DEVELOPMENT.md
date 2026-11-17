@@ -118,5 +118,9 @@ For placement-mode visibility and shortcut compatibility (issue #7):
 - With PlantEasily enabled and a cultivator equipped, hold its configured modifier (default right Ctrl) and press each arrow key. Grid dimensions must change with Buildheim placement both enabled and disabled, including Preview only mode and HUD details hidden.
 - With the hammer equipped, confirm modifiers still pause building and Ctrl/Alt + wheel positioning still consumes the wheel without camera zoom or hammer rotation. Opening menus or entering capture mode must suspend placement controls and hide the placement indicator.
 
+For HUD section spacing (issue #11):
+
+- With placement enabled and HUD details shown, a blank line must separate the placement-active line from the positioning shortcuts. Check at different UI scales and with the stamina bar visible: the taller HUD must stay clear of the bar and of Valheim's build UI. With HUD details hidden, only the single indicator line must show.
+
 The client plugin does not require an asset-bundle build. Editable banner and
 icon sources live in `assets/artwork/`.
