@@ -79,7 +79,7 @@ namespace PlanBuild.Client
             }
             if (bounds == null || !bounds.HasVolume)
             {
-                error = "Select two corners with width, height and depth. Use Alt + wheel to raise the upper corner.";
+                error = "Select two corners with width, height and depth. Raise or lower one corner to give the box height.";
                 return false;
             }
             var pieces = CapturePieces(bounds, origin);

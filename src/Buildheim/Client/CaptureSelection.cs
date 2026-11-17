@@ -9,6 +9,7 @@ namespace PlanBuild.Client
         private static CaptureSelection instance;
         private readonly Harmony harmony = new Harmony(PlanBuildPlugin.PluginGUID + ".capture");
         private readonly Func<bool> canTakeInput;
+        private readonly Func<PositioningKeys> keys;
         private readonly CaptureOutline outline = new CaptureOutline();
         private int startedFrame, scrollFrame = -1;
         private bool firstSelected = true;
@@ -17,14 +18,14 @@ namespace PlanBuild.Client
         public bool Editing { get; private set; }
         public string SelectedCorner => firstSelected ? "A" : "B";
         public string Status { get; private set; } = "Aim at the ground or a building and pick two opposite corners.";
-        public const string Hints = "Left click: corner A | Right click: corner B | Middle click: switch corner\nCtrl + wheel: forward/back | Ctrl + X + wheel: sideways | Alt + wheel: height | Shift: 1 m";
         private bool Active => Editing && canTakeInput();
-        private static bool Control => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-        private static bool Alt => Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+        private bool Move => keys().Move.Held(Input.GetKey);
+        private bool Height => keys().Height.Held(Input.GetKey);
 
-        public CaptureSelection(Func<bool> canTakeInput)
+        public CaptureSelection(Func<bool> canTakeInput, Func<PositioningKeys> keys)
         {
             this.canTakeInput = canTakeInput;
+            this.keys = keys;
             instance = this;
             harmony.PatchAll(typeof(CaptureSelection));
         }
@@ -54,7 +55,7 @@ namespace PlanBuild.Client
                 }
                 else Status = "No surface within 100 m. Aim at the ground or a building to set a corner.";
             }
-            if (Control || Alt) ZInput.GetMouseScrollWheel();
+            if (Move || Height) ZInput.GetMouseScrollWheel();
         }
 
         private static bool TryAim(out Vector3 point)
@@ -79,7 +80,7 @@ namespace PlanBuild.Client
         [HarmonyPostfix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetMouseScrollWheel))]
         private static void Scroll(ref float __result)
         {
-            if (instance == null || !instance.Active || (!Control && !Alt)) return;
+            if (instance == null || !instance.Active || (!instance.Move && !instance.Height)) return;
             float wheel = __result;
             __result = 0;
             if (wheel == 0 || instance.scrollFrame == Time.frameCount) return;
@@ -87,12 +88,13 @@ namespace PlanBuild.Client
             Vector3? selected = instance.firstSelected ? instance.First : instance.Second;
             if (!selected.HasValue) return;
             var axis = Vector3.up;
-            if (!Alt && GameCamera.instance)
+            var keys = instance.keys();
+            if (!instance.Height && GameCamera.instance)
             {
                 var rotation = Quaternion.Euler(0, GameCamera.instance.transform.eulerAngles.y, 0);
-                axis = rotation * (Input.GetKey(KeyCode.X) ? Vector3.right : Vector3.forward);
+                axis = rotation * (keys.SidewaysHeld(Input.GetKey) ? Vector3.right : Vector3.forward);
             }
-            bool coarse = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            bool coarse = keys.Larger.Held(Input.GetKey);
             var position = selected.Value + axis * Mathf.Sign(wheel) * (coarse ? 1f : 0.1f);
             if (instance.firstSelected) instance.First = position; else instance.Second = position;
         }
@@ -103,7 +105,7 @@ namespace PlanBuild.Client
         {
             if (instance == null || !instance.Active || __instance != Player.m_localPlayer) return;
             attack = attackHold = secondaryAttack = secondaryAttackHold = block = blockHold = dodge = false;
-            if (Control) crouch = false;
+            if (instance.Move) crouch = false;
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(Player), "UpdatePlacement")]
@@ -119,7 +121,7 @@ namespace PlanBuild.Client
         [HarmonyPrefix, HarmonyPatch(typeof(ZInput), nameof(ZInput.GetButtonDown))]
         private static bool SuppressSit(string name, ref bool __result)
         {
-            if (instance == null || !instance.Active || !Control || name != "Sit" || !Input.GetKey(KeyCode.X)) return true;
+            if (instance == null || !instance.Active || !instance.Move || name != "Sit" || !instance.keys().SidewaysHeld(Input.GetKey)) return true;
             __result = false;
             return false;
         }

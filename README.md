@@ -37,7 +37,7 @@ To make your own blueprint, use **New blueprint** in the Blueprints tab or open 
 
 1. Enter a blueprint name and choose **Select / edit box**.
 2. Aim at a surface and **left-click** to set corner **A** (cyan). **Right-click** sets opposite corner **B** (orange). A visible box shows the capture area.
-3. Adjust the last corner you clicked with **Ctrl + wheel** (forward/back), **Ctrl + X + wheel** (sideways), or **Alt + wheel** (height). Steps are 0.1 m; hold **Shift** for 1 m. **Middle-click** switches which corner you adjust. Click either mouse button again to reposition that corner at your aim point.
+3. Adjust the last corner you clicked with **Ctrl + wheel** (forward/back), **Ctrl + X + wheel** (sideways), or **Alt + wheel** (height). Steps are 0.1 m; hold **Shift** for 1 m. These are the default keys and match the [hologram positioning keys](#positioning-controls); the HUD shows your configured keys. **Middle-click** switches which corner you adjust. Click either mouse button again to reposition that corner at your aim point.
 4. Enclose the whole building, including its foundation and roof. If both corners are at ground level, raise B with **Alt + wheel**. The box needs width, height and depth.
 5. Press **End** to review the corners, box dimensions and piece count, then choose **Save blueprint**. Use **Select / edit box** again to refine it.
 
@@ -47,16 +47,16 @@ While selecting, mouse clicks pick corners without attacking, placing or removin
 
 ## Positioning controls
 
-Use these with a hologram loaded and the planner closed. Movement follows your camera's horizontal facing direction.
+Use these with a hologram loaded and the planner closed. Movement follows your camera's horizontal facing direction. The table shows the default keys. Each one can be changed in the config file, and the HUD and planner show your configured keys.
 
 | Control | Action |
 | --- | --- |
 | **End** | Open or close the planner |
-| **Ctrl + wheel** | Move forward or backward |
-| **Ctrl + X + wheel** | Move sideways |
-| **Alt + wheel** | Raise or lower the hologram |
+| **Ctrl + wheel** (move modifier) | Move forward or backward |
+| **Ctrl + X + wheel** (move modifier + sideways key) | Move sideways |
+| **Alt + wheel** (height modifier) | Raise or lower the hologram |
 | **Ctrl + Alt + wheel** | Rotate the hologram |
-| **Shift** with a positioning shortcut | Use larger steps |
+| **Shift** (larger steps modifier) with a positioning shortcut | Use larger steps |
 | **Home** | Toggle autobuild while the planner is closed |
 | **F7** | Enable or disable the current placement while the planner is closed |
 | **F8** | Show or hide Buildheim's HUD while the planner is closed |
@@ -65,7 +65,7 @@ The Build tab's **Snap to target** action aligns the closest snap point in the l
 
 Normal steps are **0.1 m** and **22.5°**. Hold Shift for **1 m** and **90°**. Rotation lands on the normal hammer's angle grid, so blueprints whose pieces use standard angles remain compatible with ordinary hammer replacements. Existing saved placements keep their exact angles until you explicitly rotate them. Imported blueprints can still contain nonstandard piece angles.
 
-Hammer building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. Other tools keep their placement updates, including PlantEasily's Ctrl + arrow shortcuts with the cultivator. These shortcuts take priority over crouching and sitting while positioning.
+Hammer building pauses while positioning modifiers are held, and the wheel does not also zoom the camera or rotate the hammer piece. Other tools keep their placement updates, including PlantEasily's Ctrl + arrow shortcuts with the cultivator. These shortcuts take priority over crouching and sitting while positioning: crouch is ignored while the move modifier is held, and sit while the move modifier and sideways key are held.
 
 The planner slides open and closed with Valheim's inventory timing and uses its opening and closing sounds. Closing releases controls immediately; toggling again during the slide reverses its direction.
 
@@ -145,10 +145,10 @@ These paths are relative to your r2modman profile:
 | --- | --- |
 | `BepInEx/config/Buildheim/blueprints` | Imported and captured blueprints |
 | `BepInEx/config/Buildheim/placements` | Saved holograms and gathering notes |
-| `BepInEx/config/augusdogus.Buildheim.cfg` | Planner, autobuild, placement and HUD keys; HUD visibility; blueprint directory |
+| `BepInEx/config/augusdogus.Buildheim.cfg` | Planner, autobuild, placement, HUD and positioning keys; HUD visibility; blueprint directory |
 | `BepInEx/LogOutput.log` | Mod loading messages and errors |
 
-The configuration file is created on first launch. The positioning modifier combinations are currently fixed.
+The configuration file is created on first launch. The `[Positioning]` section sets the move, height and larger-steps modifiers, each with an alternate key (defaults: left and right Ctrl, Alt and Shift), plus the sideways key (default X). They apply to both hologram positioning and capture-box corners. Set an alternate to `None` to use a single key, for example when right Ctrl belongs to another mod.
 
 Upgrading from our earlier PlanBuild builds preserves your setup: Buildheim copies `marcopogo.PlanBuild.cfg` into its new config file if one does not already exist, including custom keys and blueprint directories. If the profile already has `BepInEx/config/PlanBuild` and no Buildheim data folder, it continues using that existing folder for blueprints and saved placements. Fresh installs use the Buildheim paths above. Original files are preserved.
 
