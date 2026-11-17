@@ -1,3 +1,7 @@
+## Unreleased
+
+- Separate the placement-active indicator from the positioning shortcuts in the build HUD with a blank line.
+
 ## 1.3.0
 
 - Preserve blueprint snap points and add a Build-tab action to align a blueprint with an aimed building snap point.
